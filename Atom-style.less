@@ -1,0 +1,367 @@
+// works with Seti UI theme
+
+// modify these rules to fit your system fonts
+@global-font:"Source Han Sans SC Light","文泉驿等宽微米黑","Symbolla",sans-serif;
+@markdown-preview-general-font:"Source Han Sans SC Light","文泉驿等宽微米黑","Symbolla",sans-serif;
+@markdown-preview-code-font:"Droid Sans Mono", "文泉驿等宽微米黑","Symbolla", monospace;
+
+// modify these rules to fit your picture :)
+#cursor-bg{
+  background-image:url("<cursor-side-picture.png>");
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+#editor-bg{
+  background-image:url("<editor-background.png>");
+  background-size:cover;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-color:transparent;
+}
+#window-bg{
+  background-image:url("<window-background.png>");
+  background-size:cover;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-color:transparent;
+}
+#term2-bg{
+  background-image:url("<term2-background.png>");
+  background-size:50%;
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-color:rgba(0,0,0,0.78);
+}
+
+
+// no darken for inactive pane in Seti skin
+// https://atom.io/themes/seti-ui
+atom-pane:not(.active){
+  opacity: 1;
+  atom-text-editor{
+    #editor-bg()
+  }
+}
+
+// no horizontal pane splitter line
+atom-pane-container atom-pane-axis.horizontal > *{
+  border:none;
+}
+
+// global font stack
+atom-workspace{
+  font-family:@global-font;
+
+  // fix weird gap
+  margin-left: -1px;
+}
+
+:root>body>atom-workspace{
+  #window-bg();
+
+  // remove ternjs blank div in the bottom of window.
+  atom-ternjs-type {
+    display: none;
+  }
+}
+
+atom-panel-container.left,
+atom-panel-container.right {
+  background: rgba(0,0,0,0.55);
+  border: none;
+  .entries.list-tree .directory.entry.list-nested-item,
+  .entries.list-tree .file.entry.list-item {
+    &.status-ignored {
+      color: #111;
+    }
+    &.selected::before {
+      background: rgba(255, 17, 52, 0.5);
+    }
+  }
+}
+
+// settings view
+atom-workspace atom-pane-container atom-pane .item-views .pane-item{
+  background: rgba(0, 0, 0, 0.4);
+  .config-menu {
+    background: rgba(0, 0, 0, 0.5);
+    li a:hover{
+      background: rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+atom-workspace atom-pane-container atom-pane .item-views .pane-item .package-card,
+.settings-view .package-detail .package-card.disabled{
+  background: rgba(0, 0, 0, 0.5);
+}
+.settings-view .package-detail .package-card:hover{
+  background: rgba(0, 0, 0, 0.6);
+}
+atom-workspace atom-pane-container atom-pane .item-views .pane-item .section-body .control-group {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+atom-panel-container .project-root > .header {
+  background: rgba(0,0,0,0.5);
+  &:hover {
+    background: rgba(0,0,0,0.4);
+  }
+}
+
+.tree-view-scroller{
+  background: transparent !important;
+}
+
+atom-workspace-axis.vertical .tab-bar .tab {
+  background: transparent;
+  border-right: none;
+}
+
+atom-workspace-axis.vertical .tab-bar .tab.active {
+  background: rgba(17, 18, 19, 0.3);
+  border-right: none;
+}
+
+tabs-bar, .tab-bar,
+.list-inline tabs-bar.inset-panel,
+.list-inline.tab-bar.inset-panel,
+atom-pane-container atom-pane-axis.vertical > atom-pane-resize-handle{
+  background:rgba(0,0,0,0.78);
+  border:none;
+}
+
+atom-workspace atom-panel.bottom,
+atom-workspace atom-panel.bottom:last-child {
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+}
+
+// editor background image
+.item-views>atom-text-editor{
+  #editor-bg();
+}
+
+.tree-view-resizer.tool-panel{
+  background:transparent;
+}
+
+.focusable-panel,
+.focusable-panel:focus,
+.tree-view{
+  background:transparent;
+}
+// Term2 background image
+// https://atom.io/packages/term2
+.item-views>.term2{
+  #term2-bg();
+}
+// Misc...
+.item-views>atom-text-editor::shadow {
+  .scroll-view,
+  &:host .scroll-view{
+    // prevent default semi-transparent black on background image.
+    background:transparent !important;
+   }
+  .wrap-guide{
+    opacity:0;
+  }
+  .punctuation.definition.comment{
+    background:transparent;
+    box-shadow:none;
+  }
+  .comment{
+    color:#aaa;
+    background:transparent;
+  }
+  .line>span{
+      background: rgba(0,0,0,0.82);
+  }
+  .line{
+    z-index: 9;
+    .meta.tag{
+      color:#bbb;
+    }
+  }
+  .line.cursor-line{
+    border-bottom:1px solid rgba(255, 17, 52, 1);
+    z-index: 10;
+    &>span{
+      border-bottom:1px solid rgba(255, 17, 52, 1);
+    }
+  }
+  .highlight.selection>.region{
+    z-index: 10;
+    border-left:3px solid rgba(255, 17, 52, 0.8);
+    border-right:3px solid rgba(255, 17, 52, 0.8);
+    background:rgba(255,255,255,0.3);
+  }
+  .highlight.bracket-matcher .region{
+    z-index: 11;
+    border-bottom:5px solid rgb(172,255,63);
+    border-top:1px solid rgb(172,255,63);
+    border-right:1px solid rgb(172,255,63);
+    border-left:1px solid rgb(172,255,63);
+  }
+
+  // cursor styling
+  .cursors{
+    .cursor{
+      display: block;
+      color:transparent;
+      border-color:transparent;
+      background:#E32D46;
+      box-shadow: 0 0 3px #E32D46;
+      width:3px !important;
+      transition: all 0.2s ease;
+      overflow: visible;
+      &::after,
+      &::before{
+        position: absolute;
+        left: 10rem;
+        bottom: -2.2rem;
+        width: 10rem;
+        height:10rem;
+        display: block;
+        color:white;
+        content: "\200b";
+        #cursor-bg();
+        transition:all 1s ease;
+      }
+      &::before{
+        animation: 1.3s cursor-pic-float alternate infinite ease-in-out;
+      }
+      &::after{
+        animation: 1.3s alternate infinite ease-in-out cursor-pic-float,
+                     1s normal    infinite ease        cursor-pic-flash;
+      }
+    }
+    &.blink-off{
+      .cursor{
+        opacity: 1;
+        background: lighten(#E32D46, 15%);
+        box-shadow: 0 0 3px lighten(#E32D46, 10%);
+      }
+    }
+  }
+
+  .scroll-view,
+   :host .scroll-view{
+     padding-left:0;
+     background:rgba(0,0,0,0.2);
+   }
+  .gutter{
+    background: rgba(0,0,0,0.57);
+    border:none;
+    .line-numbers{
+      background:transparent !important;
+    }
+    .line-number,
+    :host .gutter .line-number{
+      color: rgba(255, 255, 255, 1);
+
+      &.cursor-line{
+        position:relative;
+        background:#E32D46;
+        border-bottom:1px solid rgba(255, 17, 52, 1);
+      }
+   }
+   .line-number.git-line-modified{
+     border-left-color:#FFDC4E;
+     border-left-width:3px;
+   }
+   .line-number.git-line-added{
+     border-left-color:#82FF58;
+     border-left-width:3px;
+   }
+  }
+}
+
+// cursor related animation
+// just justify to fit the animation pic
+@keyframes cursor-pic-float {
+  0%{
+    bottom:-2.2em;
+  }
+  100%{
+    bottom:-1.6rem;
+  }
+}
+
+@keyframes cursor-pic-flash {
+  0% {
+    transform:scale(1);
+    opacity:0.9;
+  }
+  100% {
+    transform:scale(1.6);
+    opacity:0;
+  }
+}
+
+// Linter bubble style
+
+#linter-inline {
+  color: #eee;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 0px;
+  &::before {
+    border-color: transparent transparent rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0.6);
+  }
+}
+
+.badge {
+  color: #fff;
+  // text-shadow: 0 0 1px black;
+  background: rgba(0,0,0, 0.5);
+}
+
+.badge.badge-flexible {
+  border-radius: 0;
+}
+
+atom-text-editor::shadow .linter-highlight.error:not(.line-number),
+.linter-highlight.error:not(.line-number) {
+  background-color: rgba(248, 63, 97, 0.6);
+}
+
+// Markdown Preview Chinese font fix
+// also rST-preview-pandoc styling
+.markdown-preview,
+.markdown-preview[data-use-github-style],
+.rst-preview-pandoc {
+  font-family: @markdown-preview-general-font !important;
+  color: #111;
+  background: rgba(255,255,255,0.6);
+
+  tt {
+    font-family: @markdown-preview-general-font !important;
+    background: rgba(255,255,255,0.6);
+  }
+
+  code,
+  atom-text-editor,
+  atom-text-editor::shadow {
+    font-family: @markdown-preview-code-font !important;
+  }
+
+  &>atom-text-editor {
+    background: rgb(30, 30, 30);
+  }
+}
+
+
+// scrollbar styling
+.scrollbars-visible-always /deep/ ::-webkit-scrollbar-track,
+.scrollbars-visible-always /deep/ ::-webkit-scrollbar-corner{
+   background:none;
+}
+.scrollbars-visible-always /deep/ ::-webkit-scrollbar-thumb{
+  border-radius: 0px;
+  box-shadow:none;
+  background: rgba(0, 0, 0, 0.4);
+  &:hover{
+    background: rgba(243, 0, 32, 0.5);
+  }
+ }

@@ -1,0 +1,28 @@
+/* code editor */
+QPlainTextEdit {
+  /** Debugger editor fix >>> */
+  font-family: "larabiefont","Source Han Sans SC Light","Symbola",sans-serif;
+  font-size:12px !important;
+  /** <<<<<<<<<<<<<<<<<<<<<<< */
+
+  background-color:rgba(50,50,50,0);
+  background-image:url("<WOW_SUCH_MOE_BG.png>");
+  background-position:right bottom;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
+
+/* Project Tree View */
+QTreeView {
+  background-color:rgba(50,50,50,0);
+  background-image:url("WOW_SUCH_MOE_BG.png");
+  background-position:right bottom;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+}
+
+/* output pane */
+#EditModeOutputPanePlaceHolder QPlainTextEdit,
+#EditModeOutputPanePlaceHolder QTreeView{
+  background-image:url("WOW_SUCH_MOE_BG.png");
+}

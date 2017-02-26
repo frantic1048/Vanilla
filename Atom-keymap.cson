@@ -1,0 +1,16 @@
+'atom-workspace':
+  'ctrl-alt-o': 'unset!'
+  'ctrl-alt-o': 'application:add-project-folder'
+  'ctrl-|': 'symbols-tree-view:toggle'
+  'alt-s': 'window:save-all'
+
+'atom-text-editor:not([mini])':
+  'ctrl-e': 'unset!'
+  'ctrl-e' : 'emmet:expand-abbreviation'
+  'f10' : 'editor:toggle-soft-wrap' # soft wrap trigger like Kate
+  'alt-[': 'tern:definition'
+  'alt-]': 'tern:markerCheckpointBack'
+  'alt-l': 'tern:references'
+  'alt-r': 'tern:rename'
+  'alt-p': 'tern:documentation'
+  'alt-;': 'tern:startCompletion'

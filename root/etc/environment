@@ -4,5 +4,5 @@
 # Syntax: simple "KEY=VAL" pairs on separate lines
 #
 
-# fake kde in i3-wm :p
-QT_QPA_PLATFORMTHEME=kde
+export XDG_CURRENT_DESKTOP=KDE
+export QT_QPA_PLATFORMTHEME=kde

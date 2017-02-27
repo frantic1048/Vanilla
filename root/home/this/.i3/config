@@ -9,13 +9,15 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
-exec_always feh --bg-fill ~/Media/pic/sACG/misc/pixiv\ 61399931_p0.jpg
-exec compton -b --config ~/.compton.conf
-exec dbus-launch
-exec fcitx -r
-exec rsibreak
-exec nm-applet
-exec kmix --keepvisibility
+exec_always feh --bg-fill ~/Media/pic/sACG/misc/pixiv\ 61399931_p0.jpg &
+exec compton -b --config ~/.compton.conf &
+exec fcitx -r &
+exec nm-applet &
+exec kmix --keepvisibility &
+
+# it is not real KDE so clear the "fake" env in /etc/environment
+# to make rsibreak work correctly
+exec XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &
 
 set $mod Mod4
 
@@ -96,7 +98,7 @@ bindsym $mod+q focus mode_toggle
 bindsym $mod+a focus parent
 
 # focus the child container
-#bindsym $mod+z focus child
+bindsym $mod+z focus child
 
 # switch to workspace
 bindsym $mod+1 workspace 1

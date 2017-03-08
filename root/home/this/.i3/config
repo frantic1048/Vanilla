@@ -9,17 +9,45 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
-exec_always feh --bg-fill ~/Media/pic/sACG/misc/pixiv\ 61399931_p0.jpg &
+# chino chiya
+# set $wallpaper ~/Media/pic/sACG/misc/pixiv\ 61399931_p0.jpg
+# aurora
+# set $wallpaper ~/Media/pic/DA/multi_aurora_2880x1800_by-kirkh.jpg
+#set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 382597.png
+#set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 384708.png
+#set $wallpaper ~/Media/pic/sACG/misc/pixiv\ 61424301_p0.png
+set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 372778.png
+# set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 385264.png
+# set $wallpaper ~/Media/pic/DA/new_paths__to_helicon___chosen_riders_of_doom_by_kuldarleement-d5uo7nj.jpg
+
+# draw wallpaper XD
+exec_always feh --bg-fill $wallpaper &
+
+# conky as stand alone bar
+# for_window [class="Conky"] move position 0
+for_window [class="trayer"] border pixel 0
+
 exec compton -b --config ~/.compton.conf &
-exec fcitx -r &
-exec nm-applet &
-exec kmix --keepvisibility &
+
+# wow such bar!
+exec conky -c $HOME/.conkyrc.i3_stand_alone_bar.lua &
+
+# start trayer as system tray
+# alpha and tint same as conky window
+exec trayer  --transparent true --edge bottom --align right --width 1200 --widthtype pixel --SetDockType false --SetPartialStrut true --alpha 175 --tint 0x000000 &
+
+exec "sh -c 'sleep 2;fcitx -r &'"
+exec "sh -c 'sleep 2;nm-applet &'"
+exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 
 # it is not real KDE so clear the "fake" env in /etc/environment
 # to make rsibreak work correctly
-exec XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &
+exec "sh -c 'sleep 2;XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &'"
+
 
 set $mod Mod4
+
+floating_minimum_size 20 x 20
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -38,7 +66,7 @@ floating_modifier $mod
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+Return exec tilda
+bindsym $mod+Return exec konsole
 
 # kill focused window
 bindsym $mod+Escape kill
@@ -156,17 +184,3 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
-
-# Start i3bar to display a workspace bar (plus the system information i3status
-# finds out, if available)
-
-set $barBg #000000A0
-
-bar {
-	colors {
-		background $barBg
-	}
-#        status_command i3status
-	status_command $HOME/bin/conky-i3bar
-	i3bar_command i3bar -t
-}

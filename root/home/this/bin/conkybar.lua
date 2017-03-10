@@ -34,32 +34,37 @@ function conky_conkybar()
         cairo_set_font_size(cr, primary_font_size)
         cairo_set_source_rgba(cr,red,green,blue,alpha)
 
-        local workspace = json.decode(conky_parse('${exec i3-msg -t get_workspaces}'))
+        local workspaces = json.decode(conky_parse('${exec i3-msg -t get_workspaces}'))
         -- parse ws here
-        text='workspace'
+        text=''
+        for i,w in ipairs(workspaces) do
+          if w['visible'] == true then
+            text = text .. ' (' .. w.num .. ') '
+          else
+            text = text .. ' ' .. w.num .. ' '
+          end
+        end
         cairo_show_text(cr,text)
         cairo_stroke(cr)
 
 
 
-        -- clementine playing
-        xpos,ypos=300,20
-        red,green,blue,alpha=1,1,1,1
+        -- debugging info
+        xpos,ypos=400,20
+        red,green,blue,alpha=1,1,0,1
         cairo_move_to(cr,xpos,ypos)
         cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)
         cairo_set_font_size(cr, primary_font_size)
         cairo_set_source_rgba(cr,red,green,blue,alpha)
 
-        -- local workspace = json.decode(conky_parse('${exec i3-msg -t get_workspaces}'))
-        -- parse ws here
-        -- text='clementine'
-        -- cairo_show_text(cr,text)
-        -- cairo_stroke(cr)
+        text='w=' .. conky_window.width .. ',h=' .. conky_window.height
+        cairo_show_text(cr,text)
+        cairo_stroke(cr)
 
 
 
         -- date time
-        xpos,ypos=900,20
+        xpos,ypos=653,20
         red,green,blue,alpha=1,1,1,1
         cairo_move_to(cr,xpos,ypos)
         cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)
@@ -67,6 +72,23 @@ function conky_conkybar()
         cairo_set_source_rgba(cr,red,green,blue,alpha)
 
         text=conky_parse('${time %a, %d %b %Y %T %z}')
+        cairo_show_text(cr,text)
+        cairo_stroke(cr)
+
+
+
+        -- clementine playing
+        xpos,ypos=1300,20
+        red,green,blue,alpha=1,1,1,1
+        cairo_move_to(cr,xpos,ypos)
+        cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)
+        cairo_set_font_size(cr, primary_font_size)
+        cairo_set_source_rgba(cr,red,green,blue,alpha)
+        text=conky_parse([[${if_running clementine}
+${if_empty ${exec /home/chino/bin/wclementineplaying.py -a}}
+${else} Music: ${exec /home/chino/bin/wclementineplaying.py -a} - ${exec /home/chino/bin/wclementineplaying.py -t}
+${endif}
+${endif}]])
         cairo_show_text(cr,text)
         cairo_stroke(cr)
     end

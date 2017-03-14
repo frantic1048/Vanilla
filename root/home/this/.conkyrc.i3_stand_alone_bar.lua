@@ -4,12 +4,12 @@ conky.config = {
   out_to_x = true,
   out_to_console = false,
   own_window = true,
-  own_window_type = 'panel',
+  own_window_type = 'desktop',
   own_window_class = 'Conky',
   own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
   own_window_transparent = false,
   own_window_argb_visual = true,
-  own_window_argb_value = 80,
+  own_window_argb_value = 0, -- 80
   own_window_colour = ffffff,
   background = false, -- for debug
   double_buffer = true,
@@ -22,18 +22,20 @@ conky.config = {
 
   minimum_height = 27,
 
-  -- whaaattt unit it uses ???
+  -- trayer as panel, conky floats on it
   -- conky problem: panel not using complete screen width
   -- https://bbs.archlinux.org/viewtopic.php?id=102598
-  minimum_width = 8123,
-  maximum_width = 8123,
+  minimum_width = 1720,
+  maximum_width = 1720,
   border_inner_margin = 0,
   border_outer_margin = 0,
   border_width = 0,
-  alignment = 'bottom_left',
+  alignment = 'bl',
+  gap_x = 0,
+  gap_y = 0,
 
 -- Update interval in seconds
-  update_interval = 1.0,
+  update_interval = 0.2,
 
 -- This is the number of times Conky will update before quitting.
 -- Set to zero to run forever.

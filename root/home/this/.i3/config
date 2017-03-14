@@ -24,10 +24,6 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 27881247_p0_waifu_s1.
 # draw wallpaper XD
 exec_always feh --bg-fill $wallpaper &
 
-# conky as stand alone bar
-# for_window [class="Conky"] move position 0
-for_window [class="trayer"] border pixel 0
-
 exec compton -b --config ~/.compton.conf &
 
 # wow such bar!
@@ -35,7 +31,7 @@ exec conky -c $HOME/.conkyrc.i3_stand_alone_bar.lua &
 
 # start trayer as system tray
 # alpha and tint same as conky window
-exec trayer  --transparent true --edge bottom --align right --width 1200 --widthtype pixel --SetDockType false --SetPartialStrut true --alpha 175 --tint 0x000000 &
+exec trayer  --transparent true --edge bottom --align right --width 1920 --widthtype pixel --SetDockType true --SetPartialStrut true --alpha 175 --tint 0x000000 &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
@@ -45,10 +41,14 @@ exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 # to make rsibreak work correctly
 exec "sh -c 'sleep 2;XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &'"
 
+for_window [class="Conky"] border pixel 0
+for_window [class="trayer"] border pixel 0
+for_window [class="Inkscape"] floating disable
+no_focus [class="Conky"]
+floating_minimum_size 120 x 20
 
 set $mod Mod4
 
-floating_minimum_size 20 x 20
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.

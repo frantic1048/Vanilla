@@ -29,6 +29,8 @@ function draw_svg(im)
     local y_factor = h / dimensions['height']
     local scale_factor = math.min(x_factor, y_factor)
 
+    if scale_factor == 0 then scale_factor = 1 end
+
     cairo_translate(im.cr, x, y) -- translate bofore scale!
     cairo_scale(im.cr, scale_factor, scale_factor)
     rsvg_handle_render_cairo(handle, im.cr)
@@ -100,8 +102,7 @@ function conky_conkybar()
     local cr = cairo_create(cs)
     local updates = tonumber(conky_parse('${updates}'))
     if updates>3 then
-        print ('W x H', conky_window.width, conky_window.height)
-        local primary_font = 'Source Han Sans CN'
+        local primary_font = 'sao'
         local primary_font_size = 16
         local primary_font_slant = CAIRO_FONT_SLANT_NORMAL
         local primary_font_face = CAIRO_FONT_WEIGHT_NORMAL
@@ -110,25 +111,104 @@ function conky_conkybar()
         local xpos, ypos = 0, 0
         local text = ''
 
+        -- an Arch Linux logo <(=*/ω＼*=)>
+        draw_svg({cr = cr,
+            x = 3, y = 3,
+            h = 24, w = 24,
+            file = "/home/chino/Media/workspace/conkybar/arch-logo.svg"})
+
         -- workspace indicator
-        xpos, ypos = 3, 20
+        xpos, ypos = 300, 20
+        local workspacesData = conky_parse('${exec i3-msg -t get_workspaces}')
+        local new_workspaces = json.decode(workspacesData) or {}
+        local workspaces = {}
+        local present_workspace_number = 0
+
+        for i = 1,10 do
+            workspaces[i] = nil
+        end
+
+        for i, w in ipairs(new_workspaces) do
+            workspaces[w['num']] = {
+                ['num'] = w['num'],
+                ['visible'] = w['visible']
+            }
+        end
+
+        xpos, ypos = 80, 2
+        draw_svg({cr = cr,
+            x = xpos, y = ypos,
+            file = "/home/chino/Media/workspace/conkybar/workspace-frame.svg"})
+        xpos = xpos + 17
+        -- upper indicator
+        for i = 1,5 do
+            -- shift right
+            xpos = xpos + 9
+            if workspaces[i] == nil then
+                -- empty workspace
+                draw_svg({cr = cr,
+                x = xpos, y = ypos,
+                file = "/home/chino/Media/workspace/conkybar/workspace-upper_empty.svg"})
+            else
+                if workspaces[i]['urgent'] == true then
+                    -- urgent
+                    draw_svg({cr = cr,
+                    x = xpos, y = ypos,
+                    file = "/home/chino/Media/workspace/conkybar/workspace-upper_urgent.svg"})
+                elseif workspaces[i]['visible'] == true then
+                    -- present
+                    present_workspace_number = i
+                    draw_svg({cr = cr,
+                    x = xpos, y = ypos,
+                    file = "/home/chino/Media/workspace/conkybar/workspace-upper_present.svg"})
+                else
+                    -- normal
+                    draw_svg({cr = cr,
+                    x = xpos, y = ypos,
+                    file = "/home/chino/Media/workspace/conkybar/workspace-upper_normal.svg"})
+                end
+            end
+        end
+
+        xpos = xpos - 46
+        ypos = ypos + 14
+        -- lower indicator
+        for i = 6,10 do
+            xpos = xpos + 9
+            if workspaces[i] == nil then
+                -- empty workspace
+                draw_svg({cr = cr,
+                x = xpos, y = ypos,
+                file = "/home/chino/Media/workspace/conkybar/workspace-lower_empty.svg"})
+            else
+                if workspaces[i]['urgent'] == true then
+                    -- urgent
+                    draw_svg({cr = cr,
+                    x = xpos, y = ypos,
+                    file = "/home/chino/Media/workspace/conkybar/workspace-lower_urgent.svg"})
+                elseif workspaces[i]['visible'] == true then
+                    -- present
+                    present_workspace_number = i
+                    draw_svg({cr = cr,
+                    x = xpos, y = ypos,
+                    file = "/home/chino/Media/workspace/conkybar/workspace-lower_present.svg"})
+                else
+                    -- normal
+                    draw_svg({cr = cr,
+                    x = xpos, y = ypos,
+                    file = "/home/chino/Media/workspace/conkybar/workspace-lower_normal.svg"})
+                end
+            end
+        end
+
+        xpos = xpos - 50
+        ypos = ypos + 4
         red, green, blue, alpha = 1, 1, 1, 1
         cairo_move_to(cr, xpos, ypos)
         cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)
         cairo_set_font_size(cr, primary_font_size)
         cairo_set_source_rgba(cr, red, green, blue, alpha)
-
-        local workspaces = json.decode(conky_parse('${exec i3-msg -t get_workspaces}'))
-        -- parse ws here
-        text = ''
-        for i, w in ipairs(workspaces) do
-          if w['visible'] == true then
-            text = text .. ' (' .. w.num .. ') '
-          else
-            text = text .. ' ' .. w.num .. ' '
-          end
-        end
-        cairo_show_text(cr, text)
+        cairo_show_text(cr, present_workspace_number)
         cairo_stroke(cr)
 
         -- debugging info
@@ -143,15 +223,6 @@ function conky_conkybar()
         cairo_show_text(cr, text)
         cairo_stroke(cr)
 
-        -- image test
-        draw_raster({x = 100, y = 0,
-            h = 27, w = 27,
-            file = "/tmp/angry_sakamoto_by_leeh_chan-d3ic3rl.png"})
-        draw_svg({cr = cr,
-            x = 130, y = 0,
-            h = 27, w = 27,
-            file = "/tmp/aru-1x-1_050_1.svg"})
-
         -- date time
         xpos, ypos = 653, 20
         red, green, blue, alpha = 1, 1, 1, 1
@@ -165,7 +236,7 @@ function conky_conkybar()
         cairo_stroke(cr)
 
         -- clementine playing
-        xpos, ypos = 1300, 20
+        xpos, ypos = 1000, 20
         red, green, blue, alpha = 1, 1, 1, 1
         cairo_move_to(cr, xpos, ypos)
         cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)
@@ -184,4 +255,4 @@ function conky_conkybar()
     cairo_destroy(cr)
     cairo_surface_destroy(cs)
     cr = nil
-end
+end -- function conky_conkybar

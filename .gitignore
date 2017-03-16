@@ -1,2 +1,4 @@
 #dolphin
-!.directory
+.directory
+!/.directory
+!/bin/bin/.directory

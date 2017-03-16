@@ -1,0 +1,12 @@
+[user]
+	name = frantic1048
+	email = archer@frantic1048.com
+	signingkey = D2DE8CCA1E74D572369F4C699207632BD48BDDAA
+[push]
+	default = simple
+[http]
+	postBuffer = 1048576000
+[commit]
+	gpgsign = false
+[core]
+	excludesfile = ~/.gitignore

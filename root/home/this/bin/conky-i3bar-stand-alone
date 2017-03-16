@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Yes conky !
-exec conky -c $HOME/.conkyrc.i3_stand_alone_bar.lua

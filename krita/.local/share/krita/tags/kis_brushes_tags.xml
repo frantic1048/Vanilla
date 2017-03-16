@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tags>
+<tags>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:brushes/deevad_vegetal-stylised_colormask_01.gih" md5="UhAm7KMt9GLGdtPFi99Mpg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:brushes/tree flowers speedpainting strokes.gbr" md5="A7LcCKcVY0sjFsU+taBVXA==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:brushes/3_dotted-flat2.png" md5="Rv/3t1whpyuUA8uuSc4lSg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:brushes/3_starfield.png" md5="JEJf9OTXdXXk6ufxsGgxHw==">
+  <tag>deevad-v8</tag>
+ </resource>
+</tags>

@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tags>
+<tags>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 3d watercolor.kpp" md5="FCQcPgSPzBOw+a9iO7JBSA==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 4d adjust multiply.kpp" md5="LR1yYns1PHghryU37AAIFw==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/FX_explode.kpp" md5="FAv9bj1807aygPrCVHmtOQ=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_tip_default.kpp" md5="QHxqwLMo6m73dsbXha4t1Q==">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Eraser_soft.kpp" md5="RT+G7vQx4U8luUHsisZkzw==">
+  <tag>sketch</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_gpen_25.kpp" md5="2t9QkmKNCs6snwTNZAX57w==">
+  <tag>TicoLining</tag>
+  <tag>line</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Pencil_HB.kpp" md5="NVbSBuXDdC3e4qIXZBa2Lw==">
+  <tag>sketch</tag>
+  <tag>Favorite Presets</tag>
+  <tag>line</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6g stamp herbs.kpp" md5="WSZyRhrXUvTCAAjfOng5JQ==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Smudge_textured.kpp" md5="fEHvZO4AdFGJojO1fIIMgw==">
+  <tag>paint</tag>
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/FX_splat_starfield.kpp" md5="sygFcfGfV9WYWA8WPoLc5g=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Block_mix_tilt.kpp" md5="tYkdoZ8DyA3EZbqkuBTRyQ=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/FX_color_HSY.kpp" md5="ysxBoj1a1QYE9cRNf7PyHA=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6i stamp crackles.kpp" md5="uB8xUhTtUFsfvobNPQ04Nw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/ink_precision_03.kpp" md5="ApPzjbkS3/AZKQvquwpv6g=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Fill_circle.kpp" md5="gBFPik0q6QPItP+LgNMJlw==">
+  <tag>paint</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Sparkle_wet.kpp" md5="0z90oFiQvfdSx/mL5xLm/A=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Screentones_eraser.kpp" md5="CD1BPA8rTaJDd+MM0xF5QA=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Bristles_wet.kpp" md5="H1JI5+4OsugW1tTMiJBPUg=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Pencil_2B.kpp" md5="h0Obq3EhJfNzl54qcp4L+A==">
+  <tag>sketch</tag>
+  <tag>Favorite Presets</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_circle.kpp" md5="KdtxZbwqJaYI0QvrQ/cHag==">
+  <tag>paint</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 4f adjust dodge.kpp" md5="j6hgxjBbzXXgBm8gu5A1Xw==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Pixelart_square.kpp" md5="b5t26gMflJu4OxvyDzccRQ=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_wet_soft.kpp" md5="dfYwrb91jZXJQrVUR4nUxA==">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6k stamp wood.kpp" md5="n74bbuSbGp1x78sA4BqcUQ==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6l stamp starfield.kpp" md5="Syrzmmmapkb3cQ0o5nG4Fw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 5b pixel.kpp" md5="oNdetbMXjW1Tbuj2djGPlA==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Bristles_hairy.kpp" md5="LYHcKGV344ZuzRsD8eWttw==">
+  <tag>demo</tag>
+  <tag>TicoLining</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Bristles_mix.kpp" md5="FbO1eQ7M4qEpbUB3I0YGtQ=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Block_tilt.kpp" md5="xpdTagkfb76nPiIFms9L5A=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 1c pencil sketch.kpp" md5="Bdc/i5J2aYUzUJadu7AxVQ==">
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 3b paint brush.kpp" md5="yO+AjqHs3kIOBDXZXFlHfQ==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/pixel1.kpp" md5="FkqN6rZL8WCXBy1go/lLXA=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Airbrush_linear.kpp" md5="HUzu0bsoUnh1B3jeqZXPNQ==">
+  <tag>paint</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_ballpen.kpp" md5="4RDtwTYaFd7G4oW+M7XabQ=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Splat_wet_cells.kpp" md5="AwjsNqVC2oJjMgXtmwankQ=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Airbrush_eraser.kpp" md5="KJQuTH6N7Qp4Ezs9LFvAHw=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Layout_circle_soft.kpp" md5="m50TBtJ7JyEd9zehB3njPA==">
+  <tag>TicoLining</tag>
+  <tag>line</tag>
+  <tag>TicoRender</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 2a deform.kpp" md5="NpXufFIqhIIbbIFD5tzlIQ==">
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Sketch_ink_small.kpp" md5="pWNXUL2vad2gNQR3ieHD4g==">
+  <tag>Favorite Presets</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Eraser_circle.kpp" md5="AebX4dlY1cnZw4ZrwRfuJg==">
+  <tag>demo</tag>
+  <tag>line</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Pixelart_dither.kpp" md5="n+th0zkrdVzmcadMRFBxGg=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 2f basic flow.kpp" md5="rk3HKBf2CjIb2mBgaP8Pfg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Smudge_rake_2.kpp" md5="Di7CAhmne/DZO6/yc3uXgA=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Block_fuzzy.kpp" md5="gWod5rQTdcinE5Buykcl/Q=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 4e adjust overlay.kpp" md5="oIGkDF34fIv+AvvxIvUhpw==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 5a clone.kpp" md5="S9f66Po7YNOknd+8cccPnQ==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 3e blending.kpp" md5="PTmgxh7eHbmxOAibQCyryw==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 2d flat old.kpp" md5="oP2BepJjuthKDu6YPW0+ZQ==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6d stamp drop.kpp" md5="HxTMnYzFRXqSeX1vigv3Eg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/FX_glow_add.kpp" md5="aJ6B32YjYVRB4nuqJ9jQ/Q=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Eraser_hard.kpp" md5="WYb3P2m6yAPzCP6UcZ9OFg==">
+  <tag>ink</tag>
+  <tag>Erasers</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6a stamp painting touch.kpp" md5="cPA+jawblr9jrbUBEu/tDQ==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_mix.kpp" md5="+MKlutfRsrv3Vz45EVHzug==">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_circle_05.kpp" md5="+ZlhtFsdwSw35utTbn3d+g=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6f stamp herbal stylised.kpp" md5="JnSDfe8xol/TBZZ160S+lg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 3f smear.kpp" md5="FZL06XtkQFKIaMsjlzEzhg==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Smudge_soft.kpp" md5="ZGyOAEZd+QNmT0m3QYlYYw=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6m stamp chain.kpp" md5="H1QdIhwNVtOvM5d8ubVGvA==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6n stamp leaves.kpp" md5="Q8yfU7Vsq16beofhgk3MAw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/FX_blur_light.kpp" md5="SSSiIrr959jpNXBouMmnYA=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6p stamp texture big.kpp" md5="YfnQ6Uqls5QsrsdEvQEYlw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 1d pencil.kpp" md5="M4Hs7V2QvaEqd4iM8v5vhQ==">
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Splat_mix_cells.kpp" md5="I4aD9y63gSwMNVcPTBszvg=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6b stamp noise.kpp" md5="20NPqaOQGv8RzSiwGoUVtg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Fill_block.kpp" md5="WYPAI9HnZM+31iDIIX4Eiw=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 1f draw brush.kpp" md5="9T7RePP107t2jmjjRqKr8w==">
+  <tag>deevad-v8</tag>
+  <tag>TicoBlending</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_tilt_10.kpp" md5="Za6SphefASdbCP3+jH6jfA==">
+  <tag>line</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 1b eraser large.kpp" md5="ToJDvCXLnjMthpeytV3mag==">
+  <tag>TicoLining</tag>
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+  <tag>TicoRender</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Block_basic.kpp" md5="NNR2MgWZNXTbDnTbX8hsRg==">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 3c blend and paint.kpp" md5="6uiHSIfZVei6HEGKvjYd9w==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6h stamp sparkles.kpp" md5="3fr8bIeEdscpU6u+nwKfeg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 1e rigger.kpp" md5="On/OYyHrWo3tfc+XajZVMg==">
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_brush_25.kpp" md5="Xebx+7bK0mL3q9vPGjfXaA==">
+  <tag>ink</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 2b roller.kpp" md5="Zo8vSznijIOELQ6gmjvAzg==">
+  <tag>TicoLining</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 5c screentones.kpp" md5="IC+9fxGORRRDFu2ySuxhrA==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6e stylised vegetal.kpp" md5="zMZbboSq1nmNt5LdlGmL+Q==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 4b adjust color.kpp" md5="sfyZVLN2OS5dihM0g0yPJA==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_tip_soft.kpp" md5="Sf+LwjQCa/bLxaomd1xP1A=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6c stamp splat.kpp" md5="eQLhriNILFfPNNYLsbekQg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Sparkle_wet_soft.kpp" md5="iatG6w0IUd7sn2Q2Q9sOLg=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 4c adjust lighten.kpp" md5="bMa4FswGTyeJ/zWYuP8Azw==">
+  <tag>TicoBlending</tag>
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Smudge_rake.kpp" md5="6kLCBYsggIZCxWFNkjG6hw=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Smudge_block_tilt.kpp" md5="PNgWP5sRU0WGeGtZrKdLgw=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_circle_10.kpp" md5="9lf5ssxI9l19S8REaWTy/A==">
+  <tag>ink</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Pixelart_round.kpp" md5="iaDn9ulCsXtHnajUgQUgVg=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Block_bristles.kpp" md5="badnTeJroPQ0kGYk5Xc39g=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_wet.kpp" md5="bhiruEnfPq9QtfH70mNBFQ==">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 3a alchemy.kpp" md5="s5lC6diGexHyGjjZ/XuLcw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_gpen_10.kpp" md5="eq70dIWrKGFNRz58q4hOpw==">
+  <tag>demo</tag>
+  <tag>TicoLining</tag>
+  <tag>line</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 6o stamp floor.kpp" md5="mTLnPH4OHZA7BH86iLyeEw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 4a airbrush.kpp" md5="dTzWvB1timV2refuVYD9dw==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Ink_tilt_20.kpp" md5="LvkeIrEisX/FjkyCk+/TIA=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/Layout_block.kpp" md5="NJLSuh5hldaTIyR7k2qUFQ==">
+  <tag>TicoLining</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_mix_soft.kpp" md5="kraUtRXtAPFN42XT9iL1Ow==">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 2c flat.kpp" md5="oWl2wX3ZNaKieFkbe8mvbg==">
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Block_wet_tilt.kpp" md5="i0lhTxtr5SfVGfHdNOzG9A=="/>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 1a eraser thin.kpp" md5="Oi4X9QNKNDDhWAWg5bEsGA==">
+  <tag>TicoLining</tag>
+  <tag>deevad-v8</tag>
+  <tag>deevad</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8.bundle:paintoppresets/deevad 2e digital sketch.kpp" md5="qO7HxmXcRgQm8r0F6mJFJg==">
+  <tag>deevad-v8</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Sketch_wires.kpp" md5="76GWm5VbvcYjVVaDLQiI7Q==">
+  <tag>Favorite Presets</tag>
+ </resource>
+ <resource identifier="/usr/share/krita/paintoppresets/Basic_tip_gaussian.kpp" md5="KO3fC5sSIawmyoprNj4Gjw=="/>
+ <resource identifier="/usr/share/krita/paintoppresets/FX_overlay.kpp" md5="ed8osKzPztdJ8mYVnNGswA=="/>
+ <resource identifier="dummy">
+  <tag>TicoBlending</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Erasers</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>paint</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>ink</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Ink</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>TicoLining</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Mix</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Favorite Presets</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>sketch</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>demo</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Wet</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Smudge</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Block</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>line</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>FX</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>TicoRender</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>Circle</tag>
+ </resource>
+ <resource identifier="dummy">
+  <tag>PixelArt</tag>
+ </resource>
+</tags>

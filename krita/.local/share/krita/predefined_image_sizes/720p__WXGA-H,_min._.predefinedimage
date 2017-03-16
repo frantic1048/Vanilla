@@ -1,0 +1,9 @@
+<!DOCTYPE params>
+<params>
+ <param type="internal" name="height">720</param>
+ <param type="string" name="name"><![CDATA[720p (WXGA-H, min.)]]></param>
+ <param type="internal" name="resolution">120</param>
+ <param type="internal" name="width">1280</param>
+ <param type="internal" name="x-unit">7</param>
+ <param type="internal" name="y-unit">7</param>
+</params>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE m_blackListFile>
+<resourceFilesList>
+ <file>
+  <name>/.local/share/krita/workspaces/MyWorkSpace.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/1048paintaing.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/1048paintaing1.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/1048paintaing2.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/1048paintaingya.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/MyWorkSpace II.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/MyWrokSpace.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/1048ptya_floatToolbox.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/1048ptya1.kws</name>
+ </file>
+ <file>
+  <name>/.local/share/krita/workspaces/TicoSpace.kws</name>
+ </file>
+ <file>
+  <name>~/.local/share/krita/workspaces/1048Rendering.kws</name>
+ </file>
+ <file>
+  <name>~/.local/share/krita/workspaces/1048paintaing.kws</name>
+ </file>
+ <file>
+  <name>~/.local/share/krita/workspaces/1048paintaing1.kws</name>
+ </file>
+ <file>
+  <name>~/.local/share/krita/workspaces/1048paintaing2.kws</name>
+ </file>
+ <file>
+  <name>~/.local/share/krita/workspaces/1048paintaingya.kws</name>
+ </file>
+ <file>
+  <name>~/.local/share/krita/workspaces/1048ptya.kws</name>
+ </file>
+</resourceFilesList>

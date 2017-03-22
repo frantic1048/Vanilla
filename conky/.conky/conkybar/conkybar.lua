@@ -108,6 +108,13 @@ function conky_conkybar()
         local primary_font_slant = CAIRO_FONT_SLANT_NORMAL
         local primary_font_face = CAIRO_FONT_WEIGHT_NORMAL
 
+        local primary_font_options = cairo_font_options_create()
+        cairo_font_options_set_antialias(primary_font_options, CAIRO_ANTIALIAS_SUBPIXEL)
+        cairo_font_options_set_subpixel_order(primary_font_options, CAIRO_SUBPIXEL_ORDER_RGB)
+        cairo_font_options_set_hint_style(primary_font_options, CAIRO_HINT_STYLE_FULL)
+        cairo_font_options_set_hint_metrics(primary_font_options, CAIRO_HINT_METRICS_DEFAULT)
+        cairo_set_font_options(cr, primary_font_options)
+
         local red,green,blue,alpha = 1, 1, 1, 1
         local xpos, ypos = 0, 0
         local text = ''
@@ -253,6 +260,7 @@ function conky_conkybar()
         cairo_show_text(cr, text)
         cairo_stroke(cr)
     end
+    cairo_font_options_destroy(font_options)
     cairo_destroy(cr)
     cairo_surface_destroy(cs)
     cr = nil

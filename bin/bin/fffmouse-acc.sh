@@ -3,13 +3,13 @@
 #use parameter "on"  to turn on the mouse acceleration
 #otherwise turn off the mouse acceleration
 
-DeviceAccelProfile="Device Accel Profile"
-Acc=0
-NoAcc=-1
+DeviceAccelProfile="libinput Accel Profile Enabled"
+Acc="0, 1"
+NoAcc="0, 1"
 
-DeviceAccelConstantDeceleration="Device Accel Constant Deceleration"
-AccSpeed=1
-NoAccSpeed=1 #original is 0.6...0.3 is dangerous..
+DeviceAccelConstantDeceleration="libinput Accel Speed"
+AccSpeed=-0.2
+NoAccSpeed=-0.2
 
 #get from xinput
 #sample output:

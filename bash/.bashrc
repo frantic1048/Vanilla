@@ -20,13 +20,20 @@ export GPG_TTY=$(tty)
 gpg-connect-agent updatestartuptty /bye >/dev/null
 
 
+## PS1 setting
+#PS1='⌊\u@\W⌋\$'
+function _update_ps1() {
+    PS1="$(~/bin/powerline-shell.py $? 2> /dev/null)"
+}
+
+if [ "$TERM" != "linux" ]; then
+    PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+fi
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 source /etc/profile
-
-PS1='⌊\u@\W⌋\$'
 
 setZHLocale ()
 {

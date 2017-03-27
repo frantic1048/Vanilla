@@ -219,18 +219,6 @@ function conky_conkybar()
         cairo_show_text(cr, present_workspace_number)
         cairo_stroke(cr)
 
-        -- debugging info
-        xpos, ypos = 400, 20
-        red, green, blue, alpha = 1, 1, 0, 1
-        cairo_move_to(cr, xpos, ypos)
-        cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)
-        cairo_set_font_size(cr, primary_font_size)
-        cairo_set_source_rgba(cr, red, green, blue, alpha)
-
-        text='w=' .. conky_window.width .. ',h=' .. conky_window.height
-        cairo_show_text(cr, text)
-        cairo_stroke(cr)
-
         -- date time
         xpos, ypos = 653, 20
         red, green, blue, alpha = 1, 1, 1, 1

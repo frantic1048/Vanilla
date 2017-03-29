@@ -103,7 +103,7 @@ function conky_conkybar()
     local cr = cairo_create(cs)
     local updates = tonumber(conky_parse('${updates}'))
     if updates>3 then
-        local primary_font = 'sao'
+        local primary_font = 'fira code'
         local primary_font_size = 16
         local primary_font_slant = CAIRO_FONT_SLANT_NORMAL
         local primary_font_face = CAIRO_FONT_WEIGHT_NORMAL
@@ -209,8 +209,14 @@ function conky_conkybar()
             end
         end
 
-        xpos = xpos - 50
-        ypos = ypos + 4
+        xpos = xpos - 53
+        ypos = ypos + 3
+
+        -- display workspace 10 as workspace 0
+        if present_workspace_number == 10 then
+          present_workspace_number = 0
+        end
+
         red, green, blue, alpha = 1, 1, 1, 1
         cairo_move_to(cr, xpos, ypos)
         cairo_select_font_face(cr, primary_font, primary_font_slant, primary_font_face)

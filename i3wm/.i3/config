@@ -18,7 +18,28 @@
 #set $wallpaper ~/Media/pic/sACG/misc/pixiv\ 61424301_p0.png
 #set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 372778.png
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 27881247_p0_waifu_s1.6_n0.png
-set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ C4xfqrtVcAE3arz.jpg
+
+# chiya(urara)
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ CRbTbElUkAAFths.jpg
+
+# Emilia(re0)
+set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 61892501_p0.jpg
+
+# kon
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ C4xfqrtVcAE3arz.jpg
+
+# chino
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/seiga\ 6064959.png
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 60328981_p0.jpg
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 60373941_p0.jpg
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 330169.1920r1200.png
+
+# chino & cocoa
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 356639.png
+
+# gochiusa
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 342802.jpg
+
 # set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 385264.png
 # set $wallpaper ~/Media/pic/DA/new_paths__to_helicon___chosen_riders_of_doom_by_kuldarleement-d5uo7nj.jpg
 
@@ -186,3 +207,12 @@ mode "resize" {
 }
 
 bindsym $mod+r mode "resize"
+
+# class                 border  backgr. text    indicator child_border
+client.focused          #000000 #000000 #ffffff #2e9ef4   #000000
+client.focused_inactive #222222 #222222 #ffffff #484e50   #222222
+client.unfocused        #222222 #222222 #888888 #292d2e   #222222
+client.urgent           #2f343a #900000 #ffffff #900000   #900000
+client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+
+client.background       #ffffff

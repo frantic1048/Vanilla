@@ -23,7 +23,11 @@
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ CRbTbElUkAAFths.jpg
 
 # Emilia(re0)
-set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 61892501_p0.jpg
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 61892501_p0.jpg
+
+# artist:Anmi
+set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 344328.png
+set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 276685.jpg
 
 # kon
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ C4xfqrtVcAE3arz.jpg
@@ -40,6 +44,12 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 61892501_p0.jpg
 # gochiusa
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 342802.jpg
 
+# gochiusa 20170401 event
+set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chino_waifu2x_n1.png
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ megu_waifu2x_n1.png
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ maya_waifu2x_n1.png
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chimame_waifu2x_n1.png
+
 # set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 385264.png
 # set $wallpaper ~/Media/pic/DA/new_paths__to_helicon___chosen_riders_of_doom_by_kuldarleement-d5uo7nj.jpg
 
@@ -53,7 +63,7 @@ exec conky -c $HOME/.conky/conkybar/conkyrc.lua &
 
 # start trayer as system tray
 # alpha and tint same as conky window
-exec trayer  --transparent true --edge bottom --align right --width 1920 --widthtype pixel --SetDockType true --SetPartialStrut true --alpha 175 --tint 0x000000 &
+exec trayer  --transparent true --edge bottom --align right --width 1920 --widthtype pixel --height 26 --SetDockType true --SetPartialStrut true --alpha 175 --tint 0x000000 &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
@@ -62,6 +72,9 @@ exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 # it is not real KDE so clear the "fake" env in /etc/environment
 # to make rsibreak work correctly
 exec "sh -c 'sleep 2;XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &'"
+
+# not work, i3 dead
+for_window [title=".*"] border normal 0
 
 for_window [class="Conky"] border pixel 0
 for_window [class="trayer"] border pixel 0

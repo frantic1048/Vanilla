@@ -10,6 +10,52 @@ json = require 'json'
 --    |_____|    |    __|__ |_____ __|__    |    __|__ |______ ______|    --
 ----------------------------------------------------------------------------
 
+-- keep cairo transformation matrix after execute cb()
+-- cr: cairo_t, created by cairo_create()
+-- cb: function, callback
+function keep_mat(cr, cb)
+    -- store current transformation matrix
+    local mat = cairo_matrix_t.create()
+    cairo_get_matrix(cr,mat)
+
+    -- execute callback function
+    cb()
+
+    -- restore transformation matrix
+    cairo_set_matrix(cr, mat)
+    mat = nil
+end -- function keep_mat
+
+-- skew current transformation matrix(CTM)
+-- in cr by T on X axis
+-- supplement to cairo's transform
+function skewX(cr, T)
+    local mat = cairo_matrix_t.create()
+
+    cairo_matrix_init(mat,
+      1, 0, T,
+      1, 0, 0
+    )
+
+    cairo_transform(cr, mat)
+    mat = nil
+end -- function skewX
+
+-- skew current transformation matrix(CTM)
+-- in cr by T on Y axis
+-- supplement to cairo's transform
+function skewY(cr, T)
+    local mat = cairo_matrix_t.create()
+
+    cairo_matrix_init(mat,
+      1, T, 0,
+      1, 0, 0
+    )
+
+    cairo_transform(cr, mat)
+    mat = nil
+end -- function skewY
+
 -- Draw SVG function
 -- Usage:
 -- draw_svg({x=0,y=0,h=20,w=20,file="/path/to/awesome.svg"})
@@ -24,30 +70,24 @@ function draw_svg(im)
     if file ==  nil then print("need svg file") end
     -----------
     local handle = rsvg_handle_new_from_file(file)
-    -- store current transformation matrix
-    -- because we will use translate and scale to put svg graph
-    local mat = cairo_matrix_t.create()
-    cairo_get_matrix(im.cr,mat)
 
-    local dimensions = RsvgDimensionData.create()
-    rsvg_handle_get_dimensions(handle, dimensions)
-    local x_factor = w / dimensions['width']
-    local y_factor = h / dimensions['height']
-    local scale_factor = math.min(x_factor, y_factor)
+    keep_mat(im.cr, function ()
+        local dimensions = RsvgDimensionData.create()
+        rsvg_handle_get_dimensions(handle, dimensions)
+        local x_factor = w / dimensions['width']
+        local y_factor = h / dimensions['height']
+        local scale_factor = math.min(x_factor, y_factor)
 
-    if scale_factor == 0 then scale_factor = 1 end
+        if scale_factor == 0 then scale_factor = 1 end
 
-    cairo_translate(im.cr, x, y) -- translate bofore scale!
-    cairo_scale(im.cr, scale_factor, scale_factor)
-    rsvg_handle_render_cairo(handle, im.cr)
-
-    -- restore transformation matrix
-    cairo_set_matrix(im.cr, mat)
+        cairo_translate(im.cr, x, y) -- translate bofore scale!
+        cairo_scale(im.cr, scale_factor, scale_factor)
+        rsvg_handle_render_cairo(handle, im.cr)
+    end)
 
     rsvg_destroy_handle(handle)
     handle = nil
     dimensions = nil
-    mat = nil
 end -- function draw_svg
 
 -- Draw raster image function
@@ -101,7 +141,7 @@ end -- function draw_raster
 function conkybar_arch_logo(opt)
     draw_svg({cr = opt.cr,
               x = opt.x, y = opt.y,
-              h = 24, w = 24,
+              h = 20, w = 20,
               file = opt.RESOURCE_PATH .. "arch-logo.svg"})
 end -- function conkybar_arch_logo
 
@@ -113,6 +153,8 @@ function conkybar_i3_workspace_indicator(opt)
 
     -- text color
     local r, g, b, a = 1, 1, 1, 1
+
+    -- fetch i3 wm workspace information
     local workspacesData = conky_parse('${exec i3-msg -t get_workspaces}')
     local new_workspaces = json.decode(workspacesData) or {}
     local workspaces = {}
@@ -129,10 +171,27 @@ function conkybar_i3_workspace_indicator(opt)
         }
     end
 
+    -- draw small text 'workspace'
+    ypos = ypos + 14
+    r, g, b, a = 0.9, 0.9, 0.9, 0.9
+    cairo_move_to(opt.cr, xpos, ypos)
+    cairo_select_font_face(
+        opt.cr,
+        opt.primary_font,
+        opt.primary_font_slant,
+        opt.primary_font_face)
+    cairo_set_font_size(opt.cr, 9)
+    cairo_set_source_rgba(opt.cr, r, g, b, a)
+    cairo_show_text(opt.cr, 'workspace')
+    cairo_stroke(opt.cr)
+
+    xpos = xpos + 48
+    ypos = ypos - 14
     draw_svg({cr = opt.cr,
         x = xpos, y = ypos,
         file = opt.RESOURCE_PATH .. "workspace-frame.svg"})
-    xpos = xpos + 17
+
+    xpos = xpos + 34
     -- upper indicator
     for i = 1,5 do
         -- shift right
@@ -202,6 +261,7 @@ function conkybar_i3_workspace_indicator(opt)
       present_workspace_number = 0
     end
 
+    r, g, b, a = 1, 1, 1, 1
     cairo_move_to(opt.cr, xpos, ypos)
     cairo_select_font_face(
         opt.cr,
@@ -212,7 +272,91 @@ function conkybar_i3_workspace_indicator(opt)
     cairo_set_source_rgba(opt.cr, r, g, b, a)
     cairo_show_text(opt.cr, present_workspace_number)
     cairo_stroke(opt.cr)
+
 end -- function conkybar_i3_workspace_indicator
+
+-- show system load as bars
+function conkybar_sys_load(opt)
+    local xpos = opt.x
+    local ypos = opt.y
+
+    local r, g, b, a = 1, 1, 1, 1
+    local bar_width = 200
+    local bar_height = 5
+    local bar_skewX  = 0.75
+
+    -- fetch system load data
+    local cpu_percent = conky_parse('${cpu cpu0}')
+    local mem_percent = conky_parse('${memperc}')
+    local mem_used = conky_parse('${mem}')
+    local mem_total = conky_parse('${memmax}')
+
+    -- draw small text 'system load'
+    ypos = ypos + 16
+    r, g, b, a = 0.9, 0.9, 0.9, 0.9
+    cairo_move_to(opt.cr, xpos, ypos)
+    cairo_select_font_face(
+        opt.cr,
+        opt.primary_font,
+        opt.primary_font_slant,
+        opt.primary_font_face)
+    cairo_set_font_size(opt.cr, 9)
+    cairo_set_source_rgba(opt.cr, r, g, b, a)
+    cairo_show_text(opt.cr, 'Sys load')
+    cairo_stroke(opt.cr)
+
+    xpos = xpos + 44
+    ypos = ypos - 16
+    draw_svg({cr = opt.cr,
+        x = xpos, y = ypos,
+        file = opt.RESOURCE_PATH .. "cpu-load-frame.svg"})
+
+    -- bars
+    xpos = xpos + 9
+    ypos = ypos + 7
+    r, g, b, a = 0.9, 0.9, 0.9, 0.6
+    cairo_move_to(opt.cr, xpos, ypos)
+    cairo_set_source_rgba(opt.cr, r, g, b, a)
+
+    keep_mat(opt.cr, function()
+        skewX(opt.cr, bar_skewX)
+        cairo_rectangle(opt.cr, xpos, ypos, bar_width * cpu_percent * 0.01, bar_height)
+        cairo_fill(opt.cr)
+    end)
+
+    xpos = xpos - 1
+    ypos = ypos + 10
+    r, g, b, a = 0.9, 0.9, 0.9, 0.6
+    cairo_move_to(opt.cr, xpos, ypos)
+    cairo_set_source_rgba(opt.cr, r, g, b, a)
+
+    keep_mat(opt.cr, function()
+        skewX(opt.cr, bar_skewX)
+        cairo_rectangle(opt.cr, xpos, ypos, bar_width * mem_percent * 0.01, bar_height)
+        cairo_fill(opt.cr)
+    end)
+
+    -- bar text
+    xpos = xpos + 215
+    ypos = ypos - 6
+    r, g, b, a = 0.9, 0.9, 0.9, 0.9
+    cairo_move_to(opt.cr, xpos, ypos)
+    cairo_select_font_face(
+        opt.cr,
+        opt.primary_font,
+        opt.primary_font_slant,
+        opt.primary_font_face)
+    cairo_set_font_size(opt.cr, 9)
+    cairo_set_source_rgba(opt.cr, r, g, b, a)
+    cairo_show_text(opt.cr, cpu_percent .. '%')
+    cairo_stroke(opt.cr)
+
+    xpos = xpos + 6
+    ypos = ypos + 11
+    cairo_move_to(opt.cr, xpos, ypos)
+    cairo_show_text(opt.cr, mem_used .. '/' .. mem_total)
+    cairo_stroke(opt.cr)
+end -- function conkybar_sys_load
 
 -- simple text date time
 function conkybar_date_time(opt)
@@ -220,7 +364,7 @@ function conkybar_date_time(opt)
     local text = conky_parse('${time %a, %d %b %Y %T %z}')
     cairo_move_to(opt.cr, opt.x, opt.y)
     cairo_select_font_face(opt.cr, opt.primary_font, opt.primary_font_slant, opt.primary_font_face)
-    cairo_set_font_size(opt.cr, opt.primary_font_size)
+    cairo_set_font_size(opt.cr, opt.primary_font_size - 3)
     cairo_set_source_rgba(opt.cr, r, g, b, a)
     cairo_show_text(opt.cr, text)
     cairo_stroke(opt.cr)
@@ -239,7 +383,7 @@ function conkybar_clementine_play(opt)
     ]])
     cairo_move_to(opt.cr, opt.x, opt.y)
     cairo_select_font_face(opt.cr, 'Source Han Sans SC', opt.primary_font_slant, opt.primary_font_face)
-    cairo_set_font_size(opt.cr, opt.primary_font_size)
+    cairo_set_font_size(opt.cr, opt.primary_font_size - 3)
     cairo_set_source_rgba(opt.cr, r, g, b, a)
     cairo_show_text(opt.cr, text)
     cairo_stroke(opt.cr)
@@ -296,10 +440,11 @@ function conky_conkybar()
         local xpos, ypos = 0, 0
         local text = ''
 
-        draw_component(conkybar_arch_logo, {x = 3, y = 3})
-        draw_component(conkybar_i3_workspace_indicator, {x = 28, y = 2})
-        draw_component(conkybar_date_time, {x = 120, y = 20})
-        draw_component(conkybar_clementine_play, {x = 1000, y = 20})
+        draw_component(conkybar_arch_logo, {x = 3, y = 5})
+        draw_component(conkybar_i3_workspace_indicator, {x = 48, y = 2})
+        draw_component(conkybar_sys_load, {x = 216, y = 0})
+        draw_component(conkybar_date_time, {x = 830, y = 19})
+        draw_component(conkybar_clementine_play, {x = 1300, y = 18})
     end
     cairo_font_options_destroy(primary_font_options)
     cairo_destroy(cr)

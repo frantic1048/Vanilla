@@ -281,7 +281,7 @@ function conkybar_sys_load(opt)
     local ypos = opt.y
 
     local r, g, b, a = 1, 1, 1, 1
-    local bar_width = 200
+    local bar_width = 160
     local bar_height = 5
     local bar_skewX  = 0.75
 
@@ -337,7 +337,7 @@ function conkybar_sys_load(opt)
     end)
 
     -- bar text
-    xpos = xpos + 215
+    xpos = xpos + 175
     ypos = ypos - 6
     r, g, b, a = 0.9, 0.9, 0.9, 0.9
     cairo_move_to(opt.cr, xpos, ypos)

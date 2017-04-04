@@ -73,16 +73,19 @@ exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 # to make rsibreak work correctly
 exec "sh -c 'sleep 2;XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &'"
 
-# not work, i3 dead
 for_window [title=".*"] border normal 0
 
 for_window [class="Conky"] border pixel 0
 for_window [class="trayer"] border pixel 0
+
 for_window [class="Inkscape"] floating disable
+
+# float virtualbox window except manager window
+for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
 for_window [class="kruler"] floating enable
 for_window [class="kruler"] border none
 no_focus [class="Conky"]
-floating_minimum_size 120 x 20
+#floating_minimum_size 120 x 20
 
 set $mod Mod4
 

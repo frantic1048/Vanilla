@@ -1,0 +1,3 @@
+[submodule "conky/.conky/i3bar"]
+	path = conky/.conky/i3bar
+	url = https://github.com/frantic1048/conky-i3bar

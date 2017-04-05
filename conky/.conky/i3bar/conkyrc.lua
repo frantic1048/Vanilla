@@ -61,24 +61,8 @@ conky.config = {
 -- set to 1 to disable averaging
   cpu_avg_samples = 2,
 
-  lua_load = '~/.conky/conkybar/conkybar.lua',
-  lua_draw_hook_post = 'conkybar',
+  lua_load = '~/.conky/i3bar/i3bar.lua',
+  lua_draw_hook_post = 'i3bar',
 };
 
 conky.text = [[]]
-
--- conky.text = [[\
--- ${goto 5}${font Source Han Sans CN Bold :size=8}${color ffffff}It is ${font}${color}\
--- ${goto 225}${font Source Han Sans CN Bold :size=8}${color 00ff00}weird${font}${color}\
--- ]];
--- conky.text = [[\
--- ${goto 5}\
--- ${font sao :pixelsize=16}${color ffffff}It is \
--- ${font Titillium :pixelsize=16}${color 00ff00}weird${color}\
---  CPU ${cpugraph 10,55 0000ff ff0000 -t} \
--- Mem ${memgraph 10, 55 -t}\
--- ${alignr}\
--- ${font Titillium :pixelsize=16}${time %a, %d %b %Y %T %z}\
--- ]];
-
-

@@ -59,7 +59,7 @@ exec_always feh --bg-fill $wallpaper &
 exec compton -b --config ~/.compton.conf &
 
 # wow such bar!
-exec conky -c $HOME/.conky/conkybar/conkyrc.lua &
+exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
 
 # start trayer as system tray
 # alpha and tint same as conky window

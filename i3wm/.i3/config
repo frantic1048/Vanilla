@@ -45,7 +45,7 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 276685.jpg
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 342802.jpg
 
 # gochiusa 20170401 event
-set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chino_waifu2x_n1.png
+#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chino_waifu2x_n1.png
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ megu_waifu2x_n1.png
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ maya_waifu2x_n1.png
 #set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chimame_waifu2x_n1.png
@@ -54,7 +54,9 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chino
 # set $wallpaper ~/Media/pic/DA/new_paths__to_helicon___chosen_riders_of_doom_by_kuldarleement-d5uo7nj.jpg
 
 # draw wallpaper XD
-exec_always feh --bg-fill $wallpaper &
+#exec_always feh --bg-fill $wallpaper &
+# dynamic wallpaper
+exec fffwallpaper.sh --landscape -i 300 &
 
 exec compton -b --config ~/.compton.conf &
 

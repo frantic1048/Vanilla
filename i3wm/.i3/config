@@ -59,11 +59,20 @@ exec_always feh --bg-fill $wallpaper &
 exec compton -b --config ~/.compton.conf &
 
 # wow such bar!
-exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
+exec conky -c $HOME/.conky/conky-i3bar/conkyrc.lua &
 
 # start trayer as system tray
-# alpha and tint same as conky window
-exec trayer  --transparent true --edge bottom --align right --width 1920 --widthtype pixel --height 26 --SetDockType true --SetPartialStrut true --alpha 175 --tint 0x000000 &
+exec trayer \
+    --transparent true \
+    --edge bottom \
+    --align right \
+    --width 1920 \
+    --widthtype pixel \
+    --height 26 \
+    --SetDockType true \
+    --SetPartialStrut true \
+    --alpha 175 \
+    --tint 0x000000 &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
@@ -82,6 +91,10 @@ for_window [class="Inkscape"] floating disable
 
 # float virtualbox window except manager window
 for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
+
+# float StarBound window
+for_window [class="starbound"] floating enable
+
 for_window [class="kruler"] floating enable
 for_window [class="kruler"] border none
 no_focus [class="Conky"]
@@ -229,8 +242,8 @@ bindsym $mod+r mode "resize"
 
 # class                 border  backgr. text    indicator child_border
 client.focused          #000000 #000000 #ffffff #2e9ef4   #000000
-client.focused_inactive #222222 #222222 #ffffff #484e50   #222222
-client.unfocused        #222222 #222222 #888888 #292d2e   #222222
+client.focused_inactive #000000 #000000 #888888 #484e50   #222222
+client.unfocused        #000000 #000000 #555555 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
 client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
 

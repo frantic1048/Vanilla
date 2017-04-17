@@ -56,7 +56,7 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 276685.jpg
 # draw wallpaper XD
 #exec_always feh --bg-fill $wallpaper &
 # dynamic wallpaper
-exec fffwallpaper.sh --landscape -i 300 &
+exec_always ~/bin/fffwallpaper.sh --landscape -i 300 &
 
 exec compton -b --config ~/.compton.conf &
 

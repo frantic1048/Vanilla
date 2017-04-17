@@ -1,5 +1,14 @@
 #!/usr/bin/bash
 
+LOCKFILE=/tmp/fffwallpaper.sh.lock
+
+# kill previous instance
+fuser -k $LOCKFILE
+
+# run under lock
+(
+flock 200
+
 PATH_LANDSCAPE=$(echo ~/sACG/_wallpaperLandscape)
 PATH_PORTRAIT=$(echo ~/sACG/_wallpaperPortrait)
 PATH_WALLPAPER=$PATH_LANDSCAPE
@@ -53,3 +62,5 @@ do
     feh --bg-fill "${w}"
     sleep $INTERVAL
 done
+
+)200>$LOCKFILE

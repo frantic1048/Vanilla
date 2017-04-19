@@ -185,6 +185,10 @@ bindsym $mod+q focus parent
 # focus the child container
 bindsym $mod+a focus child
 
+# workaround workspace
+bindsym $mod+bracketleft exec ~/bin/i3_workspace_walk.py --previous_active
+bindsym $mod+bracketright exec ~/bin/i3_workspace_walk.py --next_active
+
 # switch to workspace
 bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2

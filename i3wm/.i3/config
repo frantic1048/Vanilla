@@ -95,6 +95,9 @@ for_window [class="Inkscape"] floating disable
 # float virtualbox window except manager window
 for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
 
+# float sxiv window
+for_window [class="Sxiv"] floating enable
+
 # float StarBound window
 for_window [class="starbound"] floating enable
 

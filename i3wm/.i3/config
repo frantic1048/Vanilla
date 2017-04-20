@@ -56,7 +56,8 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 276685.jpg
 # draw wallpaper XD
 #exec_always feh --bg-fill $wallpaper &
 # dynamic wallpaper
-exec_always ~/bin/fffwallpaper.sh --landscape -i 300 &
+set $wallpaper_args --landscape -i 300
+exec_always ~/bin/fffwallpaper.sh $wallpaper_args &
 
 exec compton -b --config ~/.compton.conf &
 
@@ -104,7 +105,6 @@ no_focus [class="Conky"]
 
 set $mod Mod4
 
-
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
@@ -119,6 +119,9 @@ font pango:Fira Code Medium 9
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
+
+# change wallpaper
+bindsym $mod+backslash exec ~/bin/fffwallpaper.sh $wallpaper_args &
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal

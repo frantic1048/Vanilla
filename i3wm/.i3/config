@@ -186,6 +186,8 @@ bindsym $mod+q focus parent
 bindsym $mod+a focus child
 
 # workaround workspace
+bindsym $mod+shift+bracketleft exec ~/bin/i3_workspace_walk.py --previous
+bindsym $mod+shift+bracketright exec ~/bin/i3_workspace_walk.py --next
 bindsym $mod+bracketleft exec ~/bin/i3_workspace_walk.py --previous_active
 bindsym $mod+bracketright exec ~/bin/i3_workspace_walk.py --next_active
 

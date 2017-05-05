@@ -74,7 +74,7 @@ exec trayer \
     --height 26 \
     --SetDockType true \
     --SetPartialStrut true \
-    --alpha 175 \
+    --alpha 104 \
     --tint 0x000000 &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
@@ -135,7 +135,7 @@ bindsym $mod+Escape kill
 
 # start dmenu (a program launcher)
 # alt+space
-bindsym Mod1+space exec dmenu_run
+bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.

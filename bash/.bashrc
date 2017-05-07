@@ -76,7 +76,8 @@ fi
 #node.js module path
 export NODE_PATH=~/npm-global/lib/node_modules/:$NODE_PATH:/usr/lib/node_modules
 
-export PATH=~/npm-global/bin/:~/.gem/ruby/2.2.0/bin/:/root/.composer/vendor/bin:~/bin/:$PATH
+export PATH=$PATH:~/npm-global/bin/:~/.gem/ruby/2.2.0/bin/:/root/.composer/vendor/bin:~/bin/
+alias fakePATH="export PATH=~/bin/:$PATH"
 
 # export GIT_ASKPASS="/usr/bin/ksshaskpass"
 # export SSH_ASKPASS="/usr/bin/ksshaskpass"
@@ -93,6 +94,9 @@ alias phantomjs="QT_QPA_PLATFORM='' phantomjs"
 # task name auto completion for gulp
 # toooo slow, disabled
 #eval "$(gulp --completion=bash)"
+
+# init nvm
+source /usr/share/nvm/init-nvm.sh
 
 alias ls='ls --color=auto'
 alias tts='text-to-speech zh-CN'

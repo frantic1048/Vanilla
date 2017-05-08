@@ -64,18 +64,8 @@ exec compton -b --config ~/.compton.conf &
 # wow such bar!
 exec conky -c $HOME/.conky/conky-i3bar/conkyrc.lua &
 
-# start trayer as system tray
-exec trayer \
-    --transparent true \
-    --edge bottom \
-    --align right \
-    --width 1920 \
-    --widthtype pixel \
-    --height 26 \
-    --SetDockType true \
-    --SetPartialStrut true \
-    --alpha 104 \
-    --tint 0x000000 &
+# start tint2 as system tray
+exec tint2 -c $HOME/.config/tint2/tint2rc &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"

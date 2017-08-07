@@ -1,0 +1,2 @@
+http-proxy=http://127.0.0.1:8118
+strict-ssl=false

@@ -1,7 +1,7 @@
 [user]
 	name = frantic1048
-	email = archer@frantic1048.com
-	signingkey = D2DE8CCA1E74D572369F4C699207632BD48BDDAA
+	email = i@frantic1048.com
+	signingkey = 6F6E9653B88BA07F5EED1B0096F3CA6256A95C51
 [push]
 	default = simple
 [http]
@@ -10,3 +10,5 @@
 	gpgsign = false
 [core]
 	excludesfile = ~/.gitignore
+[merge]
+	ff = only

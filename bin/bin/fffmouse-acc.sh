@@ -21,8 +21,10 @@ NoAccSpeed=-0.2
 #     ...
 
 #mouseName="RAPOO RAPOO 5G Wireless Device"
-mouseName="SteelSeries SteelSeries Kinzu V3 Gaming Mouse"
-mouse="pointer:${mouseName}"
+#mouseName="SteelSeries SteelSeries Kinzu V3 Gaming Mouse"
+#mouseName="Lenovo USB Receiver"
+#mouse="pointer:${mouseName}"
+mouse="13"
 
 if [[ -z `xinput | grep "$mouseName"".*pointer"` ]]
 then

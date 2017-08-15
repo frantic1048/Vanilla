@@ -70,6 +70,7 @@ exec tint2 -c $HOME/.config/tint2/tint2rc &
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
 exec "sh -c 'sleep 2;kmix --keepvisibility &'"
+exec "sh -c 'sleep 2;pasystray &'"
 
 # it is not real KDE so clear the "fake" env in /etc/environment
 # to make rsibreak work correctly
@@ -85,11 +86,9 @@ for_window [class="Inkscape"] floating disable
 # float virtualbox window except manager window
 for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
 
-# float sxiv window
 for_window [class="Sxiv"] floating enable
-
-# float StarBound window
 for_window [class="starbound"] floating enable
+for_window [class="Pencil"] floating enable
 
 for_window [class="kruler"] floating enable
 for_window [class="kruler"] border none

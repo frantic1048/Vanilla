@@ -33,6 +33,10 @@ fn prprme { e:proxychains elvish }
 # simple py http server
 fn pyserv { e:python -m http.server }
 
+# test sddm theme
+# sddm-test-theme PATH/TO/THEME
+fn sddm-test-theme { e:sddm-greeter --test-mode --theme $@ }
+
 # browser-sync
 fn serve { e:browser-sync start --server }
 

@@ -4,8 +4,7 @@
 E:PATH = {$E:PATH}:{~}/npm-global/bin/:{~}/.gem/ruby/2.2.0/bin/:{~root}/.composer/vendor/bin/:{~}/bin/
 E:NODE_PATH = {~}/npm-global/lib/node_modules/:/usr/lib/node_modules/:{$E:NODE_PATH}
 E:VISUAL = "nano"
-
-in_reg='--registry=https://npm.in.chaitin.com'
+in_reg = '--registry=https://npm.in.chaitin.com'
 
 # aliases
 fn ls { e:ls --color $@ }
@@ -17,6 +16,8 @@ fn n { e:npm $@ }
 fn y { e:yarn $@ }
 fn g { e:git $@ }
 fn gdh { e:git diff HEAD $@  }
+fn gsign-on { e:git config commit.gpgsign true }
+fn gsign-off { e:git config commit.gpgsign false }
 
 # nvm does not want to see a prefix
 fn nvm_on { e:npm config delete prefix }

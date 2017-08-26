@@ -27,6 +27,8 @@ fn nvm_off { e:npm config set prefix /home/chino/npm-global }
 # https://github.com/ariya/phantomjs/issues/14061
 fn phantomjs { e:env QT_QPA_PLATFORM='' phantomjs }
 
+fn neofetch { e:neofetch --shell_version off }
+
 fn prpr { e:proxychains $@ }
 fn prprme { e:proxychains elvish }
 

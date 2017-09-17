@@ -1,16 +1,29 @@
 #!/bin/elvish
 
 # env vars
-E:PATH = {$E:PATH}:{~}/npm-global/bin/:{~}/.gem/ruby/2.2.0/bin/:{~root}/.composer/vendor/bin/:{~}/bin/
+E:PATH = {$E:PATH}:{~}/npm-global/bin:{~}/.gem/ruby/2.2.0/bin:{~root}/.composer/vendor/bin:{~}/bin
 E:NODE_PATH = {~}/npm-global/lib/node_modules/:/usr/lib/node_modules/:{$E:NODE_PATH}
 E:VISUAL = "nano"
+
 in_reg = '--registry=https://npm.in.chaitin.com'
+
+fn emsdk_set_env {
+  # make sure emsdk being choosed first
+  E:PATH = {~}/portable/emsdk-portable:{~}/portable/emsdk-portable/clang/fastcomp/build_incoming_64/bin:{~}/portable/emsdk-portable/node/4.1.1_64bit/bin:{~}/portable/emsdk-portable/emscripten/incoming:{$E:PATH}
+  E:EMSDK = {~}/portable/emsdk-portable
+  E:EM_CONFIG = {~}/.emscripten
+}
+
+emsdk_set_env
 
 # aliases
 fn ls { e:ls --color $@ }
 fn p { e:pacaur $@ }
 fn pping { e:prettyping $@ }
 fn atom { e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@ & }
+fn nano { e:nano -w $@ }
+fn aria { e:aria2c --conf-path={~}/bkped/aria2c.conf }
+
 
 fn n { e:npm $@ }
 fn y { e:yarn $@ }

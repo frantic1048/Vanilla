@@ -81,6 +81,8 @@ for_window [title=".*"] border normal 0
 for_window [class="Conky"] border pixel 0
 for_window [class="trayer"] border pixel 0
 
+for_window [class="dota2"] border none
+
 for_window [class="Inkscape"] floating disable
 
 # float virtualbox window except manager window

@@ -8,6 +8,7 @@ xrandr --addmode $internal "1920x1200_60.00"
 xrandr --output $internal --mode "1920x1200_60.00"
 xrandr --output $external --right-of $internal
 
+sleep 2
 fffwallpaper.sh &
 
 # need to restart conky

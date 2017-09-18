@@ -7,14 +7,17 @@ E:VISUAL = "nano"
 
 in_reg = '--registry=https://npm.in.chaitin.com'
 
-fn emsdk_set_env {
-  # make sure emsdk being choosed first
-  E:PATH = {~}/portable/emsdk-portable:{~}/portable/emsdk-portable/clang/fastcomp/build_incoming_64/bin:{~}/portable/emsdk-portable/node/4.1.1_64bit/bin:{~}/portable/emsdk-portable/emscripten/incoming:{$E:PATH}
+fn emsdk_env {
+# based on output of command
+# source portable/emsdk-portable/emsdk_env.sh
+  E:PATH = {$E:PATH}:{~}/portable/emsdk-portable
+  E:PATH = {$E:PATH}:{~}/portable/emsdk-portable/clang/fastcomp/build_incoming_64/bin
+  E:PATH = {$E:PATH}:{~}/portable/emsdk-portable/node/4.1.1_64bit/bin
+  E:PATH = {$E:PATH}:{~}/portable/emsdk-portable/emscripten/incoming
   E:EMSDK = {~}/portable/emsdk-portable
   E:EM_CONFIG = {~}/.emscripten
+  E:EMSCRIPTEN = {~}/portable/emsdk-portable/emscripten/incoming
 }
-
-emsdk_set_env
 
 # aliases
 fn ls { e:ls --color $@ }
@@ -40,7 +43,10 @@ fn nvm_off { e:npm config set prefix /home/chino/npm-global }
 # https://github.com/ariya/phantomjs/issues/14061
 fn phantomjs { e:env QT_QPA_PLATFORM='' phantomjs }
 
-fn neofetch { e:neofetch --shell_version off }
+# disable annoying auto word wrap...
+fn nano { e:nano -w $@ }
+
+fn neofetch { e:neofetch --shell_version off}
 
 fn prpr { e:proxychains $@ }
 fn prprme { e:proxychains elvish }

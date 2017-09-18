@@ -2,6 +2,195 @@
 <!DOCTYPE m_blackListFile>
 <resourceFilesList>
  <file>
-  <name>~/.local/share/krita/paintoppresets/Basic_Rounded(for calibration).kpp</name>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3d watercolor.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3c brush textured wet.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3c blend and paint.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3b paint brush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3a alchemy.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2c hair.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1f draw brush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1a eraser thin.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1a1 eraser line-art.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1b eraser large.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1c pencil sketch.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1d pencil.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1e annotation pen.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1e digital smooth inking.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1e inking gpen.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 1e rigger.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2a deform.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2a paint sketch.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2b roller.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2b used old brush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2c flat.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2c flat - 100.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2c flat - soft.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2c glazing brush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2d expressive thin.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2d flat old.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2e big brush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2e big brush flat.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2e digital sketch.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2e digital sketch rounded.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2e fill brush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 2f basic flow.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3e blending.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3f bristtle smear.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 3f smear.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 4a airbrush.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 4b adjust color.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 4c adjust lighten.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 4d adjust multiply.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 4e adjust overlay.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 4f adjust dodge.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 5a clone.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 5b pixel.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 5b pixel fixmap.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 5c screentones.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 5d reptilian texture.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 5e paper textured.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6a stamp painting touch.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6b stamp noise.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6c stamp splat.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6d stamp drop.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6e stylised vegetal.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6f stamp herbal stylised.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6g stamp herbs.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6h stamp sparkles.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6i stamp crackles.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6k stamp wood.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6l stamp starfield.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6m stamp chain.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6n stamp floor particles.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6n stamp leaves.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6o stamp floor.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6p stamp texture big.kpp</name>
+ </file>
+ <file>
+  <name>bundle:///tmp/deevad-v8-2.bundle:paintoppresets/deevad 6q bokeh.kpp</name>
  </file>
 </resourceFilesList>

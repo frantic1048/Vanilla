@@ -2,3 +2,5 @@
 .directory
 !/.directory
 !/bin/bin/.directory
+
+/elvish/.elvish/db-journal

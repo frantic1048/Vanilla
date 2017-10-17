@@ -20,18 +20,18 @@ fn emsdk_env {
 }
 
 # aliases
-fn ls { e:ls --color $@ }
-fn p { e:pacaur $@ }
-fn pping { e:prettyping $@ }
-fn atom { e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@ & }
-fn nano { e:nano -w $@ }
-fn aria { e:aria2c --conf-path={~}/bkped/aria2c.conf }
+fn ls [@]{ e:ls --color $@ }
+fn p [@]{ e:pacaur $@ }
+fn pping [@]{ e:prettyping $@ }
+fn atom [@]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@ & }
+fn nano [@]{ e:nano -w $@ }
+fn aria [@]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 
 
-fn n { e:npm $@ }
-fn y { e:yarn $@ }
-fn g { e:git $@ }
-fn gdh { e:git diff HEAD $@  }
+fn n [@]{ e:npm $@ }
+fn y [@]{ e:yarn $@ }
+fn g [@]{ e:git $@ }
+fn gdh [@]{ e:git diff HEAD $@  }
 fn gsign-on { e:git config commit.gpgsign true }
 fn gsign-off { e:git config commit.gpgsign false }
 
@@ -44,11 +44,11 @@ fn nvm_off { e:npm config set prefix /home/chino/npm-global }
 fn phantomjs { e:env QT_QPA_PLATFORM='' phantomjs }
 
 # disable annoying auto word wrap...
-fn nano { e:nano -w $@ }
+fn nano [@]{ e:nano -w $@ }
 
 fn neofetch { e:neofetch --shell_version off}
 
-fn prpr { e:proxychains $@ }
+fn prpr [@]{ e:proxychains $@ }
 fn prprme { e:proxychains elvish }
 
 # simple py http server
@@ -56,13 +56,13 @@ fn pyserv { e:python -m http.server }
 
 # test sddm theme
 # sddm-test-theme PATH/TO/THEME
-fn sddm-test-theme { e:sddm-greeter --test-mode --theme $@ }
+fn sddm-test-theme [@]{ e:sddm-greeter --test-mode --theme $@ }
 
 # browser-sync
 fn serve { e:browser-sync start --server }
 
 # count files of folder
-fn file_count { e:find $@ -type f | wc -l }
+fn file_count [@]{ e:find $@ -type f | wc -l }
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }

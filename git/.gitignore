@@ -3,3 +3,6 @@
 
 # node
 node_modules
+
+# log files
+*.log

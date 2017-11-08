@@ -5,8 +5,6 @@ E:PATH = {$E:PATH}:{~}/npm-global/bin:{~}/.gem/ruby/2.2.0/bin:{~root}/.composer/
 E:NODE_PATH = {~}/npm-global/lib/node_modules/:/usr/lib/node_modules/:{$E:NODE_PATH}
 E:VISUAL = "nano"
 
-in_reg = '--registry=https://npm.in.chaitin.com'
-
 fn emsdk_env {
 # based on output of command
 # source portable/emsdk-portable/emsdk_env.sh
@@ -20,22 +18,26 @@ fn emsdk_env {
 }
 
 # aliases
-fn ls [@]{ e:ls --color $@ }
+fn l [@]{ e:ls --color $@ }
 fn p [@]{ e:pacaur $@ }
 fn pping [@]{ e:prettyping $@ }
 fn atom [@]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@ & }
 fn nano [@]{ e:nano -w $@ }
 fn aria [@]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
-
-
+fn s [@]{ e:systemctl $@ }
+fn r [@]{ e:rsync $@ }
+fn d [@]{ e:docker $@ }
 fn n [@]{ e:npm $@ }
 fn y [@]{ e:yarn $@ }
+y--regin = '--registry=https://npm.in.chaitin.com'
 fn g [@]{ e:git $@ }
-fn gtree [@]{ e:git log --graph --abbrev-commit --date=relative --decorate=short --all $@ }
-fn gtree-simple [@]{ gtree --pretty=oneline $@ }
+g--ff = '--ff-only'
+g--rela = '--date=relative'
+g--ol = '--pretty=oneline'
+fn gtree [@]{ e:git log --graph --abbrev-commit $g--rela --decorate=short --all $@ }
 fn gdh [@]{ e:git diff HEAD $@  }
-fn gsign-on { e:git config commit.gpgsign true }
-fn gsign-off { e:git config commit.gpgsign false }
+fn gsign_on { e:git config commit.gpgsign true }
+fn gsign_off { e:git config commit.gpgsign false }
 
 # nvm does not want to see a prefix
 fn nvm_on { e:npm config delete prefix }
@@ -64,7 +66,7 @@ fn sddm-test-theme [@]{ e:sddm-greeter --test-mode --theme $@ }
 fn serve { e:browser-sync start --server }
 
 # count files of folder
-fn file_count [@]{ e:find $@ -type f | wc -l }
+fn count-file [@]{ e:find $@ -type f | wc -l }
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }

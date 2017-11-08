@@ -3,4 +3,20 @@
 !/.directory
 !/bin/bin/.directory
 
+# elvish
 /elvish/.elvish/db-journal
+
+# atom
+/atom
+!/atom/.atom/.apmrc
+!/atom/.atom/keymap.cson
+!/atom/.atom/styles.less
+
+# fcitx
+/fcitx
+!/fcitx/.config/fcitx/config
+!/fcitx/.config/fcitx/data/QuickPhrase.mb
+
+# tint2
+/tint2
+!/tint2/.config/tint2/tint2rc

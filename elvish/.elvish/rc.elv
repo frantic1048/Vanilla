@@ -31,6 +31,8 @@ fn aria [@]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn n [@]{ e:npm $@ }
 fn y [@]{ e:yarn $@ }
 fn g [@]{ e:git $@ }
+fn gtree [@]{ e:git log --graph --abbrev-commit --date=relative --decorate=short --all $@ }
+fn gtree-simple [@]{ gtree --pretty=oneline $@ }
 fn gdh [@]{ e:git diff HEAD $@  }
 fn gsign-on { e:git config commit.gpgsign true }
 fn gsign-off { e:git config commit.gpgsign false }

@@ -35,6 +35,7 @@ g--ff = '--ff-only'
 g--rela = '--date=relative'
 g--ol = '--pretty=oneline'
 fn gtree [@]{ e:git log --graph --abbrev-commit $g--rela --decorate=short --all $@ }
+fn gtreeo [@]{ gtree $g--ol $@ }
 fn gdh [@]{ e:git diff HEAD $@  }
 fn gsign_on { e:git config commit.gpgsign true }
 fn gsign_off { e:git config commit.gpgsign false }

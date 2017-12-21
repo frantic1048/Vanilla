@@ -1,3 +1,4 @@
+#!/bin/bash
 # by Felix Yan <https://github.com/felixonmars>
 # stat of system update
 

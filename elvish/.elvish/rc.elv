@@ -67,8 +67,11 @@ fn sddm-test-theme [@]{ e:sddm-greeter --test-mode --theme $@ }
 fn serve { e:browser-sync start --server }
 
 # count files of folder
+<<<<<<< HEAD
 fn count-file [@]{ e:find $@ -type f | wc -l }
+=======
+fn file_count [@]{ e:find $@ -type f | wc -l }
+>>>>>>> emmmm
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }
-

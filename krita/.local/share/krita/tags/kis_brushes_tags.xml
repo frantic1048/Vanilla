@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE tags>
 <tags>
- <resource md5="Rv/3t1whpyuUA8uuSc4lSg==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/3_dotted-flat2.png">
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/3_starfield.png" md5="JEJf9OTXdXXk6ufxsGgxHw==">
+  <tag blacklisted="false">deevad-v8-2</tag>
   <tag blacklisted="false">deevad-v8</tag>
-  <tag blacklisted="false">deevad-v8-2</tag>
  </resource>
- <resource md5="dXsPWtgnhW5RnlqJ+0xW6w==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/deevad_bristle.png">
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/3_dotted-flat2.png" md5="Rv/3t1whpyuUA8uuSc4lSg==">
   <tag blacklisted="false">deevad-v8-2</tag>
- </resource>
- <resource md5="UhAm7KMt9GLGdtPFi99Mpg==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/deevad_vegetal-stylised_colormask_01.gih">
   <tag blacklisted="false">deevad-v8</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/flat-tip-dirty.gbr" md5="JVtTzd/wO//T5rmYJYsxpg==">
   <tag blacklisted="false">deevad-v8-2</tag>
  </resource>
- <resource md5="JVtTzd/wO//T5rmYJYsxpg==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/flat-tip-dirty.gbr">
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/3_paint-sketch-b.png" md5="XL977N/Dc3Wa8QtRKL3iGA==">
   <tag blacklisted="false">deevad-v8-2</tag>
  </resource>
- <resource md5="JEJf9OTXdXXk6ufxsGgxHw==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/3_starfield.png">
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/deevad_hair.png" md5="DhBirZeQHL8/8hJ8e7zO1w==">
+  <tag blacklisted="false">deevad-v8-2</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/deevad_bristle.png" md5="dXsPWtgnhW5RnlqJ+0xW6w==">
+  <tag blacklisted="false">deevad-v8-2</tag>
+ </resource>
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/tree flowers speedpainting strokes.gbr" md5="A7LcCKcVY0sjFsU+taBVXA==">
+  <tag blacklisted="false">deevad-v8-2</tag>
   <tag blacklisted="false">deevad-v8</tag>
-  <tag blacklisted="false">deevad-v8-2</tag>
  </resource>
- <resource md5="A7LcCKcVY0sjFsU+taBVXA==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/tree flowers speedpainting strokes.gbr">
+ <resource identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/deevad_vegetal-stylised_colormask_01.gih" md5="UhAm7KMt9GLGdtPFi99Mpg==">
+  <tag blacklisted="false">deevad-v8-2</tag>
   <tag blacklisted="false">deevad-v8</tag>
-  <tag blacklisted="false">deevad-v8-2</tag>
- </resource>
- <resource md5="DhBirZeQHL8/8hJ8e7zO1w==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/deevad_hair.png">
-  <tag blacklisted="false">deevad-v8-2</tag>
- </resource>
- <resource md5="XL977N/Dc3Wa8QtRKL3iGA==" identifier="bundle://~/.local/share/krita/bundles/deevad-v8-2.bundle:brushes/3_paint-sketch-b.png">
-  <tag blacklisted="false">deevad-v8-2</tag>
  </resource>
  <resource identifier="dummy">
   <tag blacklisted="false">deevad-v8</tag>

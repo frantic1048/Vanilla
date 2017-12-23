@@ -29,7 +29,8 @@ fn r [@]{ e:rsync $@ }
 fn d [@]{ e:docker $@ }
 fn n [@]{ e:npm $@ }
 fn y [@]{ e:yarn $@ }
-y--regin = '--registry=https://npm.in.chaitin.com'
+fn rua [@]{ e:rustup $@ }
+y--regin = '--registry=http://npm.in.chaitin.com'
 fn g [@]{ e:git $@ }
 g--ff = '--ff-only'
 g--rela = '--date=relative'

@@ -72,3 +72,9 @@ fn count-file [@]{ e:find $@ -type f | wc -l }
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }
+
+# get WAN IP address
+fn ipwan { e:dig +short myip.opendns.com @resolver1.opendns.com }
+# get ipinfo(need prpr configured)
+fn ipinfo [@]{ prpr curl --silent ipinfo.io/$@ }
+fn ipwaninfo { ipinfo (ipwan) }

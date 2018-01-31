@@ -18,26 +18,26 @@ fn emsdk_env {
 }
 
 # aliases
-fn l [@]{ e:ls --color $@ }
-fn p [@]{ e:pacaur $@ }
-fn pping [@]{ e:prettyping $@ }
-fn atom [@]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@ & }
-fn nano [@]{ e:nano -w $@ }
-fn aria [@]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
-fn s [@]{ e:systemctl $@ }
-fn r [@]{ e:rsync $@ }
-fn d [@]{ e:docker $@ }
-fn n [@]{ e:npm $@ }
-fn y [@]{ e:yarn $@ }
-fn rua [@]{ e:rustup $@ }
+fn l [@args]{ e:ls --color $@args }
+fn p [@args]{ e:pacaur $@args }
+fn pping [@args]{ e:prettyping $@args }
+fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
+fn nano [@args]{ e:nano -w $@args }
+fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
+fn s [@args]{ e:systemctl $@args }
+fn r [@args]{ e:rsync $@args }
+fn d [@args]{ e:docker $@args }
+fn n [@args]{ e:npm $@args }
+fn y [@args]{ e:yarn $@args }
+fn rua [@args]{ e:rustup $@args }
 
-fn g [@]{ e:git $@ }
+fn g [@args]{ e:git $@args }
 g--ff = '--ff-only'
 g--rela = '--date=relative'
 g--ol = '--pretty=oneline'
-fn gtree [@]{ e:git log --graph --abbrev-commit $g--rela --decorate=short --all $@ }
-fn gtreeo [@]{ gtree $g--ol $@ }
-fn gdh [@]{ e:git diff HEAD $@  }
+fn gtree [@args]{ e:git log --graph --abbrev-commit $g--rela --decorate=short --all $@args }
+fn gtreeo [@args]{ gtree $g--ol $@args }
+fn gdh [@args]{ e:git diff HEAD $@args  }
 fn gsign_on { e:git config commit.gpgsign true }
 fn gsign_off { e:git config commit.gpgsign false }
 
@@ -50,11 +50,11 @@ fn nvm_off { e:npm config set prefix /home/chino/npm-global }
 fn phantomjs { e:env QT_QPA_PLATFORM='' phantomjs }
 
 # disable annoying auto word wrap...
-fn nano [@]{ e:nano -w $@ }
+fn nano [@args]{ e:nano -w $@args }
 
 fn neofetch { e:neofetch --shell_version off}
 
-fn prpr [@]{ e:proxychains $@ }
+fn prpr [@args]{ e:proxychains $@args }
 fn prprme { e:proxychains elvish }
 
 # simple py http server
@@ -62,13 +62,13 @@ fn pyserv { e:python -m http.server }
 
 # test sddm theme
 # sddm-test-theme PATH/TO/THEME
-fn sddm-test-theme [@]{ e:sddm-greeter --test-mode --theme $@ }
+fn sddm-test-theme [@args]{ e:sddm-greeter --test-mode --theme $@args }
 
 # browser-sync
 fn serve { e:browser-sync start --server }
 
 # count files of folder
-fn count-file [@]{ e:find $@ -type f | wc -l }
+fn count-file [@args]{ e:find $@args -type f | wc -l }
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }
@@ -76,5 +76,5 @@ fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port
 # get WAN IP address
 fn ipwan { e:dig +short myip.opendns.com @resolver1.opendns.com }
 # get ipinfo(need prpr configured)
-fn ipinfo [@]{ prpr curl --silent ipinfo.io/$@ }
+fn ipinfo [@args]{ prpr curl --silent ipinfo.io/$@args }
 fn ipwaninfo { ipinfo (ipwan) }

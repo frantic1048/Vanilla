@@ -1,14 +1,16 @@
 #!/bin/env elvish
 
-#Mouse = 'Lenovo USB Receiver'
-Mouse = 'Logitech USB Receiver'
+use re
+
+Mouse = 'Lenovo USB Receiver'
+#Mouse = 'Logitech USB Receiver'
 DeviceAccelProfile = 'libinput Accel Profile Enabled'
 Acc = [1 0]
 NoAcc = [0 1]
 
 DeviceAccelConstantDeceleration = 'libinput Accel Speed'
 AccSpeed = '-0.2'
-NoAccSpeed = '1'
+NoAccSpeed = '0.4'
 
 echo 'finding mouse: '$Mouse
 

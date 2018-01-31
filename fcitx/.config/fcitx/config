@@ -62,9 +62,9 @@ IMSwitchHotkey=ALT_SUPER
 # Switch Full Width Punc Mode
 #PuncSwitchKey=CTRL_.
 # Prev Page
-#PrevPageKey=- UP
+PrevPageKey=- ,
 # Next Page
-#NextPageKey== DOWN
+NextPageKey== .
 # Choose Second and Third Candidate Word
 #SecondThirdCandWordKey=
 # Saving All Config and Input History

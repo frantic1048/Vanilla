@@ -41,6 +41,7 @@ fn gtreeo [@args]{ gtree $g--ol $@args }
 fn gdh [@args]{ e:git diff HEAD $@args  }
 fn gsign_on { e:git config commit.gpgsign true }
 fn gsign_off { e:git config commit.gpgsign false }
+fn gloc [@args]{ e:cloc $@args (g ls-files) }
 
 # nvm does not want to see a prefix
 fn nvm_on { e:npm config delete prefix }

@@ -26,7 +26,8 @@ fn nano [@args]{ e:nano -w $@args }
 fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s [@args]{ e:systemctl $@args }
 fn r [@args]{ e:rsync $@args }
-fn t [@args]{ e:ydcv $@args }
+fn t [@args]{ e:ydcv -s $@args }
+fn tt [@args]{ e:ydcv $@args }
 fn d [@args]{ e:docker $@args }
 fn n [@args]{ e:npm $@args }
 fn y [@args]{ e:yarn $@args }

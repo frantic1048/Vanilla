@@ -18,6 +18,11 @@ fn emsdk_env {
 }
 
 # aliases
+
+# refresh rc.elv
+fn rc { -source {~}/.elvish/rc.elv }
+
+fn c { e:clear }
 fn l [@args]{ e:ls --color $@args }
 fn p [@args]{ e:pacaur $@args }
 fn pping [@args]{ e:prettyping $@args }
@@ -25,14 +30,16 @@ fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disabl
 fn nano [@args]{ e:nano -w $@args }
 fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s [@args]{ e:systemctl $@args }
-fn r [@args]{ e:rsync $@args }
+fn r [@args]{ e:rg $@args }
+fn rs [@args]{ e:rsync @args }
 fn t [@args]{ e:ydcv -s $@args }
 fn tt [@args]{ e:ydcv $@args }
 fn d [@args]{ e:docker $@args }
 fn n [@args]{ e:npm $@args }
 fn y [@args]{ e:yarn $@args }
-fn rua [@args]{ e:rustup $@args }
+fn yrst { e:rm -rf ./node_modules/;y }
 
+fn rua [@args]{ e:rustup $@args }
 fn g [@args]{ e:git $@args }
 g--ff = '--ff-only'
 g--rela = '--date=relative'
@@ -46,7 +53,7 @@ fn gloc [@args]{ e:cloc $@args (g ls-files) }
 
 # nvm does not want to see a prefix
 fn nvm_on { e:npm config delete prefix }
-fn nvm_off { e:npm config set prefix /home/chino/npm-global }
+fn nvm_off { e:npm config set prefix {~}/npm-global }
 
 # FIX phantomjs crash issue
 # https://github.com/ariya/phantomjs/issues/14061

@@ -1,5 +1,8 @@
 #!/bin/elvish
 
+use re
+#use 1048
+
 # env vars
 E:PATH = {$E:PATH}:{~}/npm-global/bin:{~}/.gem/ruby/2.2.0/bin:{~root}/.composer/vendor/bin:{~}/bin
 E:NODE_PATH = {~}/npm-global/lib/node_modules/:/usr/lib/node_modules/:{$E:NODE_PATH}
@@ -27,7 +30,7 @@ fn l [@args]{ e:ls --color $@args }
 fn p [@args]{ e:pacaur $@args }
 fn pping [@args]{ e:prettyping $@args }
 fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
-fn nano [@args]{ e:nano -w $@args }
+fn code [@args]{ /opt/visual-studio-code/code --disable-gpu & }
 fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s [@args]{ e:systemctl $@args }
 fn r [@args]{ e:rg $@args }
@@ -40,7 +43,17 @@ fn y [@args]{ e:yarn $@args }
 fn yrst { e:rm -rf ./node_modules/;y }
 
 fn rua [@args]{ e:rustup $@args }
-fn g [@args]{ e:git $@args }
+fn g [@args]{
+  fn gss []{
+    echo TBD
+  }
+  if (eq (count $args) 0) { g --help; return }
+
+  op @rest = $@args
+
+  if (eq $op 'ss') { gss; return }
+  e:git $@args
+}
 g--ff = '--ff-only'
 g--rela = '--date=relative'
 g--ol = '--pretty=oneline'

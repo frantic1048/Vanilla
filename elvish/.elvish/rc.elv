@@ -37,6 +37,7 @@ fn r [@args]{ e:rg $@args }
 fn rs [@args]{ e:rsync @args }
 fn t [@args]{ e:ydcv -s $@args }
 fn tt [@args]{ e:ydcv $@args }
+fn i [@args]{ e:time $@args }
 fn d [@args]{ e:docker $@args }
 fn n [@args]{ e:npm $@args }
 fn y [@args]{ e:yarn $@args }
@@ -44,14 +45,31 @@ fn yrst { e:rm -rf ./node_modules/;y }
 
 fn rua [@args]{ e:rustup $@args }
 fn g [@args]{
-  fn gss []{
+  fn ss []{
+    # stash staged file
     echo TBD
   }
+  fn cbr []{ replaces "## " "" (g status -sb -uno) }
+  fn pu []{
+    g push -u origin (g cbr)
+  }
+  fn frp []{
+    g add .
+    g commit --amend --no-verify --no-edit
+    g push --force
+  }
+
   if (eq (count $args) 0) { g --help; return }
 
   op @rest = $@args
 
-  if (eq $op 'ss') { gss; return }
+  #if (eq $op 'ss') { ss; return }
+  if (eq $op 'b') { g branch $@rest; return }
+  if (eq $op 'c') { g commit $@rest; return }
+  if (eq $op 'cbr') { cbr; return }
+  if (eq $op 'p') { g push $@rest; return }
+  if (eq $op 'pu') { pu; return }
+  if (eq $op 'frp') { frp; return }
   e:git $@args
 }
 g--ff = '--ff-only'

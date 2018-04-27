@@ -49,11 +49,11 @@ fn g [@args]{
     # stash staged file
     echo TBD
   }
-  fn cbr []{ replaces "## " "" (g status -sb -uno) }
+  fn cb []{ replaces "## " "" (g status -sb -uno) }
   fn pu []{
     g push -u origin (g cbr)
   }
-  fn frp []{
+  fn RP []{
     g add .
     g commit --amend --no-verify --no-edit
     g push --force
@@ -64,12 +64,24 @@ fn g [@args]{
   op @rest = $@args
 
   #if (eq $op 'ss') { ss; return }
+  if (eq $op 'a') { g add $@rest; return }
   if (eq $op 'b') { g branch $@rest; return }
   if (eq $op 'c') { g commit $@rest; return }
-  if (eq $op 'cbr') { cbr; return }
+  if (eq $op 'ck') { g checkout $@rest; return }
+  if (eq $op 'cb') { cb; return }
+  if (eq $op 'cp') { g cherry-pick $@rest; return }
+  if (eq $op 'fe') { g fetch $@rest; return }
+  if (eq $op 'm') { g merge $@rest; return }
   if (eq $op 'p') { g push $@rest; return }
   if (eq $op 'pu') { pu; return }
-  if (eq $op 'frp') { frp; return }
+  if (eq $op 'pl') { g pull $@rest; return }
+  if (eq $op 'rb') { g rebase $@rest; return }
+  if (eq $op 'rbm') { g rebase $@rest master; return }
+  if (eq $op 'rs') { g reset $@rest; return }
+  if (eq $op 'rs1') { g reset "HEAD~1"; return }
+  if (eq $op 'tu') { g status $@rest; return }
+  if (eq $op 'ta') { g stash $@rest; return }
+  if (eq $op 'RP') { RP; return }
   e:git $@args
 }
 g--ff = '--ff-only'

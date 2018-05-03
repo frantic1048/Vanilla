@@ -49,9 +49,9 @@ fn g [@args]{
     # stash staged file
     echo TBD
   }
-  fn cb []{ replaces "## " "" (g status -sb -uno) }
+  fn cb []{ g rev-parse --abbrev-ref HEAD }
   fn pu []{
-    g push -u origin (g cbr)
+    g push -u origin (g cb)
   }
   fn RP []{
     g add .
@@ -68,6 +68,8 @@ fn g [@args]{
   if (eq $op 'b') { g branch $@rest; return }
   if (eq $op 'c') { g commit $@rest; return }
   if (eq $op 'ck') { g checkout $@rest; return }
+  if (eq $op 'ckb') { g checkout -b $@rest; return }
+  if (eq $op 'ckm') { g checkout master; return }
   if (eq $op 'cb') { cb; return }
   if (eq $op 'cp') { g cherry-pick $@rest; return }
   if (eq $op 'fe') { g fetch $@rest; return }

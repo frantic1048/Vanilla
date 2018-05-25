@@ -1,6 +1,9 @@
 # dolphin
 .directory
 
+# Atom imdone
+/.imdone
+
 # node
 node_modules
 

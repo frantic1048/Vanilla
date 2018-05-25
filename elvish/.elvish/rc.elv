@@ -45,6 +45,11 @@ fn yrst { e:rm -rf ./node_modules/;y }
 
 fn rua [@args]{ e:rustup $@args }
 fn g [@args]{
+  g--rela = '--date=relative'
+  g--ff = '--ff-only'
+  g--ol = '--pretty=oneline'
+
+  fn loc [@args]{ e:cloc $@args (g ls-files) }
   fn ss []{
     # stash staged file
     echo TBD
@@ -53,6 +58,34 @@ fn g [@args]{
   fn pu []{
     g push -u origin (g cb)
   }
+  fn w []{
+  # in case of Martians invading...
+  # push a wip commit to remote branch(execpt on master)
+  # TODO:
+  # create new WIP branch in case of
+  # directly edited on master
+  # or (better) push to another repo
+  # for storing WIP changes
+    if (eq (g cb) 'master') {
+      echo 'Do NOT push WIP to master!'
+      echo 'aborting...'
+      return 9
+    }
+
+    g a .
+    g c -n -m 'WIP'
+    g p --force
+    g rs1
+  }
+
+  fn gtr [@args]{
+    g log --graph --abbrev-commit $g--rela --decorate=short --all $@args
+  }
+
+  fn gtro [@args]{
+    g tr $g--ol $@args
+  }
+
   fn RP []{
     g add .
     g commit --amend --no-verify --no-edit
@@ -72,29 +105,36 @@ fn g [@args]{
   if (eq $op 'ckm') { g checkout master; return }
   if (eq $op 'cb') { cb; return }
   if (eq $op 'cp') { g cherry-pick $@rest; return }
+  if (eq $op 'cpc') { g cherry-pick --continue $@rest; return }  
+  if (eq $op 'cpa') { g cherry-pick --abort $@rest; return }
+  if (eq $op 'dh') { g diff HEAD $@rest; return }
   if (eq $op 'fe') { g fetch $@rest; return }
   if (eq $op 'm') { g merge $@rest; return }
+  if (eq $op 'l') { loc $@rest; return }
   if (eq $op 'p') { g push $@rest; return }
+  if (eq $op 'P') { g push --force $@rest; return }
   if (eq $op 'pu') { pu; return }
   if (eq $op 'pl') { g pull $@rest; return }
   if (eq $op 'rb') { g rebase $@rest; return }
   if (eq $op 'rbm') { g rebase $@rest master; return }
+  if (eq $op 'rba') { g rebase --abort; return }
+  if (eq $op 'rbc') { g rebase --continue; return }
+  if (eq $op 'rbs') { g rebase --skip; return }
   if (eq $op 'rs') { g reset $@rest; return }
   if (eq $op 'rs1') { g reset "HEAD~1"; return }
   if (eq $op 'tu') { g status $@rest; return }
   if (eq $op 'ta') { g stash $@rest; return }
+  if (eq $op 'tr') { gtr $@rest; return }
+  if (eq $op 'tro') { gtro $@rest; return }
+  if (eq $op 'w') { w; return }
   if (eq $op 'RP') { RP; return }
   e:git $@args
 }
-g--ff = '--ff-only'
-g--rela = '--date=relative'
-g--ol = '--pretty=oneline'
-fn gtree [@args]{ e:git log --graph --abbrev-commit $g--rela --decorate=short --all $@args }
-fn gtreeo [@args]{ gtree $g--ol $@args }
-fn gdh [@args]{ e:git diff HEAD $@args  }
+
+# TODO: merge into g
 fn gsign_on { e:git config commit.gpgsign true }
 fn gsign_off { e:git config commit.gpgsign false }
-fn gloc [@args]{ e:cloc $@args (g ls-files) }
+
 
 # nvm does not want to see a prefix
 fn nvm_on { e:npm config delete prefix }

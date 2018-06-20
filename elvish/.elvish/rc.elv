@@ -24,7 +24,7 @@ fn emsdk_env {
 
 # refresh rc.elv
 fn rc { -source {~}/.elvish/rc.elv }
-
+fn b [@args]{ e:bat $@args }
 fn c { e:clear }
 fn l [@args]{ e:ls --color $@args }
 fn p [@args]{ e:pacaur $@args }
@@ -33,6 +33,7 @@ fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disabl
 fn code [@args]{ /opt/visual-studio-code/code --disable-gpu & }
 fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s [@args]{ e:systemctl $@args }
+fn f [@args]{ e:fd $@args }
 fn r [@args]{ e:rg $@args }
 fn rs [@args]{ e:rsync @args }
 fn t [@args]{ e:ydcv -s $@args }
@@ -51,7 +52,9 @@ fn g [@args]{
 
   fn loc [@args]{ e:cloc $@args (g ls-files) }
   fn ss []{
-    # stash staged file
+    # stage staged file
+    # g tu -s -uno
+    # MM AM AD
     echo TBD
   }
   fn cb []{ g rev-parse --abbrev-ref HEAD }
@@ -79,11 +82,19 @@ fn g [@args]{
   }
 
   fn gtr [@args]{
+    g log --graph --abbrev-commit $g--rela --decorate=short --single-worktree $@args
+  }
+
+  fn gtrr [@args]{
     g log --graph --abbrev-commit $g--rela --decorate=short --all $@args
   }
 
-  fn gtro [@args]{
-    g tr $g--ol $@args
+  fn gto [@args]{
+    g tr $g--ol --single-worktree  $@args
+  }
+
+  fn gtoo [@args]{
+   g tr $g--ol --all $@args
   }
 
   fn RP []{
@@ -92,7 +103,7 @@ fn g [@args]{
     g push --force
   }
 
-  if (eq (count $args) 0) { g --help; return }
+  if (eq (count $args) 0) { g tu -s; return }
 
   op @rest = $@args
 
@@ -105,7 +116,7 @@ fn g [@args]{
   if (eq $op 'ckm') { g checkout master; return }
   if (eq $op 'cb') { cb; return }
   if (eq $op 'cp') { g cherry-pick $@rest; return }
-  if (eq $op 'cpc') { g cherry-pick --continue $@rest; return }  
+  if (eq $op 'cpc') { g cherry-pick --continue $@rest; return }
   if (eq $op 'cpa') { g cherry-pick --abort $@rest; return }
   if (eq $op 'dh') { g diff HEAD $@rest; return }
   if (eq $op 'fe') { g fetch $@rest; return }
@@ -125,7 +136,9 @@ fn g [@args]{
   if (eq $op 'tu') { g status $@rest; return }
   if (eq $op 'ta') { g stash $@rest; return }
   if (eq $op 'tr') { gtr $@rest; return }
-  if (eq $op 'tro') { gtro $@rest; return }
+  if (eq $op 'trr') { gtrr $@rest; return }
+  if (eq $op 'to') { gto $@rest; return }
+  if (eq $op 'too') { gtoo $@rest; return }
   if (eq $op 'w') { w; return }
   if (eq $op 'RP') { RP; return }
   e:git $@args
@@ -147,6 +160,8 @@ fn phantomjs { e:env QT_QPA_PLATFORM='' phantomjs }
 # disable annoying auto word wrap...
 fn nano [@args]{ e:nano -w $@args }
 
+fn bat [@args]{ e:bat --theme="TwoDark" $@args }
+
 fn neofetch { e:neofetch --shell_version off}
 
 fn prpr [@args]{ e:proxychains $@args }
@@ -162,8 +177,9 @@ fn sddm-test-theme [@args]{ e:sddm-greeter --test-mode --theme $@args }
 # browser-sync
 fn serve { e:browser-sync start --server }
 
-# count files of folder
+# count files/matches of folder
 fn count-file [@args]{ e:find $@args -type f | wc -l }
+fn count-match [pattern]{ + (e:rg -ci --no-filename $pattern )}
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }
@@ -173,3 +189,6 @@ fn ipwan { e:dig +short myip.opendns.com @resolver1.opendns.com }
 # get ipinfo(need prpr configured)
 fn ipinfo [@args]{ prpr curl --silent ipinfo.io/$@args }
 fn ipwaninfo { ipinfo (ipwan) }
+
+
+edit:prompt = { put (tilde-abbr $pwd)'> '; }

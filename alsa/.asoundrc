@@ -1,0 +1,1 @@
+defaults.pcm.rate_converter "speexrate_best"

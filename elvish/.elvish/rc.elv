@@ -22,9 +22,15 @@ fn emsdk_env {
 
 # aliases
 
+# UPSTREAM:
+#
+# not working, because of the scope
+# execute `-source {~}/.elvish/rc.elv` directly
+#
 # refresh rc.elv
-fn rc { -source {~}/.elvish/rc.elv }
-fn b [@args]{ e:bat $@args }
+# fn rc { -source {~}/.elvish/rc.elv }
+
+fn b [@args]{ e:bat --theme="TwoDark" $@args }
 fn c { e:clear }
 fn l [@args]{ e:ls --color $@args }
 fn p [@args]{ e:pacaur $@args }
@@ -57,7 +63,6 @@ fn g [@args]{
     # MM AM AD
     echo TBD
   }
-  fn cb []{ g rev-parse --abbrev-ref HEAD }
   fn pu []{
     g push -u origin (g cb)
   }
@@ -107,14 +112,24 @@ fn g [@args]{
 
   op @rest = $@args
 
+
   #if (eq $op 'ss') { ss; return }
   if (eq $op 'a') { g add $@rest; return }
-  if (eq $op 'b') { g branch $@rest; return }
+  if (eq $op 'b') {
+    if (eq (count $rest) 0) {
+      git for-each-ref --sort=committerdate 'refs/heads/' --format="%(HEAD) %(color:#89FE9F)%(refname:short)%(color:reset) %(color:#FEA090)%(objectname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))"
+    } else {
+      git branch $@rest
+    }
+    return
+  }
+  if (eq $op 'bl') { g blame $@rest; return }
   if (eq $op 'c') { g commit $@rest; return }
+  if (eq $op 'cnm') { g c -n -m $@rest; return }
   if (eq $op 'ck') { g checkout $@rest; return }
   if (eq $op 'ckb') { g checkout -b $@rest; return }
   if (eq $op 'ckm') { g checkout master; return }
-  if (eq $op 'cb') { cb; return }
+  if (eq $op 'cb') { g rev-parse --abbrev-ref HEAD; return }
   if (eq $op 'cp') { g cherry-pick $@rest; return }
   if (eq $op 'cpc') { g cherry-pick --continue $@rest; return }
   if (eq $op 'cpa') { g cherry-pick --abort $@rest; return }
@@ -131,6 +146,7 @@ fn g [@args]{
   if (eq $op 'rba') { g rebase --abort; return }
   if (eq $op 'rbc') { g rebase --continue; return }
   if (eq $op 'rbs') { g rebase --skip; return }
+  if (eq $op 'ro') { g rev-parse --show-toplevel; return }
   if (eq $op 'rs') { g reset $@rest; return }
   if (eq $op 'rs1') { g reset "HEAD~1"; return }
   if (eq $op 'tu') { g status $@rest; return }
@@ -140,8 +156,13 @@ fn g [@args]{
   if (eq $op 'to') { gto $@rest; return }
   if (eq $op 'too') { gtoo $@rest; return }
   if (eq $op 'w') { w; return }
+  if (eq $op 'wc') { g whatchanged -p $@rest; return }
   if (eq $op 'RP') { RP; return }
   e:git $@args
+}
+
+fn br []{
+  git for-each-ref 'refs/heads' --format="%(color:cyan)%(refname:short)"
 }
 
 # TODO: merge into g

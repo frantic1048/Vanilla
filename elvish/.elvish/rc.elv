@@ -81,8 +81,8 @@ fn g [@args]{
     }
 
     g a .
-    g c -n -m 'WIP'
-    g p --force
+    g cnm 'WIP'
+    g P
     g rs1
   }
 
@@ -126,6 +126,8 @@ fn g [@args]{
   if (eq $op 'bl') { g blame $@rest; return }
   if (eq $op 'c') { g commit $@rest; return }
   if (eq $op 'cnm') { g c -n -m $@rest; return }
+  if (eq $op 'f') { g c -n --fixup ':/'$@rest; return }
+  if (eq $op 'ff') { g c -n --fixup $@rest; return }
   if (eq $op 'ck') { g checkout $@rest; return }
   if (eq $op 'ckb') { g checkout -b $@rest; return }
   if (eq $op 'ckm') { g checkout master; return }
@@ -136,13 +138,16 @@ fn g [@args]{
   if (eq $op 'dh') { g diff HEAD $@rest; return }
   if (eq $op 'fe') { g fetch $@rest; return }
   if (eq $op 'm') { g merge $@rest; return }
-  if (eq $op 'l') { loc $@rest; return }
+  if (eq $op 'loc') { loc $@rest; return }
   if (eq $op 'p') { g push $@rest; return }
   if (eq $op 'P') { g push --force $@rest; return }
   if (eq $op 'pu') { pu; return }
   if (eq $op 'pl') { g pull $@rest; return }
   if (eq $op 'rb') { g rebase $@rest; return }
+  if (eq $op 'rbo') { g rebase --onto $@rest; return }
+  if (eq $op 'rbi') { g rebase -i $@rest; return }
   if (eq $op 'rbm') { g rebase $@rest master; return }
+  if (eq $op 'rbim') { g rebase -i $@rest master; return }
   if (eq $op 'rba') { g rebase --abort; return }
   if (eq $op 'rbc') { g rebase --continue; return }
   if (eq $op 'rbs') { g rebase --skip; return }
@@ -151,6 +156,7 @@ fn g [@args]{
   if (eq $op 'rs1') { g reset "HEAD~1"; return }
   if (eq $op 'tu') { g status $@rest; return }
   if (eq $op 'ta') { g stash $@rest; return }
+  if (eq $op 'rl') { g reflog $@rest; return }
   if (eq $op 'tr') { gtr $@rest; return }
   if (eq $op 'trr') { gtrr $@rest; return }
   if (eq $op 'to') { gto $@rest; return }

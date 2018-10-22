@@ -22,3 +22,7 @@
  * [not bad] Nothing You Could Do 
  * Alex Brush
  */
+
+[id="workbench.parts.sidebar"] {
+  background: transparent !important;
+}

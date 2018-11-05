@@ -1,17 +1,3 @@
-/*.mtk3  /* crayon vscode */
-/* .mtk11 /* tommorow night blue */
-.mtk16, .mtk5 /*dark+*/
- {
-  font-family: "Bilbo" !important;
-  font-size: 1.8em;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
-}
-
-.mtk11 /*dark+*/ {
-  font-family: "IM Fell English SC";
-  font-size: 1.6em;
-}
-
 /*
  *
  * [too cursive] Cedarville Cursive
@@ -23,6 +9,79 @@
  * Alex Brush
  */
 
+/*.mtk3  /* crayon vscode */
+/* .mtk11 /* tommorow night blue */
+.mtk15, .mtk4 /*dark+*/
+ {
+  font-family: "Bilbo" !important;
+  font-size: 1.8em;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+.mtk10 /*dark+*/ {
+  font-family: "IM Fell English SC";
+  font-size: 1.6em;
+}
+
 [id="workbench.parts.sidebar"] {
+  background: transparent !important;
+}
+
+[id="workbench.parts.statusbar"] {
+  background: transparent !important;
+}
+
+[id="workbench.parts.editor"] > .content {
+  background: transparent !important;
+}
+
+/* text color in sidebar, etc. */
+.monaco-shell {
+  /* color: #fac; */
+}
+
+/*
+ * wp: http://rabbithouse/wallpaper/yande.re%20480256.jpg
+ */
+
+.monaco-workbench {
+  background: transparent !important;
+  background-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.75),
+      rgba(0, 0, 0, 0.7)
+    ),
+    url("http://rabbithouse/wallpaper/yande.re%20480256.jpg") !important;
+  background-attachment: fixed, fixed !important;
+  background-repeat: no-repeat, no-repeat !important;
+  /* background-size: cover, 1920px 1389.5314285714285px !important; */
+  background-size: cover, cover !important;
+  background-position: center, center !important;
+}
+
+/* container of tabs and buttons */
+.title.tabs {
+  background: transparent !important;
+}
+
+.tab {
+  background: transparent !important;
+}
+
+.tab.active {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.editor-container {
+  background: transparent !important;
+}
+
+.monaco-editor,
+.monaco-editor-background,
+.monaco-editor .margin {
+  background: transparent !important;
+}
+
+.monaco-editor.focused {
   background: transparent !important;
 }

@@ -126,6 +126,7 @@ fn g [@args]{
   if (eq $op 'bl') { g blame $@rest; return }
   if (eq $op 'c') { g commit $@rest; return }
   if (eq $op 'cnm') { g c -n -m $@rest; return }
+  if (eq $op 'cnmw') { g a .; g c -n --allow-empty -m '[skip ci] wip'; return }
   if (eq $op 'f') { g c -n --fixup ':/'$@rest; return }
   if (eq $op 'ff') { g c -n --fixup $@rest; return }
   if (eq $op 'ck') { g checkout $@rest; return }

@@ -40,23 +40,21 @@
   /* color: #fac; */
 }
 
-/*
- * wp: http://rabbithouse/wallpaper/yande.re%20480256.jpg
- */
-
 .monaco-workbench {
   background: transparent !important;
   background-image: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.75),
-      rgba(0, 0, 0, 0.7)
+      rgba(0, 0, 0, 0.6),
+      rgba(0, 0, 0, 0.4)
     ),
-    url("http://rabbithouse/wallpaper/yande.re%20480256.jpg") !important;
+    url("http://rabbithouse/pandada/DSC_0000_BURST20181209214409075.avg.jpg") !important;
+  /* url("http://rabbithouse/wallpaper/Konachan.com - 32892 darker_than_black night pai scenic signed sky stars tree water.jpg") !important; */
+  /* url("http://rabbithouse/wallpaper/yande.re%20480256.jpg") !important; */
   background-attachment: fixed, fixed !important;
   background-repeat: no-repeat, no-repeat !important;
   /* background-size: cover, 1920px 1389.5314285714285px !important; */
   background-size: cover, cover !important;
-  background-position: center, center !important;
+  background-position: center, top !important;
 }
 
 /* container of tabs and buttons */
@@ -84,4 +82,8 @@
 
 .monaco-editor.focused {
   background: transparent !important;
+}
+
+.separator-border {
+  --separator-border: rgba(255, 255, 255, 0.1) !important;
 }

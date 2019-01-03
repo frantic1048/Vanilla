@@ -25,3 +25,11 @@
 # vscode
 /vscode
 !/vscode/.config/Code/custom_css.css
+
+# code
+/code-oss/*
+!/code-oss/.config
+/code-oss/.config/*
+!/code-oss/.config/Code - OSS
+/code-oss/.config/Code - OSS/*
+!/code-oss/.config/Code - OSS/custom_css.css

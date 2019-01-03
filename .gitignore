@@ -23,8 +23,15 @@
 !/tint2/.config/tint2/tint2rc
 
 # vscode
-/vscode
+/vscode/*
+!/vscode/.config
+/vscode/.config/*
+!/vscode/.config/Code
+/vscode/.config/Code/*
 !/vscode/.config/Code/custom_css.css
+!/vscode/.config/Code/User
+/vscode/.config/Code/User/*
+!/vscode/.config/Code/User/settings.json
 
 # code
 /code-oss/*

@@ -1,0 +1,32 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+  {
+    "key": "ctrl+.",
+    "command": "-editor.action.quickFix",
+    "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "ctrl+.",
+    "command": "tslint.fixAllProblems"
+  },
+  {
+    "key": "ctrl+,",
+    "command": "-workbench.action.openGlobalSettings"
+  },
+  {
+    "key": "ctrl+,",
+    "command": "-workbench.action.openSettings"
+  },
+  {
+    "key": "ctrl+,",
+    "command": "editor.action.quickFix"
+  },
+  {
+    "key": "ctrl+shift+g g",
+    "command": "workbench.view.scm"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "-workbench.view.scm"
+  }
+]

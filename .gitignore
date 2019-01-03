@@ -33,3 +33,6 @@
 !/code-oss/.config/Code - OSS
 /code-oss/.config/Code - OSS/*
 !/code-oss/.config/Code - OSS/custom_css.css
+!/code-oss/.config/Code - OSS/User
+/code-oss/.config/Code - OSS/User/*
+!/code-oss/.config/Code - OSS/User/settings.json

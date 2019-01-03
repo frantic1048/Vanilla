@@ -32,6 +32,7 @@
 !/vscode/.config/Code/User
 /vscode/.config/Code/User/*
 !/vscode/.config/Code/User/settings.json
+!/vscode/.config/Code/User/keybindings.json
 
 # code
 /code-oss/*
@@ -43,3 +44,4 @@
 !/code-oss/.config/Code - OSS/User
 /code-oss/.config/Code - OSS/User/*
 !/code-oss/.config/Code - OSS/User/settings.json
+!/code-oss/.config/Code - OSS/User/keybindings.json

@@ -4,8 +4,10 @@
 !/bin/bin/.directory
 
 # elvish
-/elvish/.elvish/db-journal
-/elvish/.elvish/db
+/elvish/*
+!/elvish/.elvish
+/elvish/.elvish/*
+!/elvish/.elvish/rc.elv
 
 # atom
 /atom

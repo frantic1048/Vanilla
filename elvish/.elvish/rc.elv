@@ -32,11 +32,13 @@ fn emsdk_env {
 
 fn b [@args]{ e:bat --theme="TwoDark" $@args }
 fn c { e:clear }
+fn e [@args]{ e:exa $@args }
+fn ee [@args]{ e:exa -l $@args }
 fn l [@args]{ e:ls --color $@args }
-fn p [@args]{ e:pacaur $@args }
+fn p [@args]{ e:pikaur $@args }
 fn pping [@args]{ e:prettyping $@args }
 fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
-fn code [@args]{ /opt/visual-studio-code/code --disable-gpu & }
+fn code [@args]{ e:code --disable-gpu & }
 fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s [@args]{ e:systemctl $@args }
 fn f [@args]{ e:fd $@args }

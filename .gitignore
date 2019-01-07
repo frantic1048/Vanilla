@@ -8,6 +8,7 @@
 !/elvish/.elvish
 /elvish/.elvish/*
 !/elvish/.elvish/rc.elv
+!/elvish/.elvish/lib
 
 # atom
 /atom

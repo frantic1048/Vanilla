@@ -2,8 +2,9 @@
 
 use re
 
-Mouse = 'Lenovo USB Receiver'
+#Mouse = 'Lenovo USB Receiver'
 #Mouse = 'Logitech USB Receiver'
+Mouse = 'Logitech G Pro Gaming Mouse'
 DeviceAccelProfile = 'libinput Accel Profile Enabled'
 Acc = [1 0]
 NoAcc = [0 1]

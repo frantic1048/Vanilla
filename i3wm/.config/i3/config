@@ -52,12 +52,12 @@ set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 276685.jpg
 
 # set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 385264.png
 # set $wallpaper ~/Media/pic/DA/new_paths__to_helicon___chosen_riders_of_doom_by_kuldarleement-d5uo7nj.jpg
-
+set $wallpaper /home/chino/Downloads/yande.re\ 411222.jpg
 # draw wallpaper XD
-#exec_always feh --bg-fill $wallpaper &
+exec_always feh --bg-fill $wallpaper &
 # dynamic wallpaper
-set $wallpaper_args --landscape -i 300
-exec_always ~/bin/fffwallpaper.sh $wallpaper_args &
+#set $wallpaper_args --landscape -i 300
+#exec_always ~/bin/fffwallpaper.sh $wallpaper_args &
 
 exec compton -b --config ~/.compton.conf &
 
@@ -67,7 +67,7 @@ exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
 # start tint2 as system tray
 exec tint2 -c $HOME/.config/tint2/tint2rc &
 
-exec "sh -c 'sleep 2;fcitx -r &'"
+exec "sh -c 'sleep 2;fcitx5 -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
 exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 exec "sh -c 'sleep 2;pasystray &'"
@@ -121,8 +121,8 @@ bindsym $mod+backslash exec ~/bin/fffwallpaper.sh $wallpaper_args &
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+Return exec sakura
-#bindsym $mod+Return exec alacritty
+#bindsym $mod+Return exec sakura
+bindsym $mod+Return exec alacritty
 
 # kill focused window
 bindsym $mod+x kill

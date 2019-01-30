@@ -214,6 +214,37 @@ SUITE 'findIndex' {
     }
 }
 
+fn find [list targetOrTestFn]{
+    testFn~=$nop~
+
+    if (eq (kind-of $targetOrTestFn) 'fn') {
+        testFn~=$targetOrTestFn
+    } else {
+        testFn~=[value]{ eq $value $targetOrTestFn }
+    }
+
+    for item $list {
+        if (testFn $item) {
+            put $item
+            break
+        }
+    }
+}
+SUITE 'find' {
+    IT '[1 2 3] 3 -> 3' {
+        ASSERT_EQ (find [1 2 3] 3) 3
+    }
+    IT '[1 2 3] 0 -> nothing' {
+        ASSERT_EQ [(find [1 2 3] 0)] []
+    }
+    IT 'customTestFn' {
+        ASSERT_EQ (find [1 3 5 7 9] [v]{ eq (% $v 5) 0 }) 5
+    }
+    IT 'customTestFn, no result' {
+        ASSERT_EQ [(find [1 3 5 7 9] [v]{ eq (% $v 9999) 0 })] []
+    }
+}
+
 fn hasKey [map searhKey]{
     != (findIndex [(keys $map)] $searhKey) -1
 }

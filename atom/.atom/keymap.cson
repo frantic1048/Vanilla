@@ -4,6 +4,10 @@
   'ctrl-|': 'symbols-tree-view:toggle'
   'alt-s': 'window:save-all'
 
+'.platform-linux':
+  # disable default keybinding resolver
+  'ctrl-.': 'unset!'
+
 'atom-text-editor:not([mini])':
 #  'ctrl-e': 'unset!'
   'ctrl-e' : 'emmet:expand-abbreviation'
@@ -14,3 +18,5 @@
   'alt-r': 'tern:rename'
   'alt-p': 'tern:documentation'
   'alt-;': 'tern:startCompletion'
+  'ctrl-.': 'linter-tslint:fix-file'
+  'ctrl-,': 'prettier:format'

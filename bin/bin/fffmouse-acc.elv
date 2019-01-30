@@ -4,14 +4,17 @@ use re
 
 #Mouse = 'Lenovo USB Receiver'
 #Mouse = 'Logitech USB Receiver'
-Mouse = 'Logitech G Pro Gaming Mouse'
+#Mouse = 'Logitech G Pro Gaming Mouse'
+Mouse = 'Logitech G102'
+
 DeviceAccelProfile = 'libinput Accel Profile Enabled'
 Acc = [1 0]
 NoAcc = [0 1]
 
 DeviceAccelConstantDeceleration = 'libinput Accel Speed'
-AccSpeed = '-0.2'
-NoAccSpeed = '0.4'
+AccSpeed = '0'
+# 1: Logitech G102
+NoAccSpeed = '1'
 
 echo 'finding mouse: '$Mouse
 

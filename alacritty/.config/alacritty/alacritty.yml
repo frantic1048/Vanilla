@@ -47,7 +47,7 @@ font:
     # style: Italic
 
   # Point size of the font
-  size: 10.0
+  size: 9
 
   # OS X only: use thin stroke font rendering. Thin strokes are suitable
   # for retina displays, but for non-retina you probably want this set to

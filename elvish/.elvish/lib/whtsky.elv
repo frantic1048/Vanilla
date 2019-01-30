@@ -130,6 +130,25 @@ SUITE 'map' {
 
 # flatten nested list
 fn flatten [list]{
+    put [(each [item]{
+        if (eq (kind-of $item) 'list') {
+            put $@item
+        } else {
+            put $item
+        }
+    } $list)]
+}
+SUITE 'flatten' {
+    IT '[1 [2 3] 4]' {
+        ASSERT_EQ (flatten [1 [2 3] 4]) [1 2 3 4]
+    }
+    IT '[[[2]]]' {
+        ASSERT_EQ (flatten [[[2]]]) [[2]]
+    }
+}
+
+# flatten nested list, recursively
+fn flattenDeep [list]{
     fn _flatten [_list]{
         put (each [item]{
             if (eq (kind-of $item) 'list') {
@@ -141,18 +160,18 @@ fn flatten [list]{
     }
     put [(_flatten $list)]
 }
-SUITE 'flatten' {
+SUITE 'flattenDeep' {
     IT '[1 [2 3] 4]' {
-        ASSERT_EQ (flatten [1 [2 3] 4]) [1 2 3 4]
+        ASSERT_EQ (flattenDeep [1 [2 3] 4]) [1 2 3 4]
     }
     IT '[[[2]]]' {
-        ASSERT_EQ (flatten [[[2]]]) [2]
+        ASSERT_EQ (flattenDeep [[[2]]]) [2]
     }
     IT '[[[2]] [3] [4 [[5]]]]' {
-        ASSERT_EQ (flatten [[[2]] [3] [4 [[5]]]]) [2 3 4 5]
+        ASSERT_EQ (flattenDeep [[[2]] [3] [4 [[5]]]]) [2 3 4 5]
     }
     IT "['a' ['b' 'c.d'] 'e.f' [['g']]]" {
-        ASSERT_EQ (flatten ['a' ['b' 'c.d'] 'e.f' [['g']]]) [a b c.d e.f g]
+        ASSERT_EQ (flattenDeep ['a' ['b' 'c.d'] 'e.f' [['g']]]) [a b c.d e.f g]
     }
 }
 
@@ -161,7 +180,7 @@ SUITE 'flatten' {
 fn expandPath [@paths]{
     put [(each [pathNotation]{
         splits '.' $pathNotation
-    } (flatten $paths))]
+    } (flattenDeep $paths))]
 }
 SUITE 'expandPath' {
     IT 'a.b' {

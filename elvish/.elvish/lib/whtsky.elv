@@ -14,7 +14,7 @@ fn IMPLEMENT_TEST_FN [testFn~]{
     }
 }
 
-ASSERT_EQ=(IMPLEMENT_TEST_FN [@values]{
+ASSERT_EQ~=(IMPLEMENT_TEST_FN [@values]{
     result=$false
 
     if (<= (count $values) 1) {
@@ -41,7 +41,7 @@ ASSERT_EQ=(IMPLEMENT_TEST_FN [@values]{
 })
 
 # test suite
-SUITE=(IMPLEMENT_TEST_FN [suiteMessage @rest]{
+SUITE~=(IMPLEMENT_TEST_FN [suiteMessage @rest]{
     if (== (count $rest) 1) {
         echo $suiteMessage
         $rest[0]
@@ -51,12 +51,12 @@ SUITE=(IMPLEMENT_TEST_FN [suiteMessage @rest]{
     }
 })
 # pending test suite
-XSUITE=(IMPLEMENT_TEST_FN [suiteMessage @_]{
+XSUITE~=(IMPLEMENT_TEST_FN [suiteMessage @_]{
     echo $suiteMessage
 })
 
 # test case
-IT=(IMPLEMENT_TEST_FN [testMessage @rest]{
+IT~=(IMPLEMENT_TEST_FN [testMessage @rest]{
     if (== (count $rest) 1) {
         if ?($rest[0]) {
             echo (styled "\t✔ "$testMessage green)
@@ -69,7 +69,7 @@ IT=(IMPLEMENT_TEST_FN [testMessage @rest]{
     }
 })
 # pending test case
-XIT=(IMPLEMENT_TEST_FN [testMessage @_]{
+XIT~=(IMPLEMENT_TEST_FN [testMessage @_]{
     echo (styled "\t☐ "$testMessage cyan)
 })
 
@@ -87,15 +87,15 @@ fn filter [filterFn~ list]{
         }
     } $list)]
  }
-$SUITE 'filter' {
-    $IT '% 2' {
-        $ASSERT_EQ (filter [item]{
+SUITE 'filter' {
+    IT '% 2' {
+        ASSERT_EQ (filter [item]{
             put (== (% $item 2) 0)
         } [1 2 3 4 5]) [2 4]
     }
 
-    $IT '&value > 10' {
-        $ASSERT_EQ (filter [item]{
+    IT '&value > 10' {
+        ASSERT_EQ (filter [item]{
             put (> $item[value] 10)
         } [
             [&value=0]
@@ -108,8 +108,8 @@ $SUITE 'filter' {
         ]
     }
 
-    $IT 'empty result should be []' {
-        $ASSERT_EQ (filter [@_]{ put $false } [1 2 3]) []
+    IT 'empty result should be []' {
+        ASSERT_EQ (filter [@_]{ put $false } [1 2 3]) []
     }
 }
 
@@ -120,9 +120,9 @@ fn map [mapFn~ list]{
         } $list
     )]
 }
-$SUITE 'map' {
-    $IT '+ 1' {
-        $ASSERT_EQ (map [item]{
+SUITE 'map' {
+    IT '+ 1' {
+        ASSERT_EQ (map [item]{
             put (+ $item 1)
         } [1 2 3]) [2 3 4]
     }
@@ -141,18 +141,18 @@ fn flatten [list]{
     }
     put [(_flatten $list)]
 }
-$SUITE 'flatten' {
-    $IT '[1 [2 3] 4]' {
-        $ASSERT_EQ (flatten [1 [2 3] 4]) [1 2 3 4]
+SUITE 'flatten' {
+    IT '[1 [2 3] 4]' {
+        ASSERT_EQ (flatten [1 [2 3] 4]) [1 2 3 4]
     }
-    $IT '[[[2]]]' {
-        $ASSERT_EQ (flatten [[[2]]]) [2]
+    IT '[[[2]]]' {
+        ASSERT_EQ (flatten [[[2]]]) [2]
     }
-    $IT '[[[2]] [3] [4 [[5]]]]' {
-        $ASSERT_EQ (flatten [[[2]] [3] [4 [[5]]]]) [2 3 4 5]
+    IT '[[[2]] [3] [4 [[5]]]]' {
+        ASSERT_EQ (flatten [[[2]] [3] [4 [[5]]]]) [2 3 4 5]
     }
-    $IT "['a' ['b' 'c.d'] 'e.f' [['g']]]" {
-        $ASSERT_EQ (flatten ['a' ['b' 'c.d'] 'e.f' [['g']]]) [a b c.d e.f g]
+    IT "['a' ['b' 'c.d'] 'e.f' [['g']]]" {
+        ASSERT_EQ (flatten ['a' ['b' 'c.d'] 'e.f' [['g']]]) [a b c.d e.f g]
     }
 }
 
@@ -163,18 +163,18 @@ fn expandPath [@paths]{
         splits '.' $pathNotation
     } (flatten $paths))]
 }
-$SUITE 'expandPath' {
-    $IT 'a.b' {
-        $ASSERT_EQ (expandPath 'a.b') [a b]
+SUITE 'expandPath' {
+    IT 'a.b' {
+        ASSERT_EQ (expandPath 'a.b') [a b]
     }
-    $IT 'a.b c d.e' {
-        $ASSERT_EQ (expandPath 'a.b' 'c' 'd.e') [a b c d e]
+    IT 'a.b c d.e' {
+        ASSERT_EQ (expandPath 'a.b' 'c' 'd.e') [a b c d e]
     }
-    $IT 'a b' {
-        $ASSERT_EQ (expandPath a b) [a b]
+    IT 'a b' {
+        ASSERT_EQ (expandPath a b) [a b]
     }
-    $IT 'a [b c.d] e.f [[g]]' {
-        $ASSERT_EQ (expandPath 'a' ['b' 'c.d'] 'e.f' [['g']]) [a b c d e f g]
+    IT 'a [b c.d] e.f [[g]]' {
+        ASSERT_EQ (expandPath 'a' ['b' 'c.d'] 'e.f' [['g']]) [a b c d e f g]
     }
 }
 
@@ -196,33 +196,33 @@ fn findIndex [list targetOrTestFn]{
     }
     put $result
 }
-$SUITE 'findIndex' {
-    $IT '[1 2 3] 1 -> 0' {
-        $ASSERT_EQ (findIndex [1 2 3] 1) 0
+SUITE 'findIndex' {
+    IT '[1 2 3] 1 -> 0' {
+        ASSERT_EQ (findIndex [1 2 3] 1) 0
     }
-    $IT '[1 2 3] 9 -> -1' {
-        $ASSERT_EQ (findIndex [1 2 3] 9) -1
+    IT '[1 2 3] 9 -> -1' {
+        ASSERT_EQ (findIndex [1 2 3] 9) -1
     }
-    $IT '[] 9 -> -1' {
-        $ASSERT_EQ (findIndex [] 9) -1
+    IT '[] 9 -> -1' {
+        ASSERT_EQ (findIndex [] 9) -1
     }
-    $IT 'custom testFn' {
-        $ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ eq 0 (% $v 2) } ) 2
+    IT 'custom testFn' {
+        ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ eq 0 (% $v 2) } ) 2
     }
-    $IT 'custom testFn, index not found' {
-        $ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ eq 0 (% $v 10) } ) -1
+    IT 'custom testFn, index not found' {
+        ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ eq 0 (% $v 10) } ) -1
     }
 }
 
 fn hasKey [map searhKey]{
     != (findIndex [(keys $map)] $searhKey) -1
 }
-$SUITE 'hasKey' {
-    $IT '[&a &b] has b' {
-        $ASSERT_EQ (hasKey [&a=1 &b=3] b) $true
+SUITE 'hasKey' {
+    IT '[&a &b] has b' {
+        ASSERT_EQ (hasKey [&a=1 &b=3] b) $true
     }
-    $IT '[&a &b] does not have z' {
-        $ASSERT_EQ (hasKey [&a=1 &b=3] z) $false
+    IT '[&a &b] does not have z' {
+        ASSERT_EQ (hasKey [&a=1 &b=3] z) $false
     }
 }
 
@@ -242,14 +242,14 @@ fn get [mapLike path]{
     pathList=(expandPath $path)
     put (_get $mapLike $pathList)
 }
-$SUITE 'get' {
-    $IT 'a' {
-        $ASSERT_EQ (get [&a=3 &b=8] 'a') 3
+SUITE 'get' {
+    IT 'a' {
+        ASSERT_EQ (get [&a=3 &b=8] 'a') 3
     }
-    $IT 'a.b.c' {
-        $ASSERT_EQ (get [&a=[&b=[&c=23] &b2=9] &y=8] 'a.b.c') 23
+    IT 'a.b.c' {
+        ASSERT_EQ (get [&a=[&b=[&c=23] &b2=9] &y=8] 'a.b.c') 23
     }
-    $IT 'illegal path should return nothing' {
-        $ASSERT_EQ [(get [&a=[&b=[&c=23] &b2=9] &y=8] 'd.e.f')] []
+    IT 'illegal path should return nothing' {
+        ASSERT_EQ [(get [&a=[&b=[&c=23] &b2=9] &y=8] 'd.e.f')] []
     }
 }

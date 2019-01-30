@@ -26,8 +26,8 @@
   "vscode_custom_css.policy": true,
   "editor.renderIndentGuides": false,
   "update.channel": "none",
-  "editor.formatOnSave": true,
-  "editor.formatOnType": true,
+  "editor.formatOnSave": false,
+  "editor.formatOnType": false,
   "editor.minimap.renderCharacters": false,
   "editor.minimap.enabled": false,
   "editor.renderWhitespace": "none",
@@ -35,5 +35,6 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "editor.cursorBlinking": "phase",
   "window.menuBarVisibility": "hidden",
-  "editor.renderLineHighlight": "gutter"
+  "editor.renderLineHighlight": "gutter",
+  "window.titleBarStyle": "native"
 }

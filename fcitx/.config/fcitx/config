@@ -58,7 +58,7 @@ IMSwitchHotkey=ALT_SUPER
 # Switching Remind Mode
 #RemindSwitchKey=
 # Switching Full Width Character Mode
-#FullWidthSwitchKey=
+FullWidthSwitchKey=CTRL_,
 # Switch Full Width Punc Mode
 #PuncSwitchKey=CTRL_.
 # Prev Page
@@ -105,7 +105,7 @@ NextPageKey== .
 # True False
 #SendTextWhenSwitchEng=True
 # Candidate Word Number
-#CandidateWordNumber=5
+CandidateWordNumber=6
 # Give the tips of Phrase
 # Available Value:
 # True False
@@ -131,7 +131,7 @@ NextPageKey== .
 # Show Input Speed
 # Available Value:
 # True False
-#ShowInputSpeed=False
+ShowInputSpeed=True
 # Show Version
 # Available Value:
 # True False

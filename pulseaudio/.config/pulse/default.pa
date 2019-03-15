@@ -137,5 +137,5 @@ load-module module-filter-heuristics
 load-module module-filter-apply
 
 ### Make some devices default
-#set-default-sink output
+set-default-sink alsa_output.usb-Creative_Technology_Ltd_Sound_Blaster_E5_8709019026X-00.analog-stereo
 #set-default-source input

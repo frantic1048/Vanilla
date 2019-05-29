@@ -35,8 +35,10 @@ load-module module-switch-on-port-available
 ### Load audio drivers statically
 ### (it's probably better to not load these drivers manually, but instead
 ### use module-udev-detect -- see below -- for doing this automatically)
-#load-module module-alsa-sink
-#load-module module-alsa-source device=hw:1,0
+
+load-module module-alsa-sink
+load-module module-alsa-source device=hw:1,0
+
 #load-module module-oss device="/dev/dsp" sink_name=output source_name=input
 #load-module module-oss-mmap device="/dev/dsp" sink_name=output source_name=input
 #load-module module-null-sink
@@ -139,5 +141,5 @@ load-module module-filter-heuristics
 load-module module-filter-apply
 
 ### Make some devices default
-set-default-sink alsa_output.usb-Creative_Technology_Ltd_Sound_Blaster_E5_8709019026X-00.analog-stereo
+set-default-sink alsa_output.usb-TEAC_Corporation_UD-505-00.iec958-stereo
 #set-default-source input

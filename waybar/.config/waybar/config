@@ -1,0 +1,20 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": ["temperature", "clock", "tray"],
+    "sway/window": {
+        "max-length": 50
+    },
+    "temperature": {
+        
+    },
+    "clock": {
+        "format": "{:%a, %d. %b  %H:%M}"
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 5
+    }
+}

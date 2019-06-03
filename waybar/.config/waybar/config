@@ -8,7 +8,8 @@
         "max-length": 50
     },
     "temperature": {
-        
+        "thermal-zone": 1,
+        "critical-threshold": 90
     },
     "clock": {
         "format": "{:%a, %d. %b  %H:%M}"

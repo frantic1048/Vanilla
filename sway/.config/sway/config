@@ -12,7 +12,9 @@
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
 exec "sh -c 'sleep 2;pasystray &'"
-exec "sh -c 'sleep 2;rsibreak &'"
+
+# FIXME: does not work well under sway
+# exec "sh -c 'sleep 2;rsibreak &'"
 
 hide_edge_borders smart
 smart_borders on

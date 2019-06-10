@@ -20,7 +20,7 @@ hide_edge_borders smart
 smart_borders on
 default_border none
 default_floating_border none
-gaps inner 6
+gaps inner 4
 
 # Tip: use `swaymsg -t get_tree` to retrieve window info
 for_window [app_id="Alacritty"] border pixel 0
@@ -208,8 +208,17 @@ input 1133:16507:Logitech_MX_Vertical pointer_accel 1
 
 # monitors
 output "Apple Computer Inc Color LCD 0x00000000" transform 270
-output "Dell Inc. DELL U2414H GN64V74A24AL" transform 270
-output "Dell Inc. DELL U2414H GN64V74A24AL" pos 0 0
-output "Dell Inc. DELL U2414H GN64V73N2WRL" pos 1080 800
-output "Apple Computer Inc Color LCD 0x00000000" pos 3000 800
-output "Apple Computer Inc Color LCD 0x00000000" scale 2
+output "Dell Inc. DELL U2414H GN64V74A24AL" {
+    transform 270
+    pos 0 0
+    bg /home/chino/Pictures/unsplash/photo-1543964496-d83d90140d97.jpg fill
+}
+output "Dell Inc. DELL U2414H GN64V73N2WRL" {
+    pos 1080 800
+    bg /home/chino/Pictures/unsplash/photo-1554185256-7b994c659b88.jpg fill
+}
+output "Apple Computer Inc Color LCD 0x00000000" {
+    pos 3000 800
+    scale 2
+    bg /home/chino/Pictures/unsplash/photo-1555086196-a28d9bc9d677.jpg fill
+}

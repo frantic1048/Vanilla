@@ -11,7 +11,7 @@
 
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
-exec "sh -c 'sleep 2;pasystray &'"
+exec_always "mako --default-timeout 20 &"
 
 # FIXME: does not work well under sway
 # exec "sh -c 'sleep 2;rsibreak &'"
@@ -20,7 +20,7 @@ hide_edge_borders smart
 smart_borders on
 default_border none
 default_floating_border none
-gaps inner 4
+gaps inner 0
 
 # Tip: use `swaymsg -t get_tree` to retrieve window info
 for_window [app_id="Alacritty"] border pixel 0
@@ -69,7 +69,7 @@ bindsym $mod+x kill
 
 # start dmenu (a program launcher)
 # alt+space
-bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='bemenu -i --nb "#3f3f3f" --nf "#dcdccc" --fn "pango:DejaVu Sans Mono 12"' --term='termite'
+bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='bemenu -i --nb "#3f3f3f" --nf "#dcdccc" --fn "pango:DejaVu Sans Mono 12"' --term='alacritty'
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
@@ -192,11 +192,11 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # class                 border    backgr.   text      indicator   child_border
-client.focused          #000000a0 #000000a0 #ffffffff #2e9ef4a0   #000000a0
-client.focused_inactive #000000a0 #000000a0 #888888ff #484e50a0   #000000a0
-client.unfocused        #000000a0 #000000a0 #555555ff #292d2ea0   #000000a0
+client.focused          #000000c0 #000000c0 #ffffffff #2e9ef4a0   #000000c0
+client.focused_inactive #000000c0 #000000c0 #888888ff #484e50a0   #000000c0
+client.unfocused        #000000b0 #000000b0 #888888ff #292d2eb0   #000000b0
 client.urgent           #900000a0 #900000a0 #ffffffff #900000a0   #900000a0
-client.placeholder      #0c0c0ca0 #0c0c0ca0 #ffffffff #000000a0   #0c0c0ca0
+client.placeholder      #000000c0 #000000c0 #ffffffff #000000c0   #000000c0
 
 bar {
     swaybar_command waybar
@@ -215,7 +215,7 @@ output "Dell Inc. DELL U2414H GN64V74A24AL" {
 }
 output "Dell Inc. DELL U2414H GN64V73N2WRL" {
     pos 1080 800
-    bg /home/chino/Pictures/unsplash/photo-1554185256-7b994c659b88.jpg fill
+    bg /home/chino/sync/sacg-misc/pixiv 73717458_p0.jpg fill
 }
 output "Apple Computer Inc Color LCD 0x00000000" {
     pos 3000 800

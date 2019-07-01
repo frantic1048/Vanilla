@@ -11,7 +11,7 @@
 
 exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
-exec_always "mako --default-timeout 20 &"
+exec_always "mako --default-timeout 2000 &"
 
 # FIXME: does not work well under sway
 # exec "sh -c 'sleep 2;rsibreak &'"

@@ -161,6 +161,7 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 # lock screen
 bindsym $mod+Shift+z exec swaylock -u -c 0E0F1D
+bindsym $mod+y exec --no-startup-id wl-paste | qrencode -t PNG -o - | display
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+x exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 #bindsym $mod+Shift+x exec "swaymsg exit"

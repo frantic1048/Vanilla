@@ -47,7 +47,7 @@ font:
     # style: Italic
 
   # Point size of the font
-  size: 18
+  size: 12
 
   # OS X only: use thin stroke font rendering. Thin strokes are suitable
   # for retina displays, but for non-retina you probably want this set to
@@ -117,7 +117,7 @@ visual_bell:
   duration: 0
 
 # Background opacity
-background_opacity: 0.6
+background_opacity: 0.75
 
 # Key bindings
 #

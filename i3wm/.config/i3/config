@@ -67,7 +67,7 @@ exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
 # start tint2 as system tray
 exec tint2 -c $HOME/.config/tint2/tint2rc &
 
-exec "sh -c 'sleep 2;fcitx5 -r &'"
+exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
 exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 exec "sh -c 'sleep 2;pasystray &'"
@@ -129,7 +129,8 @@ bindsym $mod+x kill
 
 # start dmenu (a program launcher)
 # alt+space
-bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop
+# bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop
+bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='bemenu -i --nb "#3f3f3f" --nf "#dcdccc" --fn "pango:DejaVu Sans Mono 12"'
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.

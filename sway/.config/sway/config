@@ -206,20 +206,25 @@ bar {
 # mouses
 input * accel_profile flat
 input 1133:16507:Logitech_MX_Vertical pointer_accel 1
+input 1133:50490:Logitech_USB_Receiver_System_Control pointer_accel 1
 
 # monitors
 output "Apple Computer Inc Color LCD 0x00000000" transform 270
 output "Dell Inc. DELL U2414H GN64V74A24AL" {
     transform 270
     pos 0 0
-    bg /home/chino/Pictures/unsplash/photo-1543964496-d83d90140d97.jpg fill
+#    bg /home/chino/Pictures/unsplash/photo-1543964496-d83d90140d97.jpg fill
 }
 output "Dell Inc. DELL U2414H GN64V73N2WRL" {
     pos 1080 800
-    bg /home/chino/sync/sacg-misc/pixiv 73717458_p0.jpg fill
+#    bg /home/chino/sync/sacg-misc/pixiv 73717458_p0.jpg fill
 }
 output "Apple Computer Inc Color LCD 0x00000000" {
     pos 3000 800
     scale 2
-    bg /home/chino/Pictures/unsplash/photo-1555086196-a28d9bc9d677.jpg fill
+#    bg /home/chino/Pictures/unsplash/photo-1555086196-a28d9bc9d677.jpg fill
+}
+output "Goldstar Company Ltd LG Ultra HD 0x00009E6D" {
+    #bg "/home/chino/Pictures/bg/006.jpg" fill
+    bg "/home/chino/Pictures/bg/istheorederarch.clean.svg.png" fill
 }

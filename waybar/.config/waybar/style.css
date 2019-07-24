@@ -2,6 +2,7 @@
   border: none;
   border-radius: 0;
   font-family: 
+    "Font Awesome 5 Free", /* `otf-font-awesome` */
     "Noto Sans CJK SC",
     sans-serif;
   font-weight: 400;
@@ -55,7 +56,7 @@ window#waybar.chromium {
 
 #mode {}
 
-#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #custom-media, #tray, #mode, #idle_inhibitor,
+#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #custom-media, #tray, #mode, #idle_inhibitor, #mpd,
 #workspaces button.focused {
   padding: 0 10px;
   margin: 0 5px;
@@ -164,18 +165,13 @@ label:focus {
 }
 
 #mpd {
-  background-color: #66cc99;
-  color: #2a5c45;
 }
 
 #mpd.disconnected {
-  background-color: #f53c3c;
 }
 
 #mpd.stopped {
-  background-color: #90b1b1;
 }
 
 #mpd.paused {
-  background-color: #51a37a;
 }

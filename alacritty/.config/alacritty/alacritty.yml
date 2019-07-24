@@ -54,40 +54,36 @@ font:
   # false.
   use_thin_strokes: true
 
-# Base16 Unikitty Dark - alacritty color config
-# Josh W Lewis (@joshwlewis)
+
+
+# Colors (Tender)
 colors:
   # Default colors
   primary:
-    background: '0x000000'
-    foreground: '0xbcbabe'
-
-  # Colors the cursor will use if `custom_cursor_colors` is true
-  cursor:
-    text: '0x2e2a31'
-    cursor: '0xbcbabe'
+    background: '0x282828'
+    foreground: '0xeeeeee'
 
   # Normal colors
   normal:
-    black:   '0x2e2a31'
-    red:     '0xd8137f'
-    green:   '0x17ad98'
-    yellow:  '0xdc8a0e'
-    blue:    '0x796af5'
-    magenta: '0xbb60ea'
-    cyan:    '0x149bda'
-    white:   '0xbcbabe'
+    black:   '0x282828'
+    red:     '0xf43753'
+    green:   '0xc9d05c'
+    yellow:  '0xffc24b'
+    blue:    '0xb3deef'
+    magenta: '0xd3b987'
+    cyan:    '0x73cef4'
+    white:   '0xeeeeee'
 
   # Bright colors
   bright:
-    black:   '0x838085'
-    red:     '0xd65407'
-    green:   '0x4a464d'
-    yellow:  '0x666369'
-    blue:    '0x9f9da2'
-    magenta: '0xd8d7da'
-    cyan:    '0xc720ca'
-    white:   '0xbcbabe'
+    black:   '0x4c4c4c'
+    red:     '0xf43753'
+    green:   '0xc9d05c'
+    yellow:  '0xffc24b'
+    blue:    '0xb3deef'
+    magenta: '0xd3b987'
+    cyan:    '0x73cef4'
+    white:   '0xfeffff'
 
 
 # Visual Bell

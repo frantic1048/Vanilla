@@ -38,3 +38,9 @@
 	clean = sed -e 's/^\\s*bg/    \\x23bg/g' %f
 	smudge = cat %f
 	required = true
+
+# ignore tree_view, and color config in htop
+[filter "vanilla.htop"]
+	clean = sed -e '/^tree_view\\|^color_scheme/d' %f
+	smudge = cat %f
+	required = true

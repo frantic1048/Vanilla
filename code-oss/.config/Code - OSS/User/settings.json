@@ -15,9 +15,6 @@
   "atomKeymap.promptV3Features": true,
   "editor.multiCursorModifier": "ctrlCmd",
   "typescript.updateImportsOnFileMove.enabled": "never",
-  "gitlens.advanced.messages": {
-    "suppressShowKeyBindingsNotice": true
-  },
   "workbench.sideBar.location": "left",
   "vscode_custom_css.imports": [
     "file:///home/chino/.config/Code - OSS/custom_css.css"
@@ -66,5 +63,9 @@
     "statusBar.background": "#00000080",
     "terminal.background": "#0000",
     "titleBar.activeBackground": "#00000030",
+  },
+  "update.enableWindowsBackgroundUpdates": false,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
 }

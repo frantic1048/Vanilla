@@ -1,2 +1,2 @@
 /git/.config/git/gitk filter=vanilla.gitk
-
+/sway/.config/sway/config filter=vanilla.sway

@@ -31,3 +31,10 @@
 	clean = sed -e '/^set geometry/d' %f
 	smudge = cat %f
 	required = true
+
+# always comment out sway bg config
+# to prevent file not found error in another computer
+[filter "vanilla.sway"]
+	clean = sed -e 's/^\\s*bg/    \\x23bg/g' %f
+	smudge = cat %f
+	required = true

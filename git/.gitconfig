@@ -44,3 +44,9 @@
 	clean = sed -e '/^tree_view\\|^color_scheme/d' %f
 	smudge = cat %f
 	required = true
+
+# always comment out npm proxy config
+[filter "vanilla.npm"]
+	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/' %f
+	smudge = cat %f
+	required = true

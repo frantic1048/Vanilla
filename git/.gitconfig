@@ -25,3 +25,9 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+
+# remove geometry lines from gitk config
+[filter "vanilla.gitk"]
+	clean = sed -e '/^set geometry/d' %f
+	smudge = cat %f
+	required = true

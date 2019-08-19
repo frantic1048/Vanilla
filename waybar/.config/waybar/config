@@ -3,28 +3,33 @@
     "position": "bottom",
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["mpd", "temperature", "clock", "tray"],
+    "modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
+    "custom/fan": {
+        "format": "\uf72e   {}",
+        "exec": "elvish -c ~/bin/fffrpm.elv"
+    },
     "sway/window": {
         "max-length": 50
     },
     "temperature": {
+        "format": "\uf7e4   {temperatureC}°C",
         "thermal-zone": 1,
         "critical-threshold": 90
     },
     "clock": {
-        "format": "{:%a, %d. %b  %H:%M}"
+        "format": "\uf073   {:%a, %d. %b  %H:%M}"
     },
     "tray": {
         "icon-size": 18,
         "spacing": 5
     },
     "mpd": {
-        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ",
-        "format-disconnected": "Disconnected ",
-        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
+        "format": "\uf001   {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})   {stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}",
+        "format-disconnected": "\uf001   Disconnected",
+        "format-stopped": "\uf001   {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped",
         "interval": 2,
         "consume-icons": {
-            "on": " " // Icon shows only when "consume" is on
+            "on": " "
         },
         "random-icons": {
             "on": " "

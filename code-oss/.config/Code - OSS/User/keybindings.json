@@ -7,7 +7,11 @@
   },
   {
     "key": "ctrl+.",
-    "command": "tslint.fixAllProblems"
+    "command": "editor.action.codeAction",
+    "args": {
+      "kind": "source.fixAll.tslint",
+      "apply": "first"
+    }
   },
   {
     "key": "ctrl+,",

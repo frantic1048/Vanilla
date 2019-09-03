@@ -2,6 +2,7 @@
 paths = [
   {~}/bin
   {~}/npm-global/bin
+  {~}/go/bin
   {~}/.gem/ruby/2.2.0/bin
   {~root}/.composer/vendor/bin
   $@paths

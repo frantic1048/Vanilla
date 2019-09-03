@@ -68,8 +68,6 @@ exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
 exec tint2 -c $HOME/.config/tint2/tint2rc &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
-exec "sh -c 'sleep 2;nm-applet &'"
-exec "sh -c 'sleep 2;kmix --keepvisibility &'"
 exec "sh -c 'sleep 2;pasystray &'"
 
 # it is not real KDE so clear the "fake" env in /etc/environment

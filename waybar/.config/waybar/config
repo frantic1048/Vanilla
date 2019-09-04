@@ -6,7 +6,7 @@
     "modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
     "custom/fan": {
         "format": "\uf72e   {}",
-        "exec": "elvish -c ~/bin/fffrpm.elv"
+        "exec": "~/bin/fffrpm.elv"
     },
     "sway/window": {
         "max-length": 50

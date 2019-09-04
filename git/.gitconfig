@@ -28,25 +28,25 @@
 
 # remove geometry lines from gitk config
 [filter "vanilla.gitk"]
-	clean = sed -e '/^set geometry/d' %f
-	smudge = cat %f
+	clean = sed -e '/^set geometry/d'
+	smudge = cat
 	required = true
 
 # always comment out sway bg config
 # to prevent file not found error in another computer
 [filter "vanilla.sway"]
-	clean = sed -e 's/^\\s*bg/    \\x23bg/g' %f
-	smudge = cat %f
+	clean = sed -e 's/^\\s*bg/    \\x23bg/g'
+	smudge = cat
 	required = true
 
 # ignore tree_view, and color config in htop
 [filter "vanilla.htop"]
-	clean = sed -e '/^tree_view\\|^color_scheme/d' %f
-	smudge = cat %f
+	clean = sed -e '/^tree_view\\|^color_scheme/d'
+	smudge = cat
 	required = true
 
 # always comment out npm proxy config
 [filter "vanilla.npm"]
-	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/' %f
-	smudge = cat %f
+	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/'
+	smudge = cat
 	required = true

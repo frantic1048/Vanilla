@@ -213,16 +213,16 @@ output "Apple Computer Inc Color LCD 0x00000000" transform 270
 output "Dell Inc. DELL U2414H GN64V74A24AL" {
     transform 270
     pos 0 0
-    #bg /home/chino/Pictures/photo/IMG_1728_01.png fill
+    #bg /home/chino/Pictures/photo/chino7-d.png fill
 }
 output "Dell Inc. DELL U2414H GN64V73N2WRL" {
     pos 1080 800
-    #bg /home/chino/Pictures/photo/istheorederarch.clean.svg.png fill
+    #bg /home/chino/Pictures/photo/chino7-c.png fill
 }
 output "Apple Computer Inc Color LCD 0x00000000" {
     pos 3000 800
     scale 2
-    #bg /home/chino/Pictures/photo/IMG_1730_01.png fill
+    #bg /home/chino/Pictures/photo/mahou-chino.recurve.png fill
 }
 output "Goldstar Company Ltd LG Ultra HD 0x00009E6D" {
     #bg "/home/chino/Pictures/bg/006.jpg" fill

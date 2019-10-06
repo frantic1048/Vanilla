@@ -12,7 +12,7 @@ fn ON_HOST [host config~]{
 
 ON_HOST amausaan []{
     xrandr --dpi 192
-    dispwin -I '/home/chino/.local/share/DisplayCAL/storage/Ultra HD #1 2019-10-06 18-37 D6500 2.2 F-S 3xCurve+MTX/Ultra HD #1 2019-10-06 18-37 D6500 2.2 F-S 3xCurve+MTX.icc'
+    dispwin -I '/home/chino/.local/share/DisplayCAL/storage/Ultra HD #1 2019-10-06 22-02 2.2 F-S XYZLUT+MTX/Ultra HD #1 2019-10-06 22-02 2.2 F-S XYZLUT+MTX.icc'
     setwallpaper -m fill {~}'/Pictures/bg/twitter EDYMd9fUEAAMkbC.jpg'
 }
 

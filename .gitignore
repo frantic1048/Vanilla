@@ -27,7 +27,8 @@
 
 # vscode
 /vscode/*
-!/vscode/.config
+!/vscod M krita/.local/share/krita/tags/kis_resourcebundles_tags.xml
+e/.config
 /vscode/.config/*
 !/vscode/.config/Code
 /vscode/.config/Code/*
@@ -48,3 +49,26 @@
 /code-oss/.config/Code - OSS/User/*
 !/code-oss/.config/Code - OSS/User/settings.json
 !/code-oss/.config/Code - OSS/User/keybindings.json
+
+# color
+/color/.local/*
+!/color/.local/share
+/color/.local/share/*
+!/color/.local/share/DisplayCAL
+/color/.local/share/DisplayCAL/*
+!/color/.local/share/DisplayCAL/storage
+/color/.local/share/DisplayCAL/storage/*
+!/color/.local/share/DisplayCAL/storage/*/
+/color/.local/share/DisplayCAL/storage/*/*
+!/color/.local/share/DisplayCAL/storage/*/*.icc
+
+# krita
+/krita/.local/*
+!/krita/.local/share
+/krita/.local/share/*
+!/krita/.local/share/krita
+
+# pulseaudio
+/pulseaudio/*
+!/pulseaudio/.config/pulse/default.pa
+!/pulseaudio/.config/pulse/daemon.conf

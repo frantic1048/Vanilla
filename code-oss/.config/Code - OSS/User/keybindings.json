@@ -9,7 +9,7 @@
     "key": "ctrl+.",
     "command": "editor.action.codeAction",
     "args": {
-      "kind": "source.fixAll.tslint",
+      "kind": "source.fixAll.eslint",
       "apply": "first"
     }
   },
@@ -23,7 +23,7 @@
   },
   {
     "key": "ctrl+,",
-    "command": "editor.action.quickFix"
+    "command": "editor.action.formatDocument"
   },
   {
     "key": "ctrl+shift+g g",

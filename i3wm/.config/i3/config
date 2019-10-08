@@ -9,55 +9,10 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
-# chino chiya
-# set $wallpaper ~/Media/pic/sACG/misc/pixiv\ 61399931_p0.jpg
-# aurora
-# set $wallpaper ~/Media/pic/DA/multi_aurora_2880x1800_by-kirkh.jpg
-#set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 382597.png
-#set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 384708.png
-#set $wallpaper ~/Media/pic/sACG/misc/pixiv\ 61424301_p0.png
-#set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 372778.png
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 27881247_p0_waifu_s1.6_n0.png
-
-# chiya(urara)
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ CRbTbElUkAAFths.jpg
-
-# Emilia(re0)
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 61892501_p0.jpg
-
-# artist:Anmi
-set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 344328.png
-set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 276685.jpg
-
-# kon
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/twitter\ C4xfqrtVcAE3arz.jpg
-
-# chino
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/seiga\ 6064959.png
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 60328981_p0.jpg
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/pixiv\ 60373941_p0.jpg
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 330169.1920r1200.png
-
-# chino & cocoa
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 356639.png
-
-# gochiusa
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/yande.re\ 342802.jpg
-
-# gochiusa 20170401 event
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chino_waifu2x_n1.png
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ megu_waifu2x_n1.png
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ maya_waifu2x_n1.png
-#set $wallpaper ~/Media/pic/sACG/_wallpaperLandscape/gochiusa.com_20170401\ chimame_waifu2x_n1.png
-
-# set $wallpaper ~/Media/pic/sACG/misc/yande.re\ 385264.png
-# set $wallpaper ~/Media/pic/DA/new_paths__to_helicon___chosen_riders_of_doom_by_kuldarleement-d5uo7nj.jpg
-set $wallpaper /home/chino/Downloads/yande.re\ 411222.jpg
-# draw wallpaper XD
-exec_always feh --bg-fill $wallpaper &
 # dynamic wallpaper
 #set $wallpaper_args --landscape -i 300
 #exec_always ~/bin/fffwallpaper.sh $wallpaper_args &
+exec_always ~/bin/fffconfhost.elv
 
 exec compton -b --config ~/.compton.conf &
 

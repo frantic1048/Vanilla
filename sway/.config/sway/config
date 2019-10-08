@@ -13,6 +13,9 @@ exec "sh -c 'sleep 2;fcitx -r &'"
 exec "sh -c 'sleep 2;nm-applet &'"
 exec_always "mako --default-timeout 2000 &"
 
+# host specific configuration
+exec_always "~/bin/fffconfhost.elv"
+
 # FIXME: does not work well under sway
 # exec "sh -c 'sleep 2;rsibreak &'"
 
@@ -214,23 +217,4 @@ input type:pointer {
 
 
 # monitors
-output "Apple Computer Inc Color LCD 0x00000000" transform 270
-output "Dell Inc. DELL U2414H GN64V74A24AL" {
-    transform 270
-    pos 0 0
-    #bg /home/chino/Pictures/photo/chino7-d.png fill
-}
-output "Dell Inc. DELL U2414H GN64V73N2WRL" {
-    pos 1080 800
-    #bg /home/chino/Pictures/photo/chino7-c.png fill
-}
-output "Apple Computer Inc Color LCD 0x00000000" {
-    pos 3000 800
-    scale 2
-    #bg /home/chino/Pictures/photo/mahou-chino.recurve.png fill
-}
-output "Goldstar Company Ltd LG Ultra HD 0x00009E6D" {
-    #bg "/home/chino/Pictures/bg/006.jpg" fill
-    #bg "/home/chino/Pictures/bg/istheorederarch.clean.svg.png" fill
-    #bg /home/chino/Pictures/photo/IMG_1738_01.png fill
-}
+# go fffconfhost.elv to config these stuff

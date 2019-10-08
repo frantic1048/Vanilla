@@ -3,7 +3,7 @@
     "position": "bottom",
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
+    "modules-right": ["temperature", "custom/fan", "clock", "tray"],
     "custom/fan": {
         "format": "\uf72e   {}",
         "exec": "~/bin/fffrpm.elv"

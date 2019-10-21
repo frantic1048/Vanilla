@@ -35,7 +35,7 @@ ON_HOST fantastic-rabbithouse []{
 ON_HOST amausaan []{
     xrandr --dpi 192
     dispwin -I '/home/chino/.local/share/DisplayCAL/storage/Ultra HD #1 2019-10-07 00-12 2.2 F-S XYZLUT+MTX/Ultra HD #1 2019-10-07 00-12 2.2 F-S XYZLUT+MTX.icc'
-    setwallpaper -m fill {~}'/Pictures/bg/twitter EDYMd9fUEAAMkbC.jpg'
+    setwallpaper -m fill {~}'/Pictures/bg/twitter DaqrTFdV4AAxPub_waifu_s4_n0.png.png'
 }
 
 ON_HOST chimame-tai []{

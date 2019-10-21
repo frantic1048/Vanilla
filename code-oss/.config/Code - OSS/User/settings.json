@@ -34,8 +34,7 @@
   "editor.renderLineHighlight": "gutter",
 
   "window.titleBarStyle": "native",
-  "window.zoomLevel": 0,
-  "window.transparent": true,
+  "window.zoomLevel": 3,
   "workbench.colorCustomizations": {
     "workbench.background": "#00000080",
 
@@ -64,7 +63,6 @@
     "terminal.background": "#0000",
     "titleBar.activeBackground": "#00000030"
   },
-  "update.enableWindowsBackgroundUpdates": false,
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

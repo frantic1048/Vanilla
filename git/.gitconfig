@@ -46,7 +46,8 @@
 	required = true
 
 # always comment out npm proxy config
+# remove token and registry
 [filter "vanilla.npm"]
-	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/'
+	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/' -e '/_authToken=/d' -e '/^registry=/d'
 	smudge = cat
 	required = true

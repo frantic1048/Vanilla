@@ -87,7 +87,7 @@ fn g [@args]{
   if (eq $op 'a') { g add $@rest; return }
   if (eq $op 'b') {
     if (eq (count $rest) 0) {
-      git for-each-ref --sort=committerdate 'refs/heads/' --format="%(HEAD) %(color:#89FE9F)%(refname:short)%(color:reset) %(color:#FEA090)%(objectname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))"
+      git for-each-ref --sort=committerdate 'refs/heads/' --format="%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))"
     } else {
       git branch $@rest
     }

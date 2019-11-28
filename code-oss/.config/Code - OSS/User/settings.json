@@ -1,6 +1,5 @@
 {
-  "editor.fontSize": 12,
-  "editor.fontFamily": "Fira Code",
+  "editor.fontFamily": "Victor Mono Medium",
   "editor.fontLigatures": true,
   "workbench.activityBar.visible": false,
   "workbench.statusBar.visible": true,
@@ -48,6 +47,10 @@
     "editor.background": "#00000029",
     "editor.lineHighlightBackground": "#FFFFFF15",
     "editorGroupHeader.tabsBackground": "#00000050",
+    "editorGutter.background": "#00000030",
+    "editorLineNumber.foreground": "#aaa",
+    "editorLineNumber.activeForeground": "#70E5FF",
+
     "tab.activeBackground": "#00000080",
     "tab.inactiveBackground": "#00000020",
     "tab.border": "#00000000",
@@ -65,7 +68,8 @@
     "statusBar.background": "#00000080",
     "statusBar.noFolderBackground": "#00000080",
     "terminal.background": "#0000",
-    "titleBar.activeBackground": "#00000030"
+    "titleBar.activeBackground": "#00000030",
+
   },
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -86,5 +90,13 @@
   "breadcrumbs.enabled": true,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "/usr/bin/black",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.cursorStyle": "block",
+  "editor.fontSize": 13,
+  "workbench.colorTheme": "Hackerman"
 }

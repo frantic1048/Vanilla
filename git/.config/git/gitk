@@ -51,4 +51,5 @@ set indexcirclecolor #00ff00
 set circlecolors {white blue gray blue blue}
 set linkfgcolor blue
 set circleoutlinecolor black
+set web_browser xdg-open
 set permviews {}

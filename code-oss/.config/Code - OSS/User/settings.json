@@ -45,11 +45,11 @@
     "button.hoverBackground": "#00000080",
 
     "editor.background": "#00000029",
-    "editor.lineHighlightBackground": "#FFFFFF15",
+    "editor.lineHighlightBackground": "#70E5FF70",
     "editorGroupHeader.tabsBackground": "#00000050",
     "editorGutter.background": "#00000030",
     "editorLineNumber.foreground": "#aaa",
-    "editorLineNumber.activeForeground": "#70E5FF",
+    "editorLineNumber.activeForeground": "#FFF",
 
     "tab.activeBackground": "#00000080",
     "tab.inactiveBackground": "#00000020",

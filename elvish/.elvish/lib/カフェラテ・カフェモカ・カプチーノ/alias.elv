@@ -25,6 +25,7 @@ fn g [@args]{
   g--rela = '--date=relative'
   g--ff = '--ff-only'
   g--ol = '--pretty=oneline'
+  g--ref-formatter = '--format=%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))'
 
   fn loc [@args]{ e:cloc $@args (g ls-files) }
   fn ss []{
@@ -78,7 +79,11 @@ fn g [@args]{
     g push --force
   }
 
-  if (eq (count $args) 0) { g tu -s; return }
+  if (eq (count $args) 0) {
+    g b | tail -n5
+    g tu -s
+    return
+  }
 
   op @rest = $@args
 
@@ -87,7 +92,7 @@ fn g [@args]{
   if (eq $op 'a') { g add $@rest; return }
   if (eq $op 'b') {
     if (eq (count $rest) 0) {
-      git for-each-ref --sort=committerdate 'refs/heads/' --format="%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))"
+      git for-each-ref --sort=committerdate --color=always 'refs/heads/' $g--ref-formatter
     } else {
       git branch $@rest
     }

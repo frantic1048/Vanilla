@@ -55,7 +55,7 @@ floating_modifier $mod
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
 #bindsym $mod+Return exec sakura
-bindsym $mod+Return exec env LANG=en_US.UTF-8 alacritty
+bindsym $mod+Return exec env LANG=en_US.UTF-8 WINIT_UNIX_BACKEND=x11 alacritty
 
 # kill focused window
 bindsym $mod+x kill

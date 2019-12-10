@@ -2,16 +2,8 @@
 [
   {
     "key": "ctrl+.",
-    "command": "-editor.action.quickFix",
+    "command": "editor.action.quickFix",
     "when": "editorHasCodeActionsProvider && editorTextFocus && !editorReadonly"
-  },
-  {
-    "key": "ctrl+.",
-    "command": "editor.action.codeAction",
-    "args": {
-      "kind": "source.fixAll.eslint",
-      "apply": "first"
-    }
   },
   {
     "key": "ctrl+,",

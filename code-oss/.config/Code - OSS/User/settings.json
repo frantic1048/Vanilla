@@ -96,7 +96,6 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "editor.cursorStyle": "block",
   "editor.fontSize": 13,
   "workbench.colorTheme": "Hackerman"
 }

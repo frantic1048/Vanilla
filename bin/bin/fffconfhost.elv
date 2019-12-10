@@ -15,21 +15,21 @@ ON_HOST fantastic-rabbithouse []{
     swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' \
         transform 270 \
         pos 0 0 \
-        bg {~}'/Pictures/photo/yande.re 510907.jpg' fill
+        bg {~}'/Pictures/photo/yande.re 482810.jpg' fill
 
     # center
     swaymsg output '"Dell Inc. DELL U2414H GN64V73N2WRL"' \
         pos 1080 800 \
-        bg {~}'/Pictures/photo/twitter DaqrTFdV4AAxPub_waifu_s4_n0.png.png' fill
+        bg {~}'/Pictures/photo/yande.re 570936.png' fill
 
     # right
     swaymsg output '"Apple Computer Inc Color LCD 0x00000000"' \
         transform 270 \
         pos 3000 800 \
         scale 2 \
-        bg {~}'/Pictures/photo/twitter C_deiKLUwAA2C4I_waifu_s2_n1.jpg' fill
+        bg {~}'/Pictures/photo/twitter EKNNutiUYAYcNzW.jpg' fill
 
-    krunner --replace &
+    krunner -d --replace &
 }
 
 ON_HOST amausaan []{

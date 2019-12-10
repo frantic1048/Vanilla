@@ -3,7 +3,11 @@
     "position": "bottom",
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["temperature", "custom/fan", "clock", "tray"],
+    "modules-right": ["custom/mpris", "temperature", "custom/fan", "clock", "tray"],
+    "custom/mpris": {
+        "format": "\uf025   {}",
+        "exec": "~/bin/fffplaying.elv"
+    },
     "custom/fan": {
         "format": "\uf72e   {}",
         "exec": "~/bin/fffrpm.elv"

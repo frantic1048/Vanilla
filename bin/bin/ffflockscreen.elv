@@ -12,9 +12,9 @@ fn ON_HOST [host lock~]{
 
 ON_HOST fantastic-rabbithouse []{
     swaylock -u \
-        -i "DP-2:/home/chino/Pictures/photo/yande.re 510907.jpg" \
-        -i "DP-1:/home/chino/Pictures/photo/twitter DaqrTFdV4AAxPub_waifu_s4_n0.png.png" \
-        -i "eDP-1:/home/chino/Pictures/photo/twitter C_deiKLUwAA2C4I_waifu_s2_n1.jpg"
+        -i "eDP-1:/home/chino/Pictures/photo/twitter EKNNutiUYAYcNzW.jpg" \
+        -i "DP-1:/home/chino/Pictures/photo/yande.re 570936.png" \
+        -i "DP-2:/home/chino/Pictures/photo/yande.re 482810.jpg"
 }
 
 ON_HOST pending []{

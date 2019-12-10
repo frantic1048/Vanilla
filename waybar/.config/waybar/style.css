@@ -56,8 +56,8 @@ window#waybar.chromium {
 
 #mode {}
 
-#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #custom-media, #tray, #mode, #idle_inhibitor, #mpd,
-#custom-fan,
+#clock, #battery, #cpu, #memory, #temperature, #backlight, #network, #pulseaudio, #tray, #mode, #idle_inhibitor, #mpd,
+#custom-fan, #custom-mpris,
 #workspaces button.focused {
   padding: 0 10px;
   margin: 0 5px;

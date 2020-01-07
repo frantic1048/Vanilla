@@ -123,11 +123,12 @@ bindsym $mod+q focus parent
 # focus the child container
 bindsym $mod+a focus child
 
-# workaround workspace
-bindsym $mod+shift+bracketleft workspace prev_on_output
-bindsym $mod+shift+bracketright workspace next_on_output
-bindsym $mod+bracketleft workspace prev
-bindsym $mod+bracketright workspace next
+
+# MEMO: get key syms: xmodmap -pke
+bindsym $mod+l focus output left
+bindsym $mod+u focus output down
+bindsym $mod+y focus output up
+bindsym $mod+semicolon focus output right
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -159,7 +160,7 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 # lock screen
 bindsym $mod+Shift+z exec ~/bin/ffflockscreen.elv
-bindsym $mod+y exec --no-startup-id wl-paste | qrencode -t PNG -o - | display
+bindsym $mod+j exec --no-startup-id wl-paste | qrencode -t PNG -o - | display
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+x exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 #bindsym $mod+Shift+x exec "swaymsg exit"
@@ -191,7 +192,7 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 # class                 border    backgr.   text      indicator   child_border
-client.focused          #756ba8d0 #756ba8d0 #ffffffff #2e9ef4a0   #756ba8c0
+client.focused          #756ba880 #756ba880 #ffffffff #2e9ef4a0   #756ba880
 client.focused_inactive #000000d0 #000000d0 #ffffffff #484e50a0   #000000c0
 client.unfocused        #000000c0 #000000c0 #888888ff #292d2eb0   #000000c0
 client.urgent           #900000a0 #900000a0 #ffffffff #900000a0   #900000a0

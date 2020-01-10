@@ -140,7 +140,9 @@ fn g [@args]{
   if (eq $op 'trr') { gtrr $@rest; return }
   if (eq $op 'to') { gto $@rest; return }
   if (eq $op 'too') { gtoo $@rest; return }
-  if (eq $op 'w') { w; return }
+  #MEMO: useful?
+  #if (eq $op 'w') { w; return }
+  if (eq $op 'wt') { g worktree $@rest; return }
   if (eq $op 'wc') { g whatchanged -p $@rest; return }
   if (eq $op 'RP') { RP; return }
   e:git $@args

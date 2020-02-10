@@ -61,16 +61,16 @@ CONFIG=""
 POSTFIX="_waifu"
 
 if [[ -n "$SCALE" ]]; then
-    CONFIG+=" --scale_ratio $SCALE"
+    CONFIG+=" --scale-ratio $SCALE"
     POSTFIX+="_s$SCALE"
 else
     # defaults to 2x scale
-    CONFIG+=" --scale_ratio 2"
+    CONFIG+=" --scale-ratio 2"
     POSTFIX+="_s2"
 fi
 
 if [[ -n "$NOISE" ]]; then
-    CONFIG+=" --noise_level $NOISE"
+    CONFIG+=" --noise-level $NOISE"
     POSTFIX+="_n$NOISE"
 else
     POSTFIX+="_n0"

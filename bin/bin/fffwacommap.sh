@@ -43,8 +43,9 @@ else
 	# LVDS1 connected 1366x768+0+312 (normal left inverted right x axis y axis) 309mm x 174mm
 	# VGA1 disconnected (normal left inverted right x axis y axis)
 	# HDMI1 connected 1920x1080+1366+0 (normal left inverted right x axis y axis) 509mm x 286mm
+    # DisplayPort-0 connected primary 3840x2160+2560+0 (normal left inverted right x axis y axis) 600mm x 340mm
 
-	LINE=`xrandr -q --current | sed -n "s/^${SCREEN}"' connected \([0-9]\+\)x\([0-9]\+\)+.*/\1 \2/p'`
+	LINE=`xrandr -q --current | sed -e s/primary\ // | sed -n "s/^${SCREEN}"' connected \([0-9]\+\)x\([0-9]\+\)+.*/\1 \2/p'`
 	read WIDTH HEIGHT <<< "$LINE"
 fi
 

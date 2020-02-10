@@ -44,7 +44,7 @@ for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle V
 for_window [class="Sxiv"] floating enable
 for_window [class="starbound"] floating enable
 for_window [class="Pencil"] floating enable
-
+for_window [class="display"] floating enable
 for_window [class="kruler"] floating enable
 for_window [class="kruler"] border none
 no_focus [class="Conky"]
@@ -84,10 +84,15 @@ bindsym $mod+x kill
 # alt+space
 # bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop
 bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='bemenu -i --nb "#3f3f3f" --nf "#dcdccc" --fn "pango:DejaVu Sans Mono 12"'
+# bindsym Mod1+space exec --no-startup-id qdbus org.kde.krunner /App display
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
 
 # change focus
 bindsym $mod+n focus left
@@ -175,6 +180,10 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 # lock screen
 bindsym $mod+Shift+z exec "~/bin/ffflockscreen.elv"
+
+# clipboard to qrcode
+bindsym $mod+j exec --no-startup-id xclip -o | qrencode -t PNG -o - | display
+
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+x exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 bindsym $mod+Shift+x exec "i3-msg exit"

@@ -14,6 +14,8 @@
 #exec_always ~/bin/fffwallpaper.sh $wallpaper_args &
 exec_always ~/bin/fffconfhost.elv
 
+exec xiccd &
+
 exec compton -b --config ~/.compton.conf &
 
 # wow such bar!

@@ -98,6 +98,7 @@ fn g [@args]{
     }
     return
   }
+  if (eq $op 'ap') { g apply $@rest; return }
   if (eq $op 'bl') { g blame $@rest; return }
   if (eq $op 'c') { g commit $@rest; return }
   if (eq $op 'cnm') { g c -n -m $@rest; return }
@@ -112,6 +113,7 @@ fn g [@args]{
   if (eq $op 'cpc') { g cherry-pick --continue $@rest; return }
   if (eq $op 'cpa') { g cherry-pick --abort $@rest; return }
   if (eq $op 'dh') { g diff HEAD $@rest; return }
+  if (eq $op 'dhc') { g diff HEAD --cached $@rest; return }
   if (eq $op 'fe') { g fetch $@rest; return }
   if (eq $op 'g') { g gui $@rest &; return }
   if (eq $op 'k') { gitk $@rest &; return }

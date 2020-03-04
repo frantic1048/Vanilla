@@ -27,8 +27,7 @@
 
 # vscode
 /vscode/*
-!/vscod M krita/.local/share/krita/tags/kis_resourcebundles_tags.xml
-e/.config
+!/vscode/.config
 /vscode/.config/*
 !/vscode/.config/Code
 /vscode/.config/Code/*

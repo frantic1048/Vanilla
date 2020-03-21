@@ -7,6 +7,7 @@
 # Set this to your (stylus) device. Find it by running:
 # xsetwacom --list devices
 DEVICE='Wacom Intuos Pro M Pen stylus'
+ERASER='Wacom Intuos Pro M Pen eraser'
 
 # These numbers are specific for each device. Get them by running:
 # xsetwacom --set "Your device name here" ResetArea
@@ -68,7 +69,8 @@ fi
 
 xsetwacom --set "$DEVICE" Area 0 0 "$NEWAREAX" "$NEWAREAY"
 xsetwacom --set "$DEVICE" MapToOutput "$SCREEN"
-
+xsetwacom --set "$ERASER" Area 0 0 "$NEWAREAX" "$NEWAREAY"
+xsetwacom --set "$ERASER" MapToOutput "$SCREEN"
 
 # $ xsetwacom --list devices
 # Wacom Graphire4 6x8 stylus      	id: 9	type: STYLUS

@@ -34,13 +34,15 @@ ON_HOST fantastic-rabbithouse []{
 
 ON_HOST amausaan []{
     xrandr --dpi 192
-    xrandr --output HDMI-A-0 --mode 2560x1440 --rate 120
+    xrandr --output HDMI-A-0 --mode 3840x2160 --rate 60
     xrandr --output DisplayPort-0 --mode 3840x2160
     xrandr --output HDMI-A-0 --left-of DisplayPort-0
 
     dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #1 2019-10-07 00-12 2.2 F-S XYZLUT+MTX/Ultra HD #1 2019-10-07 00-12 2.2 F-S XYZLUT+MTX.icc'
-    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/GS173QR #2 2020-02-06 09-55 2.2 M-S XYZLUT+MTX/GS173QR #2 2020-02-06 09-55 2.2 M-S XYZLUT+MTX.icc'
-    setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
+    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/K2718UD #2 2020-03-20 23-27 2.4 F-S XYZLUT+MTX/K2718UD #2 2020-03-20 23-27 2.4 F-S XYZLUT+MTX.icc'
+    #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/yande.re 540481.png'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/yande.re 540467.png'
 }
 
 ON_HOST chimame-tai []{

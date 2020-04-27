@@ -131,7 +131,7 @@ load-module module-systemd-login
 load-module module-position-event-sounds
 
 ### Cork music/video streams when a phone stream is active
-load-module module-role-cork
+# load-module module-role-cork
 
 ### Modules to allow autoloading of filters (such as echo cancellation)
 ### on demand. module-filter-heuristics tries to determine what filters

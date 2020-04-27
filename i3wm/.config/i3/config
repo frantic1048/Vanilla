@@ -16,7 +16,8 @@ exec_always ~/bin/fffconfhost.elv
 
 exec xiccd &
 
-exec compton -b --config ~/.compton.conf &
+# MEMO: very high cpu cost even no blur/shadow enabled... weird...
+exec picom -b &
 
 # wow such bar!
 exec conky -c $HOME/.conky/i3bar/conkyrc.lua &

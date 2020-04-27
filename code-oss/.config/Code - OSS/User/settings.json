@@ -33,7 +33,7 @@
   "editor.renderLineHighlight": "gutter",
 
   "window.titleBarStyle": "native",
-  "window.zoomLevel": 0,
+  "window.zoomLevel": 4,
   "workbench.colorCustomizations": {
     // non-standard, transparency patched version only
     "workbench.background": "#00000080",
@@ -71,6 +71,7 @@
     "titleBar.activeBackground": "#00000030",
 
   },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -97,5 +98,8 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.fontSize": 13,
-  "workbench.colorTheme": "Hackerman"
+  "workbench.colorTheme": "Hackerman",
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

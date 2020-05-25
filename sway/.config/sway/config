@@ -52,6 +52,9 @@ font pango:Noto Sans CJK SC Bold 8
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
+# screenshot
+bindsym $mod+backslash exec swayshot region
+
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
 #bindsym $mod+Return exec sakura
@@ -63,7 +66,8 @@ bindsym $mod+x kill
 # start dmenu (a program launcher)
 # alt+space
 #bindsym Mod1+space exec --no-startup-id qdbus org.kde.krunner /App display
-bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='bemenu -i --nb "#333333" --nf "#1976E4" --fn "Noto Sans Bold 12"' --term='alacritty'
+#bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='env BEMENU_BACKEND=wayland bemenu -m all -i --nb "#333333" --nf "#1976E4" --fn "Noto Sans Bold 12"' --term='alacritty'
+bindsym Mod1+space exec --no-startup-id wofi -S drun -Im -w 2 -W 640
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.

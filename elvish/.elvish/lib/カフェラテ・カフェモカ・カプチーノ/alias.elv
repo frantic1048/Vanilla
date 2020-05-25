@@ -4,6 +4,7 @@ fn e [@args]{ e:exa $@args }
 fn ee [@args]{ e:exa -l $@args }
 fn l [@args]{ e:ls --color $@args }
 fn p [@args]{ e:pikaur $@args }
+fn p-rm-orphan { e:pikaur -Rns (e:pikaur -Qtdq) }
 fn pping [@args]{ e:prettyping $@args }
 fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
 fn code [@args]{ e:code --disable-gpu & }

@@ -29,11 +29,11 @@
   "javascript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "editor.cursorBlinking": "phase",
-  "window.menuBarVisibility": "hidden",
+  "window.menuBarVisibility":"hidden",
   "editor.renderLineHighlight": "gutter",
 
   "window.titleBarStyle": "native",
-  "window.zoomLevel": 4,
+  "window.zoomLevel": 0,
   "workbench.colorCustomizations": {
     // non-standard, transparency patched version only
     "workbench.background": "#00000080",
@@ -101,5 +101,7 @@
   "workbench.colorTheme": "Hackerman",
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "telemetry.enableCrashReporter": false,
+  "telemetry.enableTelemetry": false,
 }

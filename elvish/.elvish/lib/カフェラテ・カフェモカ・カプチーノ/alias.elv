@@ -136,6 +136,11 @@ fn g [@args]{
   if (eq $op 'ro') { g rev-parse --show-toplevel; return }
   if (eq $op 'rs') { g reset $@rest; return }
   if (eq $op 'rs1') { g reset "HEAD~1"; return }
+
+  # Show Oneline <ref>
+  # generating rebase commands
+  if (eq $op 'so') { g show -q $g--ol $@rest ; return }
+
   if (eq $op 'tu') { g status $@rest; return }
   if (eq $op 'ta') { g stash $@rest; return }
   if (eq $op 'rl') { g reflog $@rest; return }

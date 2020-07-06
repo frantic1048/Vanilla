@@ -33,16 +33,17 @@ ON_HOST fantastic-rabbithouse []{
 }
 
 ON_HOST amausaan []{
-    xrandr --dpi 192
-    xrandr --output HDMI-A-0 --mode 3840x2160 --rate 60
-    xrandr --output DisplayPort-0 --mode 3840x2160
-    xrandr --output HDMI-A-0 --left-of DisplayPort-0
+    xrandr --dpi 144
+    xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
+    xrandr --output DisplayPort-1 --mode 3840x2160 --rate 60
+    xrandr --output DisplayPort-0 --left-of DisplayPort-1
+    xrandr --output DisplayPort-0 --primary
 
-    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #1 2019-10-07 00-12 2.2 F-S XYZLUT+MTX/Ultra HD #1 2019-10-07 00-12 2.2 F-S XYZLUT+MTX.icc'
-    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/K2718UD #2 2020-03-20 23-27 2.4 F-S XYZLUT+MTX/K2718UD #2 2020-03-20 23-27 2.4 F-S XYZLUT+MTX.icc'
+    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2020-07-01 23-15 2.2 F-S 3xCurve+MTX/27GL850 #1 2020-07-01 23-15 2.2 F-S 3xCurve+MTX.icc'
+    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX.icc'
     #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
-    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/yande.re 540481.png'
-    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/yande.re 540467.png'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/(C97) [Naturefour (Mocha)] BUNHOUNYA3!.png'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/IMG_2614.png'
 }
 
 ON_HOST chimame-tai []{

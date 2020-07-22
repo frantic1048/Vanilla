@@ -51,3 +51,7 @@
 	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/' -e '/_authToken=/d' -e '/^registry=/d'
 	smudge = cat
 	required = true
+[pull]
+	ff = only
+[rebase]
+    instructionFormat = "%aN\t%s"

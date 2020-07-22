@@ -49,9 +49,17 @@ ON_HOST amausaan []{
 ON_HOST chimame-tai []{
     xrandr --dpi 192
 
+    xrandr --output DP-2 --rotate left
+    xrandr --output DP-1 --rotate right
+    xrandr --output eDP-1 --rotate right
+    xrandr --output DP-1 --right-of DP-2
+    xrandr --output eDP-1 --right-of DP-1
+
     dispwin -I {~}'/.local/share/DisplayCAL/storage/Monitor 1 #1 2019-10-07 01-40 D6500 2.2 F-S 3xCurve+MTX/Monitor 1 #1 2019-10-07 01-40 D6500 2.2 F-S 3xCurve+MTX.icc'
-    setwallpaper -m fill /home/chino/Pictures/bg/005.jpg.crop.tif
-    
+#    setwallpaper -m fill '/home/chino/Pictures/bg/kokkoro-princess_waifu_s1_n2.png'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/pcr/101431.2160x1920_waifu_s2_n0.right.bmp'
+    nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/pcr/101431.2160x1920_waifu_s2_n0.left.bmp'
+
     # auto rotate screen
     # pkg: iio-sensor-proxy aur/screenrotator-git
     if (not ?(pgrep screenrotator)) {

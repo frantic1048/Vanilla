@@ -19,6 +19,13 @@ ON_HOST fantastic-rabbithouse []{
 
 ON_HOST pending []{
     #spectacle -bnf -o /tmp/fff_screen_lock.png
-    scrot -zm /tmp/fff_screen_lock.png
+    scrot -zmo /tmp/fff_screen_lock.png
     i3lock -tue -p win -i /tmp/fff_screen_lock.png
+}
+
+ON_HOST chimame-tai []{
+    #scrot -zmo /tmp/fff_screen_lock.png
+    #i3lock -tue -p win -i /tmp/fff_screen_lock.png
+    #i3lock -tue -p win -i /home/chino/Pictures/bg/photo/IMG_2642_01.crop.4320x3840.png
+    i3lock -tue -p win -i /home/chino/Pictures/bg/pcr/101431.2160x1920_waifu_s3_n0.bmp.png
 }

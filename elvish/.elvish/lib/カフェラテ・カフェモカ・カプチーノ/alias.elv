@@ -75,7 +75,6 @@ fn g [@args]{
   if (eq $op 'g') { g gui $@rest &; return }
   if (eq $op 'k') { gitk $@rest &; return }
   if (eq $op 'ka') { gitk --all $@rest &; return }
-  if (eq $op 'm') { g merge $@rest; return }
   if (eq $op 'loc') { e:cloc $@args (g ls-files) $@rest; return }
 
   # Push
@@ -84,17 +83,30 @@ fn g [@args]{
   if (eq $op 'pu') { g push -u origin (g cb); return }
   if (eq $op 'pl') { g pull $@rest; return }
 
+  # Merge
+  if (eq $op 'm') { g merge $@rest; return }
+  ## ff?(use / as ? alternate) : can current branch fast forward with $@rest
+  if (eq $op 'mf/') { put (==s (g merge-base HEAD $@rest) (g rev-parse HEAD)); return }
+  # do merge when ff is possible, and create a merge commit, aka semi-linear history merging strategy
+  if (eq $op 'mf') { if (g mf/ $@rest) { g merge --no-ff $@rest } else { echo 'outdated branch !' }; return}
+
   # ReBase
   if (eq $op 'rb') { g rebase $@rest; return }
   if (eq $op 'rbo') { g rebase --onto $@rest; return }
   if (eq $op 'rbi') { g rebase -i $@rest; return }
+  # extra "b" means rebase more stuff -> rebase merges
+  if (eq $op 'rbbi') { g rebase --rebase-merges -i $@rest; return }
   if (eq $op 'rbm') { g rebase $@rest master; return }
   if (eq $op 'rbim') { g rebase -i $@rest master; return }
+
+  # ReBase mode commands
   if (eq $op 'rba') { g rebase --abort; return }
   if (eq $op 'rbc') { g rebase --continue; return }
   if (eq $op 'rbs') { g rebase --skip; return }
 
-  if (eq $op 'ro') { g rev-parse --show-toplevel; return }
+  if (eq $op 'rp') { g rev-parse --show-toplevel; return }
+
+  # ReSet
   if (eq $op 'rs') { g reset $@rest; return }
   if (eq $op 'rs1') { g reset "HEAD~1"; return }
 
@@ -114,12 +126,7 @@ fn g [@args]{
 
   if (eq $op 'wt') { g worktree $@rest; return }
   if (eq $op 'wc') { g whatchanged -p $@rest; return }
-  if (eq $op 'RP') {
-    g add .
-    g commit --amend --no-verify --no-edit
-    g push --force
-    return
-  }
+
   e:git $@args
 }
 

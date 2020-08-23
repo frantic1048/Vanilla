@@ -18,6 +18,7 @@ fn tt [@args]{ e:ydcv $@args }
 fn i [@args]{ e:time $@args }
 fn d [@args]{ e:docker $@args }
 fn n [@args]{ e:npm $@args }
+fn q [@args]{ e:qalc $@args }
 fn y [@args]{ e:yarn $@args }
 fn yrst { e:rm -rf ./node_modules/;y }
 

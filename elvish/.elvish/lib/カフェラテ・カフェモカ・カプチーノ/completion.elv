@@ -1,3 +1,5 @@
+use str
+
 # git
 fn g_completion [@args]{
     # 0     1     2
@@ -13,7 +15,7 @@ fn g_completion [@args]{
     if (eq $op 'ck') {
         # checkout branches
         each [line]{
-            candidate message = (splits "\t" $line)
+            candidate message = (str:split "\t" $line)
 
             # ABUSE:
             # use empty string as candidate, &code-suffix for real candidate
@@ -22,9 +24,9 @@ fn g_completion [@args]{
 
             # FIXME:
             # --sort not working yet since elvish always sort candidates...
-      } [(git for-each-ref 'refs/heads/' \
-          --sort="-committerdate" \
-          --no-contains=(git rev-parse HEAD) \
+      } [(git for-each-ref 'refs/heads/' ^
+          --sort="-committerdate" ^
+          --no-contains=(git rev-parse HEAD) ^
           --format="%(refname:short)\t%(objectname:short) %(refname:short) %(authorname) %(committerdate:relative)")]
     } else {
         # default completion

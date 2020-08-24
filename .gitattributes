@@ -2,3 +2,4 @@
 /sway/.config/sway/config filter=vanilla.sway
 /htop/.config/htop/htoprc filter=vanilla.htop
 /npm/.npmrc filter=vanilla.npm
+"code-oss/.config/Code - OSS/User/settings.json" filter=vanilla.code

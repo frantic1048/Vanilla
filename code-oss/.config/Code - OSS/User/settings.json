@@ -14,7 +14,7 @@
   "atomKeymap.promptV3Features": true,
   "editor.multiCursorModifier": "ctrlCmd",
   "typescript.updateImportsOnFileMove.enabled": "never",
-  "workbench.sideBar.location": "left",
+  "workbench.sideBar.location": "right",
   "vscode_custom_css.imports": [
     "file:///home/chino/.config/Code - OSS/custom_css.css"
   ],
@@ -33,7 +33,6 @@
   "editor.renderLineHighlight": "gutter",
 
   "window.titleBarStyle": "native",
-  "window.zoomLevel": 0,
   "workbench.colorCustomizations": {
     // non-standard, transparency patched version only
     "workbench.background": "#00000080",
@@ -92,16 +91,17 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "python.formatting.provider": "black",
-  "python.formatting.blackPath": "/usr/bin/black",
+  "python.formatting.provider": "yapf",
+  "python.formatting.blackPath": "/usr/bin/yapf",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.fontSize": 13,
-  "workbench.colorTheme": "Hackerman",
+  "workbench.colorTheme": "Solarized Dark",
   "[html]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "telemetry.enableCrashReporter": false,
   "telemetry.enableTelemetry": false,
+  "go.formatTool": "goimports",
 }

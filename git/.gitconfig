@@ -41,7 +41,7 @@
 
 # ignore tree_view, and color config in htop
 [filter "vanilla.htop"]
-	clean = sed -e '/^tree_view\\|^color_scheme/d'
+	clean = sed -e '/^tree_view\\|^color_scheme\\|^sort_key/d'
 	smudge = cat
 	required = true
 

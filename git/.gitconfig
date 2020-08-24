@@ -51,6 +51,14 @@
 	clean = sed -e 's/^proxy=/\\x23proxy=/' -e 's/^https-proxy=/\\x23https-proxy=/' -e '/_authToken=/d' -e '/^registry=/d'
 	smudge = cat
 	required = true
+
+# VS Code config
+# ignore zoomLevel
+[filter "vanilla.code"]
+	clean = sed -e '/window.zoomLevel/d'
+	smudge = cat
+	required = true
+
 [pull]
 	ff = only
 [rebase]

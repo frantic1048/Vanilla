@@ -1,3 +1,5 @@
+use str
+
 # env vars
 paths = [
   {~}/bin
@@ -11,7 +13,7 @@ paths = [
 set-env NODE_PATH (joins : [
   {~}/npm-global/lib/node_modules
   /usr/lib/node_modules
-  (splits : $E:NODE_PATH)
+  (str:split : $E:NODE_PATH)
 ])
 
 set-env VISUAL nano

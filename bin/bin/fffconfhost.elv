@@ -1,16 +1,15 @@
 #!/bin/env elvish
 
-currentHost=(hostname)
+use kokkoro
 
-fn ON_HOST [host config~]{
-    if (==s $host $currentHost) {
-        echo host:$host
-        config
-        exit
-    }
-}
+# MEMO: this does not work
+# Exception: external commands don't accept elvish options
+# at-env = kokkoro:at-env
 
-ON_HOST fantastic-rabbithouse []{
+hosts = $kokkoro:hosts
+desktops = $kokkoro:desktops
+
+kokkoro:at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     # left
     swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
         transform 270 ^
@@ -28,11 +27,9 @@ ON_HOST fantastic-rabbithouse []{
         pos 3000 800 ^
         scale 2 ^
         bg {~}'/Pictures/photo/twitter EKNNutiUYAYcNzW.jpg' fill
-
-    krunner -d --replace &
 }
 
-ON_HOST amausaan []{
+kokkoro:at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     xrandr --dpi 144
     xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
     xrandr --output DisplayPort-1 --mode 3840x2160 --rate 60
@@ -46,7 +43,7 @@ ON_HOST amausaan []{
     nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/cooking/darktable_exported/Atelier_Sophie_Firis_Lydie_Suelle_Official_Visual_Collection_076.png'
 }
 
-ON_HOST chimame-tai []{
+kokkoro:at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
     xrandr --dpi 192
 
     xrandr --output DP-2 --rotate left
@@ -57,12 +54,20 @@ ON_HOST chimame-tai []{
 
     dispwin -I {~}'/.local/share/DisplayCAL/storage/Monitor 1 #1 2019-10-07 01-40 D6500 2.2 F-S 3xCurve+MTX/Monitor 1 #1 2019-10-07 01-40 D6500 2.2 F-S 3xCurve+MTX.icc'
 #    setwallpaper -m fill '/home/chino/Pictures/bg/kokkoro-princess_waifu_s1_n2.png'
-    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/pcr/101431.2160x1920_waifu_s2_n0.right.bmp'
-    nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/pcr/101431.2160x1920_waifu_s2_n0.left.bmp'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/pixiv 82291538_p0.jpg'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/pixiv 83588446_p0.jpg'
+    nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/pixiv 83453696_p1.jpg'
 
     # auto rotate screen
     # pkg: iio-sensor-proxy aur/screenrotator-git
     if (not ?(pgrep screenrotator)) {
         screenrotator &
     }
+}
+
+kokkoro:at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
+    # TODO
+
+    # auto rotate screen
+    # TODO: rot8
 }

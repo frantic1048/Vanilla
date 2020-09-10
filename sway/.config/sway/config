@@ -1,5 +1,5 @@
 exec "sh -c 'sleep 2;fcitx -r &'"
-exec "sh -c 'sleep 2;nm-applet &'"
+#exec "sh -c 'sleep 2;nm-applet &'"
 exec_always "mako --default-timeout 2000 &"
 
 # host specific configuration

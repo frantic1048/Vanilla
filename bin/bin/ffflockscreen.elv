@@ -2,14 +2,11 @@
 
 use kokkoro
 
-# MEMO: this does not work
-# Exception: external commands don't accept elvish options
-# at-env = kokkoro:at-env
-
+at-env~ = $kokkoro:at-env~
 hosts = $kokkoro:hosts
 desktops = $kokkoro:desktops
 
-kokkoro:at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
+at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     swaylock -u ^
             -i "eDP-1:/home/chino/Pictures/photo/twitter EKNNutiUYAYcNzW.jpg" ^
             -i "DP-1:/home/chino/Pictures/photo/yande.re 570936.png" ^
@@ -17,7 +14,7 @@ kokkoro:at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     exit
 }
 
-kokkoro:at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
+at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
 #    scrot -zmo /tmp/fff_screen_lock.png
 #    i3lock -tue -p win -i /tmp/fff_screen_lock.png
 #    i3lock -tue -p win -i /home/chino/Pictures/bg/photo/IMG_2642_01.crop.4320x3840.png

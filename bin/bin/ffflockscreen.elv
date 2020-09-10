@@ -22,3 +22,11 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
     i3lock -tue -p win -i "/home/chino/Pictures/bg/fff_screen_lock.1.png"
     exit
 }
+
+at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
+    swaylock -u ^
+        -i "eDP-1:/home/chino/Pictures/bg/pixiv 83588446_p0.jpg" ^
+        -i "DP-1:/home/chino/Pictures/bg/pixiv 82291538_p0.jpg" ^
+        -i "DP-2:/home/chino/Pictures/bg/pixiv 83453696_p1.jpg"
+    exit
+}

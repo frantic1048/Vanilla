@@ -63,8 +63,25 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
 }
 
 at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
-    # TODO
+    # left
+    swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
+        transform 270 ^
+        pos 0 0 ^
+        bg {~}'/Pictures/bg/pixiv 83453696_p1.jpg' fill
 
-    # auto rotate screen
-    # TODO: rot8
+    # center
+    swaymsg output '"Dell Inc. DELL U2414H GN64V73N2WRL"' ^
+        transform 90 ^
+        pos 1080 0 ^
+        bg {~}'/Pictures/bg/pixiv 82291538_p0.jpg' fill
+
+    # right
+    swaymsg output '"Chimei Innolux Corporation 0x1373 0x00000000"' ^
+        transform 90 ^
+        pos 2160 800 ^
+        scale 2 ^
+        bg {~}'/Pictures/bg/pixiv 83588446_p0.jpg' fill
+
+    # MEMO: auto rotate screen?
+    # pkg: rot8
 }

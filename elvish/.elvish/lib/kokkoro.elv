@@ -19,8 +19,7 @@ desktops = (string-enum [
 ])
 
 current-host = (hostname)
-current-desktop = $E:XDG_CURRENT_DESKTOP
-
+current-desktop = $E:XDG_SESSION_DESKTOP
 
 fn at-env [
     &host=''

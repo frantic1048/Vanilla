@@ -2,14 +2,11 @@
 
 use kokkoro
 
-# MEMO: this does not work
-# Exception: external commands don't accept elvish options
-# at-env = kokkoro:at-env
-
+at-env~ = $kokkoro:at-env~
 hosts = $kokkoro:hosts
 desktops = $kokkoro:desktops
 
-kokkoro:at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
+at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     # left
     swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
         transform 270 ^
@@ -29,7 +26,7 @@ kokkoro:at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
         bg {~}'/Pictures/photo/twitter EKNNutiUYAYcNzW.jpg' fill
 }
 
-kokkoro:at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
+at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     xrandr --dpi 144
     xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
     xrandr --output DisplayPort-1 --mode 3840x2160 --rate 60
@@ -43,7 +40,7 @@ kokkoro:at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/cooking/darktable_exported/Atelier_Sophie_Firis_Lydie_Suelle_Official_Visual_Collection_076.png'
 }
 
-kokkoro:at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
+at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
     xrandr --dpi 192
 
     xrandr --output DP-2 --rotate left
@@ -65,7 +62,7 @@ kokkoro:at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
     }
 }
 
-kokkoro:at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
+at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
     # TODO
 
     # auto rotate screen

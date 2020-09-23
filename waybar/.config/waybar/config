@@ -1,9 +1,10 @@
 {
     "layer": "top",
     "position": "bottom",
+    "output": "!HEADLESS-1",
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["custom/mpris", "temperature", "custom/fan", "clock", "tray"],
+    "modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
     "custom/mpris": {
         "format": "\uf025   {}",
         "exec": "~/bin/fffplaying.elv"

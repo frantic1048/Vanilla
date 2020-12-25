@@ -1,0 +1,7 @@
+# man 5 mako
+
+background-color=#00000060
+border-color=#0000003a
+
+# milliseconds
+default-timeout=4200

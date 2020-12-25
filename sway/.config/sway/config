@@ -1,6 +1,6 @@
 exec "sh -c 'sleep 2;fcitx -r &'"
 #exec "sh -c 'sleep 2;nm-applet &'"
-exec_always "mako --default-timeout 4200 &"
+exec_always "mako &"
 
 # host specific configuration
 exec_always "~/bin/fffconfhost.elv"

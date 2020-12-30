@@ -11,16 +11,20 @@
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.python"
+  },
   "[ruby]": {},
   "[shellscript]": {},
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "atomKeymap.promptV3Features": true,
   "breadcrumbs.enabled": true,
+  "editor.columnSelection": false,
   "editor.cursorBlinking": "phase",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.fontFamily": "Victor Mono Medium",
@@ -47,9 +51,10 @@
   },
   "go.formatTool": "goimports",
   "javascript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.updateImportsOnFileMove.enabled": "always",
   "javascript.validate.enable": false,
-  "python.formatting.blackPath": "/usr/bin/yapf",
   "python.formatting.provider": "yapf",
+  "python.formatting.yapfPath": "/usr/bin/yapf",
   "telemetry.enableCrashReporter": false,
   "telemetry.enableTelemetry": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
@@ -63,7 +68,7 @@
     "activityBar.background": "#46575e5e",
     "button.background": "#00000040",
     "button.hoverBackground": "#00000080",
-    "editor.background": "#00000029",
+    "editor.background": "#00000022",
     "editor.lineHighlightBackground": "#70E5FF70",
     "editorGroupHeader.tabsBackground": "#00000050",
     "editorGutter.background": "#00000030",
@@ -86,6 +91,7 @@
     "workbench.background": "#00000080"
   },
   "workbench.colorTheme": "Solarized Dark",
+  "workbench.editor.showTabs": true,
   "workbench.sideBar.location": "right",
   "workbench.statusBar.visible": true
 }

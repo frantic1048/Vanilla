@@ -6,31 +6,37 @@ fn g_completion [@args]{
     # g     OP    "STUFF TO BE COMPLETED"
     if (!= (count $args) 3) {
         # this is not our case, use default filename completion
-        put (edit:complete-filename @args)
+        put (edit:complete-filename $args[-1])
         return
     }
 
     op = $args[1]
 
     if (eq $op 'ck') {
-        # checkout branches
+        # git checkout
+        # completes recent branches
         each [line]{
-            candidate message = (str:split "\t" $line)
+            index candidate message = (str:split "\t" $line)
 
-            # ABUSE:
-            # use empty string as candidate, &code-suffix for real candidate
-            # so we can fully contronl candidate display message via &display-suffix
-            put (edit:complex-candidate '' &code-suffix=$candidate &display-suffix=$message)
+            put (edit:complex-candidate $candidate &display=$index" "$message)
 
             # FIXME:
             # --sort not working yet since elvish always sort candidates...
+            # using nl to workaround this issue...
+
+            # MEMO:
+            # git for-each-ref --no-contains=(git rev-parse HEAD)
+            # omits all branch with same ref.
+            #
+            # I only want to omit current branch.
+            # using `rg` to remove current branch from candidates
       } [(git for-each-ref 'refs/heads/' ^
           --sort="-committerdate" ^
-          --no-contains=(git rev-parse HEAD) ^
-          --format="%(refname:short)\t%(objectname:short) %(refname:short) %(authorname) %(committerdate:relative)")]
+          --format="%(refname:short)\t%(objectname:short) %(refname:short) %(authorname) %(committerdate:relative)" ^
+          | rg -v (g cb) | nl -nrz -w3)]
     } else {
         # default completion
-        put (edit:complete-filename @args)
+        put (edit:complete-filename $args[-1])
     }
 }
 

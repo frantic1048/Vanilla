@@ -25,9 +25,9 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
 
 at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
     swaylock -u ^
-        -i "eDP-1:/home/chino/Pictures/bg/IMG_3007.png" ^
-        -i "DP-1:/home/chino/Pictures/bg/IMG_2940.png" ^
-        -i "DP-2:/home/chino/Pictures/bg/IMG_2941.png" ^
-        -i "HEADLESS-1:/home/chino/Pictures/bg/IMG_2950.png"
+        -i "eDP-1:/home/chino/Pictures/bg/pixiv 73124833_p0.png" ^
+        -i "DP-1:/home/chino/Pictures/bg/twitter EpLcMJYVoAAp0oo.jpg" ^
+        -i "DP-2:/home/chino/Pictures/bg/pixiv 85946505_p0.jpg"
+        #-i "HEADLESS-1:/home/chino/Pictures/bg/IMG_2950.png"
     exit
 }

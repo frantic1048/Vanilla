@@ -1,11 +1,15 @@
 exec "sh -c 'sleep 2;fcitx -r &'"
 #exec "sh -c 'sleep 2;nm-applet &'"
 exec_always "mako &"
+
+# dpms off/on is not working well
+# https://github.com/swaywm/wlroots/issues/2325
+#    timeout 180 'swaymsg "output * dpms off"' \
+#    timeout 15 'if pgrep -x swaylock; then swaymsg "output * dpms off"; fi' \
+#    resume 'swaymsg "output * dpms on"' \
+
 exec swayidle -w \
-    timeout 60 'if pgrep -xv swaylock; then ~/bin/ffflockscreen.elv; fi' \
-    timeout 180 'swaymsg "output * dpms off"' \
-    timeout 15 'if pgrep -x swaylock; then swaymsg "output * dpms off"; fi' \
-    resume 'swaymsg "output * dpms on"' \
+    timeout 120 'if pgrep -xv swaylock; then ~/bin/ffflockscreen.elv; fi' \
     before-sleep '~/bin/ffflockscreen.elv' &
 
 # host specific configuration
@@ -65,6 +69,7 @@ floating_modifier $mod
 # screenshot
 bindsym $mod+backslash exec swayshot region
 bindsym $mod+Shift+backslash exec swayshot window
+bindsym $mod+Control+backslash exec env GRIM_DEFAULT_DIR=/home/chino/Pictures/screenshots grim -t jpeg
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal

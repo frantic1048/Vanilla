@@ -19,8 +19,10 @@
     },
     "temperature": {
         "format": "\uf7e4   {temperatureC}°C",
-        "hwmon-path": "/sys/devices/platform/coretemp.0/hwmon/hwmon5/temp1_input",
-        "critical-threshold": 90
+        "thermal-zone": 6,
+        "interval": 2,
+        "_hwmon-path": "/sys/devices/platform/coretemp.0/hwmon/hwmon6/temp1_input",
+        "critical-threshold": 80
     },
     "clock": {
         "format": "\uf073   {:%a, %d. %b  %H:%M}"

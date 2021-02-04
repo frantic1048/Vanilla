@@ -10,7 +10,7 @@ paths = [
   $@paths
 ]
 
-set-env NODE_PATH (joins : [
+set-env NODE_PATH (str:join : [
   {~}/npm-global/lib/node_modules
   /usr/lib/node_modules
   (str:split : $E:NODE_PATH)

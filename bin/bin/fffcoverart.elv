@@ -1,9 +1,10 @@
 #!/bin/env elvish
 use re
+use path
 
-script_name=(path-base (src)[name])
+var script_name = (path:base (src)[name])
 
-exceptions=[
+var exceptions = [
     &input_not_flac='Ignored, Non FLAC file'
     &no_cover_found='Ignored, No cover art found'
     &already_have_cover='Ignored, already have embedded cover'
@@ -30,13 +31,13 @@ fn assert_valid_flac [f]{
 }
 
 fn find_coverart [f]{
-    search_dir = (path-dir $f)
-    coverart_list = [(fd \
-        --absolute-path \
-        --type file \
-        --max-depth 1 \
-        --ignore-case \
-        '^cover\.(png|jpg)$' \
+    search_dir = (path:dir $f)
+    coverart_list = [(fd ^
+        --absolute-path ^
+        --type file ^
+        --max-depth 1 ^
+        --ignore-case ^
+        '^cover\.(png|jpg)$' ^
         $search_dir
     )]
 
@@ -49,7 +50,7 @@ fn find_coverart [f]{
 }
 
 fn assert_flac_no_embedded_cover [f]{
-    picture=[(metaflac --list --block-type=PICTURE $f)]
+    var picture = [(metaflac --list --block-type=PICTURE $f)]
     if (!= 0 (count $picture)) {
         fail $exceptions[already_have_cover]':'$f
     }
@@ -61,7 +62,7 @@ if (== (count $args) 0) {
 }
 
 put $@args | each [file]{
-    flac_file = (path-abs $file)
+    flac_file = (path:abs $file)
 
     try {
         assert_valid_flac $flac_file
@@ -71,9 +72,9 @@ put $@args | each [file]{
         continue
     }
 
-    coverart_file = $false
+    var coverart_file = $false
 
-    try { coverart_file=(find_coverart $flac_file) } except e {
+    try { set coverart_file = (find_coverart $flac_file) } except e {
         echo $e
         continue
     }

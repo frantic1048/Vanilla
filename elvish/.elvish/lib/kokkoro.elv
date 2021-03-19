@@ -11,6 +11,7 @@ hosts = (string-enum [
     amausaan
     chimame-tai
     fantastic-rabbithouse
+    toastx900
 ])
 
 desktops = (string-enum [
@@ -18,7 +19,7 @@ desktops = (string-enum [
     sway
 ])
 
-current-host = (hostname)
+current-host = (uname -n)
 current-desktop = $E:XDG_SESSION_DESKTOP
 
 fn at-env [

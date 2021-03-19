@@ -74,7 +74,10 @@ bindsym $mod+Control+backslash exec env GRIM_DEFAULT_DIR=/home/chino/Pictures/sc
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
 #bindsym $mod+Return exec sakura
-bindsym $mod+Return exec env LANG=en_US.UTF-8 WINIT_UNIX_BACKEND=x11 alacritty
+
+# WINIT_UNIX_BACKEND=x11 for fcitx
+# clear XDG_CURRENT_DESKTOP thus xdg-open will not call kfmclient(kde stuff)
+bindsym $mod+Return exec env LANG=en_US.UTF-8 WINIT_UNIX_BACKEND=x11 XDG_CURRENT_DESKTOP= alacritty
 
 # kill focused window
 bindsym $mod+x kill

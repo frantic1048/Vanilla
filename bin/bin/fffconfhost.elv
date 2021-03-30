@@ -93,3 +93,29 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
     # MEMO: auto rotate screen?
     # pkg: rot8
 }
+
+
+at-env &host=$hosts[toastx900] &desktop=$desktops[sway] {
+
+    left_screen_offset_y = 235
+    # left
+    swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
+        transform 0 ^
+        pos 0 $left_screen_offset_y ^
+        bg {~}'/Pictures/bg/pixiv 85946505_p0.jpg' fill
+
+    # center
+    swaymsg output '"Dell Inc. DELL U2414H GN64V73N2WRL"' ^
+        transform 90 ^
+        pos 1920 0 ^
+        bg {~}'/Pictures/bg/twitter EpLcMJYVoAAp0oo.jpg' fill
+
+    #swaymsg output HEADLESS-1 ^
+    #    pos 250 (+ 1080 $left_screen_offset_y) ^
+    #    resolution 2800x1752 ^
+    #    scale 2 ^
+    #    bg {~}'/Pictures/bg/IMG_2950.png' fill
+
+    # MEMO: auto rotate screen?
+    # pkg: rot8
+}

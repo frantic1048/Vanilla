@@ -31,3 +31,11 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
         #-i "HEADLESS-1:/home/chino/Pictures/bg/IMG_2950.png"
     exit
 }
+
+at-env &host=$hosts[toastx900] &desktop=$desktops[sway] {
+    swaylock -u ^
+        -i "DP-2:/home/chino/Pictures/bg/twitter EpLcMJYVoAAp0oo.jpg" ^
+        -i "DP-1:/home/chino/Pictures/bg/pixiv 85946505_p0.jpg"
+        #-i "HEADLESS-1:/home/chino/Pictures/bg/IMG_2950.png"
+    exit
+}

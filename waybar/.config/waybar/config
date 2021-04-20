@@ -5,7 +5,7 @@
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
     "__BAD_APPLE__modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
-    "modules-right": ["mpd", "temperature", "clock", "tray"],
+    "modules-right": ["cpu", "memory" , "temperature", "mpd", "clock", "tray"],
     "custom/mpris": {
         "format": "\uf025   {}",
         "exec": "~/bin/fffplaying.elv"
@@ -19,10 +19,16 @@
     },
     "temperature": {
         "format": "\uf7e4   {temperatureC}°C",
-        "thermal-zone": 6,
+        "_thermal-zone": 6,
         "interval": 2,
-        "_hwmon-path": "/sys/devices/platform/coretemp.0/hwmon/hwmon6/temp1_input",
+        "hwmon-path": "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp1_input",
         "critical-threshold": 80
+    },
+    "cpu": {
+        "format": "\uf787   {usage}%",
+    },
+    "memory": {
+        "format": "\uf818   {used:0.1f}/{avail:0.1f}GiB",
     },
     "clock": {
         "format": "\uf073   {:%a, %d. %b  %H:%M}"

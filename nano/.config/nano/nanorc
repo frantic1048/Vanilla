@@ -1,9 +1,8 @@
 include "/usr/share/nano/*.nanorc"
 
-set nowrap
+unset breaklonglines
 set tabsize 4
 set tabstospaces
-set morespace
 set nohelp
 set quickblank
 set regexp

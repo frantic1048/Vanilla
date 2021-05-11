@@ -110,6 +110,10 @@ at-env &host=$hosts[toastx900] &desktop=$desktops[sway] {
         pos 1920 0 ^
         bg {~}'/Pictures/bg/twitter EpLcMJYVoAAp0oo.jpg' fill
 
+    # HKC T4000
+    swaymsg output '"Unknown T4000+HDMI 0000000000001"' ^
+        bg {~}'/Pictures/bg/pixiv 89478080_p1.jpg' fill
+
     #swaymsg output HEADLESS-1 ^
     #    pos 250 (+ 1080 $left_screen_offset_y) ^
     #    resolution 2800x1752 ^

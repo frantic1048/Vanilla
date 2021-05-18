@@ -6,6 +6,17 @@ at-env~ = $kokkoro:at-env~
 hosts = $kokkoro:hosts
 desktops = $kokkoro:desktops
 
+
+at-env &desktop=$desktops[sway] {
+    if ?(pidof stretchly) {
+        # 2021-05-13
+        # stretchly causes unlock failure, weird...
+        killall stretchly
+
+        # MEMO: restart stretchly after unlock ?
+    }
+}
+
 at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     swaylock -u ^
             -i "eDP-1:/home/chino/Pictures/photo/twitter EKNNutiUYAYcNzW.jpg" ^

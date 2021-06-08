@@ -33,11 +33,11 @@ at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     xrandr --output DisplayPort-0 --left-of DisplayPort-1
     xrandr --output DisplayPort-0 --primary
 
-    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2020-07-01 23-15 2.2 F-S 3xCurve+MTX/27GL850 #1 2020-07-01 23-15 2.2 F-S 3xCurve+MTX.icc'
+    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2021-06-05 15-34 sRGB F-S 3xCurve+MTX/27GL850 #1 2021-06-05 15-34 sRGB F-S 3xCurve+MTX.icc'
     dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX.icc'
     #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
-    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/cooking/darktable_exported/Atelier_Sophie_Firis_Lydie_Suelle_Official_Visual_Collection_044.png'
-    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/cooking/darktable_exported/Atelier_Sophie_Firis_Lydie_Suelle_Official_Visual_Collection_076.png'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC2200.png'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/(C97) [Naturefour (Mocha)] BUNHOUNYA3!.png'
 }
 
 at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {

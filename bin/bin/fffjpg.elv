@@ -1,6 +1,8 @@
 #!/bin/env elvish
 
-script_name=(path-base (src)[name])
+use path
+
+var script_name = (path:base (src)[name])
 
 if (== (count $args) 0) {
     echo Usage:
@@ -13,9 +15,9 @@ if (== (count $args) 0) {
 put $@args | peach [image]{
     if (!=s $image '') {
         echo converting $image
-        convert $image \
-            -resize '2300x2300>' \
-            -quality 93 \
+        convert $image ^
+            -resize '2800x2800>' ^
+            -quality 95 ^
             $image'.jpg'
     }
 }

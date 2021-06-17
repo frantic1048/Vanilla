@@ -48,6 +48,7 @@
 /code-oss/.config/Code - OSS/User/*
 !/code-oss/.config/Code - OSS/User/settings.json
 !/code-oss/.config/Code - OSS/User/keybindings.json
+!/code-oss/.config/Code - OSS/User/snippets
 
 # color
 /color/.local/*

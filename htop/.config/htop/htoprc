@@ -2,6 +2,8 @@
 # The parser is also very primitive, and not human-friendly.
 fields=0 48 39 2 46 47 49 1
 sort_direction=1
+tree_sort_key=0
+tree_sort_direction=1
 hide_kernel_threads=1
 hide_userland_threads=1
 shadow_other_users=1
@@ -26,7 +28,8 @@ update_process_names=0
 account_guest_in_cpu_meter=0
 enable_mouse=1
 delay=15
-left_meters=AllCPUs2 Memory Swap DiskIO
+left_meters=AllCPUs4 Memory Swap DiskIO
 left_meter_modes=1 1 1 2
 right_meters=Hostname Clock Uptime Tasks LoadAverage Battery NetworkIO
 right_meter_modes=2 2 2 2 2 2 2
+hide_function_bar=0

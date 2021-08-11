@@ -4,28 +4,35 @@
 	signingkey = 22D8A46B2CDA6605A1C0CFD1E060B3E215CE49BB
 [includeIf "gitdir:~/chaitin/"]
     path = ~/.gitconfig.user.chaitin
-[push]
-	default = simple
-[http]
-	postBuffer = 1048576000
-[commit]
-	gpgsign = false
 [core]
 	excludesfile = ~/.gitignore
-[merge]
-	ff = only
-[gui]
-	fontui = -family \"Linden Hill\" -size 11 -weight normal -slant roman -underline 0 -overstrike 0
 [diff]
 	algorithm = histogram
+[commit]
+	gpgsign = false
+[merge]
+	ff = only
+[push]
+	default = simple
+[pull]
+	ff = only
 [rebase]
 	autoSquash = true
+	instructionFormat = "%aN\t%s"
+[http]
+	postBuffer = 1048576000
+[gui]
+	fontui = -family \"Linden Hill\" -size 11 -weight normal -slant roman -underline 0 -overstrike 0
+
+# filters
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
 
+# private filters for Vanilla repo
+# MEMO: debugging is not easy...
 # remove geometry lines from gitk config
 [filter "vanilla.gitk"]
 	clean = sed -e '/^set geometry/d'
@@ -58,8 +65,3 @@
 	clean = sed -e '/window.zoomLevel/d'
 	smudge = cat
 	required = true
-
-[pull]
-	ff = only
-[rebase]
-    instructionFormat = "%aN\t%s"

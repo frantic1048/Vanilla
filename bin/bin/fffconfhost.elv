@@ -69,7 +69,7 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
     swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
         transform 0 ^
         pos 0 $left_screen_offset_y ^
-        bg {~}'/Pictures/bg/pixiv 85946505_p0.jpg' fill
+        bg {~}'/Pictures/bg/photo/_DSC3011.png' fill
 
     # center
     swaymsg output '"Dell Inc. DELL U2414H GN64V73N2WRL"' ^
@@ -99,20 +99,23 @@ at-env &host=$hosts[toastx900] &desktop=$desktops[sway] {
 
     left_screen_offset_y = 235
     # left
-    swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
-        transform 0 ^
-        pos 0 $left_screen_offset_y ^
-        bg {~}'/Pictures/bg/pixiv 85946505_p0.jpg' fill
-
-    # center
     swaymsg output '"Dell Inc. DELL U2414H GN64V73N2WRL"' ^
         transform 90 ^
-        pos 1920 0 ^
-        bg {~}'/Pictures/bg/twitter EpLcMJYVoAAp0oo.jpg' fill
+        pos 0 0 ^
+        bg {~}'/Pictures/bg/pixiv 91108963_p0.jpg' fill
+        # bg {~}'/Pictures/bg/photo/_DSC2171.png' fill
+
+    # center
+    swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
+        transform 0 ^
+        pos 1080 600 ^
+        bg {~}'/Pictures/bg/photo/_DSC3011.png' fill
+        # bg {~}'/Pictures/bg/photo/_DSC2175.png' fill
+        # bg {~}'/Pictures/bg/pixiv 86906320_p0.jpg' fill
 
     # HKC T4000
-    swaymsg output '"Unknown T4000+HDMI 0000000000001"' ^
-        bg {~}'/Pictures/bg/pixiv 89478080_p1.jpg' fill
+    # swaymsg output '"Unknown T4000+HDMI 0000000000001"' ^
+    #    bg {~}'/Pictures/bg/pixiv 89478080_p1.jpg' fill
 
     #swaymsg output HEADLESS-1 ^
     #    pos 250 (+ 1080 $left_screen_offset_y) ^

@@ -29,7 +29,7 @@ fn g [@args]{
   g--ol = '--pretty=oneline'
   g--ref-formatter = '--format=%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))'
 
-  if (eq (count $args) 0) {
+  if (== (count $args) 0) {
     g b | tail -n5
     g tu -s
     return
@@ -37,96 +37,96 @@ fn g [@args]{
 
   op @rest = $@args
 
-  if (eq $op 'a') { g add $@rest; return }
-  if (eq $op 'b') {
-    if (eq (count $rest) 0) {
+  if (==s $op 'a') { g add $@rest; return }
+  if (==s $op 'b') {
+    if (== (count $rest) 0) {
       git for-each-ref --sort=committerdate --color=always 'refs/heads/' $g--ref-formatter
     } else {
       git branch $@rest
     }
     return
   }
-  if (eq $op 'ap') { g apply $@rest; return }
-  if (eq $op 'bl') { g blame $@rest; return }
+  if (==s $op 'ap') { g apply $@rest; return }
+  if (==s $op 'bl') { g blame $@rest; return }
 
   # Commit
-  if (eq $op 'c') { g commit $@rest; return }
-  if (eq $op 'cnm') { g c -n -m $@rest; return }
-  if (eq $op 'cnmw') { g a .; g c -n --allow-empty -m '[skip ci] wip'; return }
-  if (eq $op 'f') { g c -n --fixup ':/'$@rest; return }
-  if (eq $op 'ff') { g c -n --fixup $@rest; return }
+  if (==s $op 'c') { g commit $@rest; return }
+  if (==s $op 'cnm') { g c -n -m $@rest; return }
+  if (==s $op 'cnmw') { g a .; g c -n --allow-empty -m '[skip ci] wip'; return }
+  if (==s $op 'f') { g c -n --fixup ':/'$@rest; return }
+  if (==s $op 'ff') { g c -n --fixup $@rest; return }
 
   # ChecKout
-  if (eq $op 'ck') { g checkout $@rest; return }
-  if (eq $op 'ckb') { g checkout -b $@rest; return }
-  if (eq $op 'ckm') { g checkout master; return }
+  if (==s $op 'ck') { g checkout $@rest; return }
+  if (==s $op 'ckb') { g checkout -b $@rest; return }
+  if (==s $op 'ckm') { g checkout master; return }
 
-  if (eq $op 'cb') { g rev-parse --abbrev-ref HEAD; return }
+  if (==s $op 'cb') { g rev-parse --abbrev-ref HEAD; return }
 
   # CherryPick
-  if (eq $op 'cp') { g cherry-pick $@rest; return }
-  if (eq $op 'cpc') { g cherry-pick --continue $@rest; return }
-  if (eq $op 'cpa') { g cherry-pick --abort $@rest; return }
+  if (==s $op 'cp') { g cherry-pick $@rest; return }
+  if (==s $op 'cpc') { g cherry-pick --continue $@rest; return }
+  if (==s $op 'cpa') { g cherry-pick --abort $@rest; return }
 
   # Diff HEAD
-  if (eq $op 'dh') { g diff HEAD $@rest; return }
-  if (eq $op 'dhc') { g diff HEAD --cached $@rest; return }
+  if (==s $op 'dh') { g diff HEAD $@rest; return }
+  if (==s $op 'dhc') { g diff HEAD --cached $@rest; return }
 
-  if (eq $op 'fe') { g fetch $@rest; return }
-  if (eq $op 'g') { g gui $@rest &; return }
-  if (eq $op 'k') { gitk $@rest &; return }
-  if (eq $op 'ka') { gitk --all $@rest &; return }
-  if (eq $op 'loc') { e:cloc $@args (g ls-files) $@rest; return }
+  if (==s $op 'fe') { g fetch $@rest; return }
+  if (==s $op 'g') { g gui $@rest &; return }
+  if (==s $op 'k') { gitk $@rest &; return }
+  if (==s $op 'ka') { gitk --all $@rest &; return }
+  if (==s $op 'loc') { e:cloc $@args (g ls-files) $@rest; return }
 
   # Push
-  if (eq $op 'p') { g push $@rest; return }
-  if (eq $op 'P') { g push --force $@rest; return }
-  if (eq $op 'pu') { g push -u origin (g cb); return }
-  if (eq $op 'pl') { g pull $@rest; return }
+  if (==s $op 'p') { g push $@rest; return }
+  if (==s $op 'P') { g push --force $@rest; return }
+  if (==s $op 'pu') { g push -u origin (g cb); return }
+  if (==s $op 'pl') { g pull $@rest; return }
 
   # Merge
-  if (eq $op 'm') { g merge $@rest; return }
+  if (==s $op 'm') { g merge $@rest; return }
   ## ff?(use / as ? alternate) : can current branch fast forward with $@rest
-  if (eq $op 'mf/') { put (==s (g merge-base HEAD $@rest) (g rev-parse HEAD)); return }
+  if (==s $op 'mf/') { put (==s (g merge-base HEAD $@rest) (g rev-parse HEAD)); return }
   # do merge when ff is possible, and create a merge commit, aka semi-linear history merging strategy
-  if (eq $op 'mf') { if (g mf/ $@rest) { g merge --no-ff $@rest } else { echo 'outdated branch !' }; return}
+  if (==s $op 'mf') { if (g mf/ $@rest) { g merge --no-ff $@rest } else { echo 'outdated branch !' }; return}
 
   # ReBase
-  if (eq $op 'rb') { g rebase $@rest; return }
-  if (eq $op 'rbo') { g rebase --onto $@rest; return }
-  if (eq $op 'rbi') { g rebase -i $@rest; return }
+  if (==s $op 'rb') { g rebase $@rest; return }
+  if (==s $op 'rbo') { g rebase --onto $@rest; return }
+  if (==s $op 'rbi') { g rebase -i $@rest; return }
   # extra "b" means rebase more stuff -> rebase merges
-  if (eq $op 'rbbi') { g rebase --rebase-merges -i $@rest; return }
-  if (eq $op 'rbm') { g rebase $@rest master; return }
-  if (eq $op 'rbim') { g rebase -i $@rest master; return }
+  if (==s $op 'rbbi') { g rebase --rebase-merges -i $@rest; return }
+  if (==s $op 'rbm') { g rebase $@rest master; return }
+  if (==s $op 'rbim') { g rebase -i $@rest master; return }
 
   # ReBase mode commands
-  if (eq $op 'rba') { g rebase --abort; return }
-  if (eq $op 'rbc') { g rebase --continue; return }
-  if (eq $op 'rbs') { g rebase --skip; return }
+  if (==s $op 'rba') { g rebase --abort; return }
+  if (==s $op 'rbc') { g rebase --continue; return }
+  if (==s $op 'rbs') { g rebase --skip; return }
 
-  if (eq $op 'rp') { g rev-parse --show-toplevel; return }
+  if (==s $op 'rp') { g rev-parse --show-toplevel; return }
 
   # ReSet
-  if (eq $op 'rs') { g reset $@rest; return }
-  if (eq $op 'rs1') { g reset "HEAD~1"; return }
+  if (==s $op 'rs') { g reset $@rest; return }
+  if (==s $op 'rs1') { g reset "HEAD~1"; return }
 
   # Show Oneline <ref>
   # generating rebase commands
-  if (eq $op 'so') { g show -q $g--ol $@rest; return }
+  if (==s $op 'so') { g show -q $g--ol $@rest; return }
 
-  if (eq $op 'tu') { g status $@rest; return }
-  if (eq $op 'ta') { g stash $@rest; return }
-  if (eq $op 'rl') { g reflog $@rest; return }
+  if (==s $op 'tu') { g status $@rest; return }
+  if (==s $op 'ta') { g stash $@rest; return }
+  if (==s $op 'rl') { g reflog $@rest; return }
 
   # TRee log
-  if (eq $op 'tr') { g log --graph --abbrev-commit $g--rela --decorate=short --single-worktree $@rest; return }
-  if (eq $op 'trr') { g log --graph --abbrev-commit $g--rela --decorate=short --all $@rest; return }
-  if (eq $op 'to') { g tr $g--ol --single-worktree $@rest; return }
-  if (eq $op 'too') { g tr $g--ol --all $@rest; return }
+  if (==s $op 'tr') { g log --graph --abbrev-commit $g--rela --decorate=short --single-worktree $@rest; return }
+  if (==s $op 'trr') { g log --graph --abbrev-commit $g--rela --decorate=short --all $@rest; return }
+  if (==s $op 'to') { g tr $g--ol --single-worktree $@rest; return }
+  if (==s $op 'too') { g tr $g--ol --all $@rest; return }
 
-  if (eq $op 'wt') { g worktree $@rest; return }
-  if (eq $op 'wc') { g whatchanged -p $@rest; return }
+  if (==s $op 'wt') { g worktree $@rest; return }
+  if (==s $op 'wc') { g whatchanged -p $@rest; return }
 
   e:git $@args
 }

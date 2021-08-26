@@ -39,7 +39,6 @@
   "editor.renderLineHighlight": "gutter",
   "editor.renderWhitespace": "none",
   "editor.tabSize": 2,
-  "eslint.enable": true,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -59,6 +58,11 @@
   "python.formatting.yapfPath": "/usr/bin/yapf",
   "telemetry.enableCrashReporter": false,
   "telemetry.enableTelemetry": false,
+  "terminal.integrated.tabs.enabled": true,
+  "todomd.defaultFile": "/home/chino/Documents/todo.txt",
+  "todomd.sortProjectsView": "alphabetic",
+  "todomd.webview.completedStrikeThrough": true,
+  "typescript.implementationsCodeLens.enabled": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.referencesCodeLens.enabled": false,
   "typescript.referencesCodeLens.showOnAllFunctions": false,
@@ -69,8 +73,6 @@
   "window.titleBarStyle": "native",
   "workbench.activityBar.visible": false,
   "workbench.colorCustomizations": {
-    "workbench.background": "#00000080", // only in code-transparent
-
     "activityBar.background": "#0000006a",
     "breadcrumb.background": "#00000000",
     "breadcrumbPicker.background": "#000000a0",
@@ -99,10 +101,11 @@
     "tab.border": "#00000000",
     "tab.inactiveBackground": "#00000010",
     "terminal.background": "#0000",
-    "titleBar.activeBackground": "#00000030"
+    "titleBar.activeBackground": "#00000030",
+    "workbench.background": "#00000080" // only in code-transparent
   },
+  "workbench.colorTheme": "Solarized Dark",
   "workbench.editor.showTabs": true,
   "workbench.sideBar.location": "right",
-  "workbench.statusBar.visible": true,
-  "workbench.colorTheme": "Solarized Dark"
+  "workbench.statusBar.visible": true
 }

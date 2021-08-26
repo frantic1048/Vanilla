@@ -2,6 +2,8 @@
 # whtsky teaches me speaking elvish
 # util function sets inspired by lodash
 
+use str
+
 # define a function for tests.
 # it only implement function when this script is
 # called with and only with `--test` flag
@@ -14,26 +16,26 @@ fn IMPLEMENT_TEST_FN [testFn~]{
     }
 }
 
-ASSERT_EQ~=(IMPLEMENT_TEST_FN [@values]{
-    result=$false
+ASSERT_EQ~ = (IMPLEMENT_TEST_FN [@values]{
+    result = $false
 
     if (<= (count $values) 1) {
-        err="ASSERT_EQ: need more than 1 values to compare"
+        err = "ASSERT_EQ: need more than 1 values to compare"
         echo $err
         fail $err
     }
 
     try {
-        result=(eq $@values)
+        result = (eq $@values)
     } except e {
-        err="ASSERT_EQ: "$e
+        err = "ASSERT_EQ: "$e
         echo $err
         pprint $@values
         put $err
     }
 
     if (not (eq $result $true)) {
-        err="ASSERT_EQ: not equal"
+        err = "ASSERT_EQ: not equal"
         echo $err
         pprint $@values
         fail $err
@@ -41,7 +43,7 @@ ASSERT_EQ~=(IMPLEMENT_TEST_FN [@values]{
 })
 
 # test suite
-SUITE~=(IMPLEMENT_TEST_FN [suiteMessage @rest]{
+SUITE~ = (IMPLEMENT_TEST_FN [suiteMessage @rest]{
     if (== (count $rest) 1) {
         echo $suiteMessage
         $rest[0]
@@ -51,12 +53,12 @@ SUITE~=(IMPLEMENT_TEST_FN [suiteMessage @rest]{
     }
 })
 # pending test suite
-XSUITE~=(IMPLEMENT_TEST_FN [suiteMessage @_]{
+XSUITE~ = (IMPLEMENT_TEST_FN [suiteMessage @_]{
     echo $suiteMessage
 })
 
 # test case
-IT~=(IMPLEMENT_TEST_FN [testMessage @rest]{
+IT~ = (IMPLEMENT_TEST_FN [testMessage @rest]{
     if (== (count $rest) 1) {
         if ?($rest[0]) {
             echo (styled "\t✔ "$testMessage green)
@@ -69,7 +71,7 @@ IT~=(IMPLEMENT_TEST_FN [testMessage @rest]{
     }
 })
 # pending test case
-XIT~=(IMPLEMENT_TEST_FN [testMessage @_]{
+XIT~ = (IMPLEMENT_TEST_FN [testMessage @_]{
     echo (styled "\t☐ "$testMessage cyan)
 })
 
@@ -124,14 +126,14 @@ SUITE 'map' {
     IT '+ 1' {
         ASSERT_EQ (map [item]{
             put (+ $item 1)
-        } [1 2 3]) [2 3 4]
+        } [1 2 3]) [(num 2) (num 3) (num 4)]
     }
 }
 
 # flatten nested list
 fn flatten [list]{
     put [(each [item]{
-        if (eq (kind-of $item) 'list') {
+        if (==s (kind-of $item) 'list') {
             put $@item
         } else {
             put $item
@@ -151,7 +153,7 @@ SUITE 'flatten' {
 fn flattenDeep [list]{
     fn _flatten [_list]{
         put (each [item]{
-            if (eq (kind-of $item) 'list') {
+            if (==s (kind-of $item) 'list') {
                 put (_flatten $item)
             } else {
                 put $item
@@ -179,7 +181,7 @@ SUITE 'flattenDeep' {
 # into plain list of path
 fn expandPath [@paths]{
     put [(each [pathNotation]{
-        splits '.' $pathNotation
+        str:split '.' $pathNotation
     } (flattenDeep $paths))]
 }
 SUITE 'expandPath' {
@@ -198,18 +200,18 @@ SUITE 'expandPath' {
 }
 
 fn findIndex [list targetOrTestFn]{
-    testFn~=$nop~
+    testFn~ = $nop~
 
-    if (eq (kind-of $targetOrTestFn) 'fn') {
-        testFn~=$targetOrTestFn
+    if (==s (kind-of $targetOrTestFn) 'fn') {
+        testFn~ = $targetOrTestFn
     } else {
-        testFn~=[value]{ eq $value $targetOrTestFn }
+        testFn~ = [value]{ eq $value $targetOrTestFn }
     }
 
-    result=-1
+    result = (num -1)
     for index [(range (count $list))] {
         if (testFn $list[$index]) {
-            result=$index
+            result = $index
             break
         }
     }
@@ -217,29 +219,29 @@ fn findIndex [list targetOrTestFn]{
 }
 SUITE 'findIndex' {
     IT '[1 2 3] 1 -> 0' {
-        ASSERT_EQ (findIndex [1 2 3] 1) 0
+        ASSERT_EQ (findIndex [1 2 3] 1) (num 0)
     }
     IT '[1 2 3] 9 -> -1' {
-        ASSERT_EQ (findIndex [1 2 3] 9) -1
+        ASSERT_EQ (findIndex [1 2 3] 9) (num -1)
     }
     IT '[] 9 -> -1' {
-        ASSERT_EQ (findIndex [] 9) -1
+        ASSERT_EQ (findIndex [] 9) (num -1)
     }
     IT 'custom testFn' {
-        ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ eq 0 (% $v 2) } ) 2
+        ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ == 0 (% $v 2) } ) (num 2)
     }
     IT 'custom testFn, index not found' {
-        ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ eq 0 (% $v 10) } ) -1
+        ASSERT_EQ (findIndex [1 3 6 8 9] [v]{ == 0 (% $v 10) } ) (num -1)
     }
 }
 
 fn find [list targetOrTestFn]{
-    testFn~=$nop~
+    testFn~ = $nop~
 
-    if (eq (kind-of $targetOrTestFn) 'fn') {
-        testFn~=$targetOrTestFn
+    if (==s (kind-of $targetOrTestFn) 'fn') {
+        testFn~ = $targetOrTestFn
     } else {
-        testFn~=[value]{ eq $value $targetOrTestFn }
+        testFn~ = [value]{ eq $value $targetOrTestFn }
     }
 
     for item $list {
@@ -257,10 +259,10 @@ SUITE 'find' {
         ASSERT_EQ [(find [1 2 3] 0)] []
     }
     IT 'customTestFn' {
-        ASSERT_EQ (find [1 3 5 7 9] [v]{ eq (% $v 5) 0 }) 5
+        ASSERT_EQ (find [1 3 5 7 9] [v]{ == (% $v 5) 0 }) 5
     }
     IT 'customTestFn, no result' {
-        ASSERT_EQ [(find [1 3 5 7 9] [v]{ eq (% $v 9999) 0 })] []
+        ASSERT_EQ [(find [1 3 5 7 9] [v]{ == (% $v 9999) 0 })] []
     }
 }
 
@@ -283,13 +285,13 @@ fn get [mapLike path]{
             if (== (count $restPathList) 0) {
                 # last key of pathList is found
                 put $_map[$key]
-            } elif (eq (kind-of $_map[$key]) 'map') {
+            } elif (==s (kind-of $_map[$key]) 'map') {
                 put (_get $_map[$key] $restPathList)
             }
         }
     }
 
-    pathList=(expandPath $path)
+    pathList = (expandPath $path)
     put (_get $mapLike $pathList)
 }
 SUITE 'get' {

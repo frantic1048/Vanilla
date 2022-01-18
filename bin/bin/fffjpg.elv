@@ -12,7 +12,7 @@ if (== (count $args) 0) {
     exit
 }
 
-put $@args | peach [image]{
+put $@args | peach {|image|
     if (!=s $image '') {
         echo converting $image
         convert $image ^

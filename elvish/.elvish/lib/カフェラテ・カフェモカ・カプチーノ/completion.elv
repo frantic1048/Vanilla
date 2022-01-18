@@ -1,7 +1,7 @@
 use str
 
 # git
-fn complete-g [@args]{
+fn complete-g {|@args|
     # 0     1     2
     # g     OP    "STUFF TO BE COMPLETED"
     if (!= (count $args) 3) {
@@ -10,7 +10,7 @@ fn complete-g [@args]{
         return
     }
 
-    op = $args[1]
+    var op = $args[1]
 
     if (eq $op 'ck') {
         # git checkout
@@ -19,8 +19,8 @@ fn complete-g [@args]{
           --sort="-committerdate" ^
           --format="%(refname:short)\t%(objectname:short) %(refname:short) %(authorname) %(committerdate:relative)" ^
         | rg -v (g cb) | nl -nrz -w3 ^
-        | each [line]{
-            index candidate message = (str:split "\t" $line)
+        | each {|line|
+            var index candidate message = (str:split "\t" $line)
 
             edit:complex-candidate $candidate &display=$index" "$message
 
@@ -41,4 +41,4 @@ fn complete-g [@args]{
     }
 }
 
-edit:completion:arg-completer[g] = $complete-g~
+set edit:completion:arg-completer[g] = $complete-g~

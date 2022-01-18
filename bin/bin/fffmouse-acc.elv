@@ -6,31 +6,31 @@ use re
 #Mouse = 'Logitech USB Receiver'
 #Mouse = 'Logitech G Pro Gaming Mouse'
 #Mouse = 'Logitech G102'
-Mouse = 'Logitech G903'
+var Mouse = 'Logitech G903'
 
-DeviceAccelProfile = 'libinput Accel Profile Enabled'
-Acc = [1 0]
-NoAcc = [0 1]
+var DeviceAccelProfile = 'libinput Accel Profile Enabled'
+var Acc = [1 0]
+var NoAcc = [0 1]
 
-DeviceAccelConstantDeceleration = 'libinput Accel Speed'
-AccSpeed = '0'
+var DeviceAccelConstantDeceleration = 'libinput Accel Speed'
+var AccSpeed = '0'
 # 1: Logitech G102
-NoAccSpeed = '1'
+var NoAccSpeed = '1'
 
 echo 'finding mouse: '$Mouse
 
-founded = $false
+var founded = $false
 
 for device [(xinput)] {
     for pointer [(re:find $Mouse'.*id=([[:digit:]]+).*pointer' $device)] {
-        id = $pointer[groups][1][text]
+        var id = $pointer[groups][1][text]
         for prop [(xinput list-props $id)] {
             if (re:match $DeviceAccelProfile $prop) {
                 # we have found the real mouse device
                 echo 'found device (id='$id'): '$Mouse
                 xinput set-prop $id $DeviceAccelProfile $@NoAcc
                 xinput set-prop $id $DeviceAccelConstantDeceleration $NoAccSpeed
-                founded = $true
+                set founded = $true
                 break
             }
         }

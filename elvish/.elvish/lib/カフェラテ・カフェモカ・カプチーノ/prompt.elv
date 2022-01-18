@@ -1,4 +1,4 @@
-edit:prompt = { put (tilde-abbr $pwd)'> '; }
+set edit:prompt = { put (tilde-abbr $pwd)'> '; }
 
 # keep blank, it is not resizing friendly :(
-edit:rprompt = { put '' }
+set edit:rprompt = { put '' }

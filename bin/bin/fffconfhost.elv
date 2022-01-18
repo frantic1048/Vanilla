@@ -2,9 +2,9 @@
 
 use kokkoro
 
-at-env~ = $kokkoro:at-env~
-hosts = $kokkoro:hosts
-desktops = $kokkoro:desktops
+var at-env~ = $kokkoro:at-env~
+var hosts = $kokkoro:hosts
+var desktops = $kokkoro:desktops
 
 at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     # left
@@ -36,8 +36,8 @@ at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2021-06-05 15-34 sRGB F-S 3xCurve+MTX/27GL850 #1 2021-06-05 15-34 sRGB F-S 3xCurve+MTX.icc'
     dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX.icc'
     #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
-    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC2200.png'
-    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/(C97) [Naturefour (Mocha)] BUNHOUNYA3!.png'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3921.jpg'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC4093.png'
 }
 
 at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
@@ -64,7 +64,7 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {
 
 at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
 
-    left_screen_offset_y = 235
+    var left_screen_offset_y = 235
     # left
     swaymsg output '"Dell Inc. DELL U2414H GN64V74A24AL"' ^
         transform 0 ^
@@ -97,7 +97,7 @@ at-env &host=$hosts[chimame-tai] &desktop=$desktops[sway] {
 
 at-env &host=$hosts[toastx900] &desktop=$desktops[sway] {
 
-    left_screen_offset_y = 235
+    var var left_screen_offset_y = 235
     # left
     swaymsg output '"Dell Inc. DELL U2414H GN64V73N2WRL"' ^
         transform 90 ^
@@ -118,7 +118,7 @@ at-env &host=$hosts[toastx900] &desktop=$desktops[sway] {
     #    bg {~}'/Pictures/bg/pixiv 89478080_p1.jpg' fill
 
     #swaymsg output HEADLESS-1 ^
-    #    pos 250 (+ 1080 $left_screen_offset_y) ^
+    var #    pos 250 (+ 1080 $left_screen_offset_y) ^
     #    resolution 2800x1752 ^
     #    scale 2 ^
     #    bg {~}'/Pictures/bg/IMG_2950.png' fill

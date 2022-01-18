@@ -16,8 +16,8 @@ fn IMPLEMENT_TEST_FN [testFn~]{
     }
 }
 
-ASSERT_EQ~ = (IMPLEMENT_TEST_FN [@values]{
-    result = $false
+var ASSERT_EQ~=(IMPLEMENT_TEST_FN [@values]{
+    result=$false
 
     if (<= (count $values) 1) {
         err = "ASSERT_EQ: need more than 1 values to compare"
@@ -43,7 +43,7 @@ ASSERT_EQ~ = (IMPLEMENT_TEST_FN [@values]{
 })
 
 # test suite
-SUITE~ = (IMPLEMENT_TEST_FN [suiteMessage @rest]{
+var SUITE~=(IMPLEMENT_TEST_FN [suiteMessage @rest]{
     if (== (count $rest) 1) {
         echo $suiteMessage
         $rest[0]
@@ -53,12 +53,12 @@ SUITE~ = (IMPLEMENT_TEST_FN [suiteMessage @rest]{
     }
 })
 # pending test suite
-XSUITE~ = (IMPLEMENT_TEST_FN [suiteMessage @_]{
+var XSUITE~=(IMPLEMENT_TEST_FN [suiteMessage @_]{
     echo $suiteMessage
 })
 
 # test case
-IT~ = (IMPLEMENT_TEST_FN [testMessage @rest]{
+var IT~=(IMPLEMENT_TEST_FN [testMessage @rest]{
     if (== (count $rest) 1) {
         if ?($rest[0]) {
             echo (styled "\t✔ "$testMessage green)
@@ -71,7 +71,7 @@ IT~ = (IMPLEMENT_TEST_FN [testMessage @rest]{
     }
 })
 # pending test case
-XIT~ = (IMPLEMENT_TEST_FN [testMessage @_]{
+var XIT~=(IMPLEMENT_TEST_FN [testMessage @_]{
     echo (styled "\t☐ "$testMessage cyan)
 })
 

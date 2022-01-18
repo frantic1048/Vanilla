@@ -1,7 +1,7 @@
 use str
 
 # env vars
-paths = [
+set paths = [
   {~}/bin
   {~}/npm-global/bin
   {~}/go/bin

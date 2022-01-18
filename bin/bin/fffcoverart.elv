@@ -10,7 +10,7 @@ var exceptions = [
     &already_have_cover='Ignored, already have embedded cover'
 ]
 
-fn usage []{
+fn usage {
     echo Usage:
     echo "\t" $script_name a.flac [b.flac ...]
     echo "\t" $script_name '(fd -e flac)'
@@ -24,15 +24,15 @@ fn usage []{
     echo "\tor flac file already have one PICTURE in metadata"
 }
 
-fn assert_valid_flac [f]{
+fn assert_valid_flac {|f|
     if (not (re:match '^FLAC audio bitstream data' (file -b $f))) {
         fail $exceptions[input_not_flac]":"$f
     }
 }
 
-fn find_coverart [f]{
-    search_dir = (path:dir $f)
-    coverart_list = [(fd ^
+fn find_coverart {|f|
+    var search_dir = (path:dir $f)
+    var coverart_list = [(fd ^
         --absolute-path ^
         --type file ^
         --max-depth 1 ^
@@ -49,7 +49,7 @@ fn find_coverart [f]{
     }
 }
 
-fn assert_flac_no_embedded_cover [f]{
+fn assert_flac_no_embedded_cover {|f|
     var picture = [(metaflac --list --block-type=PICTURE $f)]
     if (!= 0 (count $picture)) {
         fail $exceptions[already_have_cover]':'$f
@@ -61,8 +61,8 @@ if (== (count $args) 0) {
     exit
 }
 
-put $@args | each [file]{
-    flac_file = (path:abs $file)
+put $@args | each {|file|
+    var flac_file = (path:abs $file)
 
     try {
         assert_valid_flac $flac_file

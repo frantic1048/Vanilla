@@ -1,33 +1,33 @@
-fn b [@args]{ e:bat --theme="TwoDark" $@args }
+fn b {|@args| e:bat --theme="TwoDark" $@args }
 fn c { e:clear }
-fn e [@args]{ e:exa $@args }
-fn ee [@args]{ e:exa -l $@args }
-fn l [@args]{ e:ls --color $@args }
-fn p [@args]{ e:pikaur $@args }
+fn e {|@args| e:exa $@args }
+fn ee {|@args| e:exa -l $@args }
+fn l {|@args| e:ls --color $@args }
+fn p {|@args| e:pikaur $@args }
 fn p-rm-orphan { e:pikaur -Rns (e:pikaur -Qtdq) }
-fn pping [@args]{ e:prettyping $@args }
-fn atom [@args]{ e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
-fn code [@args]{ e:code --disable-gpu & }
-fn aria [@args]{ e:aria2c --conf-path={~}/bkped/aria2c.conf }
-fn s [@args]{ e:systemctl $@args }
-fn f [@args]{ e:fd $@args }
-fn r [@args]{ e:rg $@args }
-fn rs [@args]{ e:rsync @args }
-fn t [@args]{ e:ydcv -s $@args }
-fn tt [@args]{ e:ydcv $@args }
-fn i [@args]{ e:time $@args }
-fn d [@args]{ e:docker $@args }
-fn n [@args]{ e:npm $@args }
-fn q [@args]{ e:qalc $@args }
-fn y [@args]{ e:yarn $@args }
+fn pping {|@args| e:prettyping $@args }
+fn atom {|@args| e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
+fn code {|@args| e:code --disable-gpu & }
+fn aria {|@args| e:aria2c --conf-path={~}/bkped/aria2c.conf }
+fn s {|@args| e:systemctl $@args }
+fn f {|@args| e:fd $@args }
+fn r {|@args| e:rg $@args }
+fn rs {|@args| e:rsync @args }
+fn t {|@args| e:ydcv -s $@args }
+fn tt {|@args| e:ydcv $@args }
+fn i {|@args| e:time $@args }
+fn d {|@args| e:docker $@args }
+fn n {|@args| e:npm $@args }
+fn q {|@args| e:qalc $@args }
+fn y {|@args| e:yarn $@args }
 fn yrst { e:rm -rf ./node_modules/;y }
 
-fn rua [@args]{ e:rustup $@args }
-fn g [@args]{
-  g--rela = '--date=relative'
-  g--ff = '--ff-only'
-  g--ol = '--pretty=oneline'
-  g--ref-formatter = '--format=%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))'
+fn rua {|@args| e:rustup $@args }
+fn g {|@args|
+  var g--rela = '--date=relative'
+  var g--ff = '--ff-only'
+  var g--ol = '--pretty=oneline'
+  var g--ref-formatter = '--format=%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))'
 
   if (== (count $args) 0) {
     g b | tail -n5
@@ -35,7 +35,7 @@ fn g [@args]{
     return
   }
 
-  op @rest = $@args
+  var op @rest = $@args
 
   if (==s $op 'a') { g add $@rest; return }
   if (==s $op 'b') {
@@ -131,7 +131,7 @@ fn g [@args]{
   e:git $@args
 }
 
-fn br []{
+fn br {
   git for-each-ref 'refs/heads' --format="%(color:cyan)%(refname:short)"
 }
 
@@ -149,13 +149,13 @@ fn nvm_off { e:npm config set prefix {~}/npm-global }
 fn phantomjs { e:env QT_QPA_PLATFORM='' phantomjs }
 
 # disable annoying auto word wrap...
-fn nano [@args]{ e:nano -w $@args }
+fn nano {|@args| e:nano -w $@args }
 
-fn bat [@args]{ e:bat --theme="TwoDark" $@args }
+fn bat {|@args| e:bat --theme="TwoDark" $@args }
 
-fn neofetch [@args]{ e:neofetch --shell_version off $@args }
+fn neofetch {|@args| e:neofetch --shell_version off $@args }
 
-fn prpr [@args]{ e:proxychains $@args }
+fn prpr {|@args| e:proxychains $@args }
 fn prprme { e:proxychains elvish }
 
 # simple py http server
@@ -163,14 +163,14 @@ fn pyserv { e:python -m http.server }
 
 # test sddm theme
 # sddm-test-theme PATH/TO/THEME
-fn sddm-test-theme [@args]{ e:sddm-greeter --test-mode --theme $@args }
+fn sddm-test-theme {|@args| e:sddm-greeter --test-mode --theme $@args }
 
 # browser-sync
 fn serve { e:browser-sync start --server }
 
 # count files/matches of folder
-fn count-file [@args]{ e:find $@args -type f | wc -l }
-fn count-match [pattern]{ + (e:rg -ci --no-filename $pattern )}
+fn count-file {|@args| e:find $@args -type f | wc -l }
+fn count-match {|pattern| + (e:rg -ci --no-filename $pattern )}
 
 # start hefur bittorrent tracker
 fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port 6969 -https-port 6970 }
@@ -178,5 +178,5 @@ fn tracker { e:hefurd -ipv6 -log-color -log-level info -udp-port 6969 -http-port
 # get WAN IP address
 fn ipwan { e:dig +short myip.opendns.com @resolver1.opendns.com }
 # get ipinfo(need prpr configured)
-fn ipinfo [@args]{ prpr curl --silent ipinfo.io/$@args }
+fn ipinfo {|@args| prpr curl --silent ipinfo.io/$@args }
 fn ipwaninfo { ipinfo (ipwan) }

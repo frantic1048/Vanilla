@@ -7,8 +7,8 @@ use カフェラテ・カフェモカ・カプチーノ/env
 #
 # https://elv.sh/ref/builtin.html#use-mod
 # https://elv.sh/ref/edit.html#editadd-var
-alias = (use-mod カフェラテ・カフェモカ・カプチーノ/alias)
-keys $alias | each [f]{ edit:add-var $f $alias[$f] }
+var alias = (use-mod カフェラテ・カフェモカ・カプチーノ/alias)
+keys $alias | each {|f| edit:add-var $f $alias[$f] }
 
 # MEMO: emmmmm, not working because add-vars needs a map, not namespace
 # edit:add-vars (use-mod カフェラテ・カフェモカ・カプチーノ/alias)

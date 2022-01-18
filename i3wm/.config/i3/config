@@ -18,6 +18,8 @@ exec xiccd &
 
 # MEMO: very high cpu cost even no blur/shadow enabled... weird...
 # tooo slow for 4k + 1k + 1k setup on chimame-tai...
+# FIXED: very high cpu cost even no blur/shadow enabled... weird... CPU heatsink broken
+# MEMO: flashing on one monitor
 # exec picom -b &
 
 # wow such bar!
@@ -27,7 +29,7 @@ exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
 exec tint2 -c $HOME/.config/tint2/tint2rc &
 
 exec "sh -c 'sleep 2;fcitx -r &'"
-exec "sh -c 'sleep 2;pasystray &'"
+#exec "sh -c 'sleep 2;pasystray &'"
 
 # it is not real KDE so clear the "fake" env in /etc/environment
 # to make rsibreak work correctly
@@ -78,7 +80,7 @@ floating_modifier $mod
 
 # change wallpaper
 # bindsym $mod+backslash exec ~/bin/fffwallpaper.sh $wallpaper_args &
-bindsym --release $mod+backslash exec scrot -s -e 'mv $f ~/Pictures/screenshots'
+bindsym --release $mod+backslash exec scrot -s -f -e 'mv $f ~/Pictures/screenshots'
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
@@ -98,9 +100,9 @@ bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='bemenu -i --nb
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
-bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86AudioPlay exec playerctl -p cantata play-pause
+bindsym XF86AudioNext exec playerctl -p cantata next
+bindsym XF86AudioPrev exec playerctl -p cantata previous
 
 # change focus
 bindsym $mod+n focus left

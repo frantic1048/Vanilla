@@ -44,8 +44,10 @@ for f in "$@"; do
     EXT="${NAME##*.}"
     NAME="${NAME%.*}"
     if [[ -n "$DRYRUN" ]]; then
-        echo ffmpeg -i "$f" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$NAME.mp4"
+        #echo ffmpeg -i "$f" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$NAME.mp4"
+        echo ffmpeg -i "$f" -vf "scale=1280:-2" -pix_fmt yuv420p "$NAME.mp4"
     else
-        ffmpeg -i "$f" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$NAME.mp4"
+        #ffmpeg -i "$f" -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -pix_fmt yuv420p "$NAME.mp4"
+        ffmpeg -loop 1 -i "$f" -t 2 -vf "scale=1280:-2" -pix_fmt yuv420p "$NAME.mp4"
     fi
 done

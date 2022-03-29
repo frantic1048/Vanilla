@@ -3,6 +3,7 @@ use str
 # env vars
 set paths = [
   {~}/bin
+  {~}/.local/bin
   {~}/npm-global/bin
   {~}/go/bin
   {~}/.gem/ruby/2.2.0/bin

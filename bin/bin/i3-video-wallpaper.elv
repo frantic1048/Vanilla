@@ -11,9 +11,7 @@ use whtsky
 var script_name = (path:base (src)[name])
 
 # [&DisplayPort-0=	2560x1440+0+0]
-var output_geometry_table = [&]
-
-fn collect_output {
+var output_geometry_table = ({
     # DisplayPort-0 connected primary 2560x1440+0+0 (normal left inverted right x axis y axis) 597mm x 336mm
     var lines = (whtsky:filter {|v| re:match '\bconnected\b' $v } [(xrandr)])
 
@@ -25,22 +23,23 @@ fn collect_output {
         )
     } $lines)
 
-    each {|m| set output_geometry_table[$m[0]] = $m[1]} $monitors
-}
+    var result = [&]
+    each {|m| set result[$m[0]] = $m[1]} $monitors
+    put $result
+})
 
 fn usage {
     echo Usage:
-    echo "\t" $script_name "<OUTPUT> <PATH_TO_VIDEO_FILE>"
+    echo "\t"$script_name" <OUTPUT> <PATH_TO_VIDEO_FILE>"
     echo
-    echo OUTPUT: xrandr output name
+    echo "OUTPUT (geometry)":
+    each {|o| echo "\t"$o" ("$output_geometry_table[$o]")"} [(keys $output_geometry_table)]
 }
 
 if (!= (count $args) 2) {
     usage
     exit
 }
-
-collect_output
 
 var output video = $@args
 

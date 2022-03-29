@@ -23,7 +23,7 @@ exec xiccd &
 # exec picom -b &
 
 # wow such bar!
-exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
+# exec conky -c $HOME/.conky/i3bar/conkyrc.lua &
 
 # start tint2 as system tray
 exec tint2 -c $HOME/.config/tint2/tint2rc &
@@ -33,9 +33,11 @@ exec "sh -c 'sleep 2;fcitx -r &'"
 
 # it is not real KDE so clear the "fake" env in /etc/environment
 # to make rsibreak work correctly
-exec "sh -c 'sleep 2;XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &'"
+# exec "sh -c 'sleep 2;XDG_CURRENT_DESKTOP='' QT_QPA_PLATFORMTHEME='' rsibreak &'"
 
 hide_edge_borders smart
+
+for_window [window_role="dialog|utility|splash|tooltip|notification"] floating enable
 
 for_window [title=".*"] border normal 0
 
@@ -44,11 +46,12 @@ for_window [class="trayer"] border pixel 0
 
 for_window [class="dota2"] border none
 
-for_window [class="Inkscape"] floating disable
+#for_window [class="Inkscape"] floating disable
 
 # float virtualbox window except manager window
 for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
 
+for_window [class="osu!.exe"] floating enable
 for_window [class="Sxiv"] floating enable
 for_window [class="starbound"] floating enable
 for_window [class="Pencil"] floating enable

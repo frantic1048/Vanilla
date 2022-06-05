@@ -67,14 +67,14 @@ put $@args | each {|file|
     try {
         assert_valid_flac $flac_file
         assert_flac_no_embedded_cover $flac_file
-    } except e {
+    } catch e {
         echo $e
         continue
     }
 
     var coverart_file = $false
 
-    try { set coverart_file = (find_coverart $flac_file) } except e {
+    try { set coverart_file = (find_coverart $flac_file) } catch e {
         echo $e
         continue
     }

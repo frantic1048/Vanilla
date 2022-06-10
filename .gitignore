@@ -72,3 +72,12 @@
 /pulseaudio/*
 !/pulseaudio/.config/pulse/default.pa
 !/pulseaudio/.config/pulse/daemon.conf
+
+# pipewire
+/pipewire/*
+!/pipewire/.config/
+/pipewire/.config/*
+!/pipewire/.config/pipewire
+/pipewire/.config/pipewire/*
+!/pipewire/.config/pipewire/pipewire.conf.d
+!/pipewire/.config/pipewire/client.conf.d

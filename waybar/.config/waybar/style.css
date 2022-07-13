@@ -3,7 +3,7 @@
   border-radius: 0;
   font-family: 
     "Noto Sans CJK SC",
-    "Font Awesome 5 Free", /* `otf-font-awesome` */
+    "Font Awesome 6 Free", /* `otf-font-awesome` */
     sans-serif;
   font-weight: 400;
   font-size: 12px;
@@ -72,6 +72,7 @@ window#waybar.chromium {
 
 #clock {}
 
+/*
 #battery {
   background-color: #ffffff;
   color: #000000;
@@ -81,6 +82,7 @@ window#waybar.chromium {
   color: #ffffff;
   background-color: #26A65B;
 }
+*/
 
 @keyframes blink {
   to {

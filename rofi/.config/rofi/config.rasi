@@ -149,3 +149,8 @@ configuration {
 /*	me-accept-custom: "Control+MouseDPrimary";*/
 }
 @import "/usr/share/rofi/themes/Arc-Dark.rasi"
+
+* {
+	background: rgba(0,0,0, 80%);
+	border-color: rgba(0,0,0,0%);
+}

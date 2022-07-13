@@ -8,9 +8,9 @@ exec_always "mako &"
 #    timeout 15 'if pgrep -x swaylock; then swaymsg "output * dpms off"; fi' \
 #    resume 'swaymsg "output * dpms on"' \
 
-exec swayidle -w \
-    timeout 300 'if pgrep -xv swaylock; then ~/bin/ffflockscreen.elv; fi' \
-    before-sleep '~/bin/ffflockscreen.elv' &
+# exec swayidle -w \
+#    timeout 300 'if pgrep -xv swaylock; then ~/bin/ffflockscreen.elv; fi' \
+#    before-sleep '~/bin/ffflockscreen.elv' &
 
 # host specific configuration
 exec_always "~/bin/fffconfhost.elv"
@@ -93,9 +93,9 @@ bindsym Mod1+space exec --no-startup-id rofi -show drun
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
-bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
+bindsym XF86AudioPlay exec playerctl -p cantata play-pause
+bindsym XF86AudioNext exec playerctl -p cantata next
+bindsym XF86AudioPrev exec playerctl -p cantata previous
 
 # change focus
 bindsym $mod+n focus left
@@ -230,6 +230,11 @@ bar {
 input type:pointer {
     accel_profile flat
     pointer_accel 1
+}
+
+
+input type:touchpad {
+    tap enabled
 }
 
 #input 1133:50490:Logitech_USB_Receiver_System_Control pointer_accel 1

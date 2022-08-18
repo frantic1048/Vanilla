@@ -51,6 +51,7 @@ for_window [class="dota2"] border none
 # float virtualbox window except manager window
 for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
 
+for_window [class="pavucontrol"] floating enable
 for_window [class="osu!.exe"] floating enable
 for_window [class="Sxiv"] floating enable
 for_window [class="starbound"] floating enable

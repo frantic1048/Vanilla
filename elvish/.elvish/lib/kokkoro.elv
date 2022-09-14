@@ -1,4 +1,5 @@
 #!/usr/bin/env elvish
+use platform
 
 fn string-enum {|items-list|
     var result = [&]
@@ -22,15 +23,20 @@ var desktops = (string-enum [
 var current-host = (uname -n)
 var current-desktop = $E:XDG_SESSION_DESKTOP
 
+# linux,darwin
+var current-os = $platform:os
+
 fn at-env {|
     &host=''
     &desktop=''
+    &os=''
     callback~
 |
-    if (and (!=s $host '') (!=s $host $current-host)) {
-        return
-    }
-    if (and (!=s $desktop '') (!=s $desktop $current-desktop)) {
+    if (or ^
+        (and (!=s $host '') (!=s $host $current-host)) ^
+        (and (!=s $desktop '') (!=s $desktop $current-desktop)) ^
+        (and (!=s $os '') (!=s $os $current-os)) ^
+    ) {
         return
     }
 

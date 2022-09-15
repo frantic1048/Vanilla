@@ -17,7 +17,6 @@ fn t {|@args| e:ydcv -s $@args }
 fn tt {|@args| e:ydcv $@args }
 fn i {|@args| e:time $@args }
 fn d {|@args| e:docker $@args }
-#fn n {|@args| e:npm $@args }
 fn q {|@args| e:qalc $@args }
 fn y {|@args| e:yarn $@args }
 fn yrst { e:rm -rf ./node_modules/;y }
@@ -138,11 +137,6 @@ fn br {
 # TODO: merge into g
 fn gsign_on { e:git config commit.gpgsign true }
 fn gsign_off { e:git config commit.gpgsign false }
-
-
-# nvm does not want to see a prefix
-fn nvm_on { e:npm config delete prefix }
-fn nvm_off { e:npm config set prefix {~}/npm-global }
 
 # FIX phantomjs crash issue
 # https://github.com/ariya/phantomjs/issues/14061

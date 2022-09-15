@@ -8,6 +8,7 @@ var at-env~ = $kokkoro:at-env~
 at-env &os="darwin" {
   # MacOS
   set paths = [
+    {~}/bin
     {~}/.n/bin
     {~}/.npm-global/bin
     /usr/local/bin

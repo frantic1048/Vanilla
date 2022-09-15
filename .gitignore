@@ -81,3 +81,5 @@
 /pipewire/.config/pipewire/*
 !/pipewire/.config/pipewire/pipewire.conf.d
 !/pipewire/.config/pipewire/client.conf.d
+
+/git/.gitconfig.user.work

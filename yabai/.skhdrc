@@ -1,0 +1,28 @@
+# https://anuj-chandra.medium.com/using-i3-like-tiling-window-managers-in-macos-with-yabai-ebf0e002b992
+
+# apps
+# for keycode, run: skhd -o
+# 0x24: enter key
+alt - 0x24: wezterm start
+
+# focus window in bsp mode
+alt - n: yabai -m window --focus west
+alt - e: yabai -m window --focus south
+alt - i: yabai -m window --focus north
+alt - o: yabai -m window --focus east
+
+ctrl - z : yabai -m space --focus recent
+ctrl - 1 : yabai -m space --focus 1
+ctrl - 2 : yabai -m space --focus 2
+ctrl - 3 : yabai -m space --focus 3
+ctrl - 4 : yabai -m space --focus 4
+ctrl - 5 : yabai -m space --focus 5
+
+ctrl + shift - 1 : yabai -m window --space  1; yabai -m space --focus 1
+ctrl + shift - 2 : yabai -m window --space  2; yabai -m space --focus 2
+ctrl + shift - 3 : yabai -m window --space  3; yabai -m space --focus 3
+ctrl + shift - 4 : yabai -m window --space  4; yabai -m space --focus 4
+ctrl + shift - 5 : yabai -m window --space  5; yabai -m space --focus 5
+
+# toggle bsp/stack
+ctrl + shift - space : yabai -m space --layout "$(yabai -m query --spaces --space | jq -r 'if .type == "bsp" then "stack" else "bsp" end')"

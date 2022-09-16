@@ -1,10 +1,9 @@
 use str
 use kokkoro
 
-
 var at-env~ = $kokkoro:at-env~
 
-# env vars
+# PATH
 at-env &os="darwin" {
   # MacOS
   set paths = [
@@ -29,23 +28,28 @@ at-env &os="linux" {
   ]
 }
 
+# Node
 at-env &os="darwin" {
   set-env N_PREFIX {~}/.n
-}
-
-at-env &os="linux" {
-  set-env NODE_PATH (str:join : [
-    {~}/npm-global/lib/node_modules
-    /usr/lib/node_modules
-    (str:split : $E:NODE_PATH)
-  ])
+  set-env PNPM_HOME {~}/Library/pnpm
+  set paths = [
+    $E:PNPM_HOME
+    $@paths
+  ]
 }
 
 set-env VISUAL nano
 
+# GPG
 at-env &os="darwin" {
+  if (not ?(pgrep gpg-agent)) {
+      gpgconf --launch gpg-agent > /dev/null
+  }
   if (not (has-env SSH_AUTH_SOCK)) {
       set-env SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
+  }
+    if (not (has-env GPG_TTY)) {
+      set-env GPG_TTY (tty)
   }
 }
 

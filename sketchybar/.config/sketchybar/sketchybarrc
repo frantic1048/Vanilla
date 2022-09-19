@@ -82,7 +82,7 @@ sketchybar --add item space_separator left                            \
 # https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
 
 sketchybar --add item clock right                        \
-           --set clock   update_freq=10                  \
+           --set clock   update_freq=1                  \
                          script="$PLUGIN_DIR/clock.sh"   \
                                                          \
            --add item battery right                      \

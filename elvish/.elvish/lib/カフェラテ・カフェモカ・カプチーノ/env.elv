@@ -13,14 +13,6 @@ at-env &os="darwin" {
     /usr/local/bin
     $@paths
   ]
-
-  # this is dumb, but...
-  # https://stackoverflow.com/questions/135688/setting-environment-variables-on-os-x
-  each {|env_name|
-  if (has-env $env_name) {
-    launchctl setenv $env_name (get-env $env_name)
-  }
-  } ['PATH' 'PNPM_HOME' 'N_PREFIX' 'SHELL']
 }
 
 at-env &os="linux" {
@@ -76,4 +68,18 @@ at-env &os="linux" {
       set-env GPG_TTY (tty)
       gpg-connect-agent updatestartuptty /bye >/dev/null
   }
+}
+
+# launchd is weird
+at-env &os="darwin" {
+  # this is dumb, but...
+  # https://stackoverflow.com/questions/135688/setting-environment-variables-on-os-x
+  each {|env_name|
+  if (not (and ^
+      (== (count [(launchctl getenv $env_name)]) 1) ^
+      (==s (launchctl getenv $env_name) (get-env $env_name)) ^
+      )) {
+        launchctl setenv $env_name (get-env $env_name)
+      }
+  } ['PATH' 'PNPM_HOME' 'N_PREFIX' 'SHELL']
 }

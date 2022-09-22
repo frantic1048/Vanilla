@@ -82,7 +82,7 @@ var XIT~ = (IMPLEMENT_TEST_FN {|testMessage @_|
 #   \/\_/ |___|  /__| /____  >__|_ \/ ____|
 #              \/          \/     \/\/     
 
-fn filter {|filterFn~ list|
+fn filter {|list filterFn~|
     put [(each {|item|
         if (filterFn $item) {
             put $item
@@ -91,31 +91,31 @@ fn filter {|filterFn~ list|
  }
 SUITE 'filter' {
     IT '% 2' {
-        ASSERT_EQ (filter {|item|
+        ASSERT_EQ (filter [1 2 3 4 5] {|item|
             put (== (% $item 2) 0)
-        } [1 2 3 4 5]) [2 4]
+        }) [2 4]
     }
 
     IT '&value > 10' {
-        ASSERT_EQ (filter {|item|
-            put (> $item[value] 10)
-        } [
+        ASSERT_EQ (filter [
             [&value=0]
             [&value=11]
             [&value=3]
             [&value=100]
-        ]) [
+        ] {|item|
+            put (> $item[value] 10)
+        }) [
             [&value=11]
             [&value=100]
         ]
     }
 
     IT 'empty result should be []' {
-        ASSERT_EQ (filter {|@_| put $false } [1 2 3]) []
+        ASSERT_EQ (filter [1 2 3] {|@_| put $false }) []
     }
 }
 
-fn map {|mapFn~ list|
+fn map {|list mapFn~|
     put [(
         each {|item|
             put (mapFn $item)
@@ -124,9 +124,9 @@ fn map {|mapFn~ list|
 }
 SUITE 'map' {
     IT '+ 1' {
-        ASSERT_EQ (map {|item|
+        ASSERT_EQ (map [1 2 3] {|item|
             put (+ $item 1)
-        } [1 2 3]) [(num 2) (num 3) (num 4)]
+        }) [(num 2) (num 3) (num 4)]
     }
 }
 
@@ -263,6 +263,38 @@ SUITE 'find' {
     }
     IT 'customTestFn, no result' {
         ASSERT_EQ [(find [1 3 5 7 9] {|v| == (% $v 9999) 0 })] []
+    }
+}
+
+fn some {|list targetOrTestFn|
+    var testFn~ = $nop~
+
+    if (==s (kind-of $targetOrTestFn) 'fn') {
+        set testFn~ = $targetOrTestFn
+    } else {
+        set testFn~ = {|value| eq $value $targetOrTestFn }
+    }
+
+    for item $list {
+        if (testFn $item) {
+            put $true
+            return
+        }
+    }
+    put $false
+}
+SUITE 'some' {
+    IT '[1 2 3] 3 -> true' {
+        ASSERT_EQ (some [1 2 3] 3) $true
+    }
+    IT '[1 2 3] 0 -> false' {
+        ASSERT_EQ (some [1 2 3] 0) $false
+    }
+    IT '[1 2 3] {|v| == $v 2 } -> true' {
+        ASSERT_EQ (some [1 2 3] {|v| == $v 2 }) $true
+    }
+    IT '[1 2 3] {|v| == $v 0 } -> false' {
+        ASSERT_EQ (some [1 2 3] {|v| == $v 0 }) $false
     }
 }
 

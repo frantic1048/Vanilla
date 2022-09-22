@@ -13,15 +13,15 @@ var script_name = (path:base (src)[name])
 # [&DisplayPort-0=	2560x1440+0+0]
 var output_geometry_table = ({
     # DisplayPort-0 connected primary 2560x1440+0+0 (normal left inverted right x axis y axis) 597mm x 336mm
-    var lines = (whtsky:filter {|v| re:match '\bconnected\b' $v } [(xrandr)])
+    var lines = (whtsky:filter [(xrandr)] {|v| re:match '\bconnected\b' $v })
 
     # [[DisplayPort-0 0000x0000+0+0]]
-    var monitors = (whtsky:map {|v|
-        put (whtsky:map {|match|
+    var monitors = (whtsky:map $lines {|v|
+        put (whtsky:map (re:find '^([\w-]+) [\w ]+?(\d+x\d+\+\d+\+\d+)\b' $v)[groups][1..3] {|match|
                 put $match[text]
-            } (re:find '^([\w-]+) [\w ]+?(\d+x\d+\+\d+\+\d+)\b' $v)[groups][1..3]
+            }
         )
-    } $lines)
+    })
 
     var result = [&]
     each {|m| set result[$m[0]] = $m[1]} $monitors

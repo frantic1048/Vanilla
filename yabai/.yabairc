@@ -1,6 +1,8 @@
 sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
+~/bin/yabai-switch-space.elv --init-space-labels
+
 #SPACEBAR_HEIGHT=$(spacebar -m config height)
 yabai -m config external_bar all:24:0
 yabai -m config layout                       bsp

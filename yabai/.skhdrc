@@ -16,11 +16,11 @@ alt + shift - i: yabai -m window --swap north
 alt + shift - o: yabai -m window --swap east
 
 ctrl - z: yabai -m space --focus recent
-ctrl - 1: ~/bin/yabai-switch-space.elv 1
-ctrl - 2: ~/bin/yabai-switch-space.elv 2
-ctrl - 3: ~/bin/yabai-switch-space.elv 3
-ctrl - 4: ~/bin/yabai-switch-space.elv 4
-ctrl - 5: ~/bin/yabai-switch-space.elv 5
+ctrl - 1: ~/bin/yabaictl.elv --switch-to-space 1
+ctrl - 2: ~/bin/yabaictl.elv --switch-to-space 2
+ctrl - 3: ~/bin/yabaictl.elv --switch-to-space 3
+ctrl - 4: ~/bin/yabaictl.elv --switch-to-space 4
+ctrl - 5: ~/bin/yabaictl.elv --switch-to-space 5
 
 # TODO: implement related feature with yabai-switch-space.elv
 ctrl + shift - 1: yabai -m window --space  1; yabai -m space --focus 1

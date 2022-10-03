@@ -33,11 +33,29 @@ at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     xrandr --output DisplayPort-0 --left-of DisplayPort-1
     xrandr --output DisplayPort-0 --primary
 
-    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2021-06-05 15-34 sRGB F-S 3xCurve+MTX/27GL850 #1 2021-06-05 15-34 sRGB F-S 3xCurve+MTX.icc'
-    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX/Ultra HD #2 2020-07-01 23-25 2.2 F-S 3xCurve+MTX.icc'
+    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2022-10-03 15-52 sRGB F-S XYZLUT+MTX/27GL850 #1 2022-10-03 15-52 sRGB F-S XYZLUT+MTX.icc'
+    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #2 2022-10-03 16-58 sRGB F-S XYZLUT+MTX/Ultra HD #2 2022-10-03 16-58 sRGB F-S XYZLUT+MTX.icc'
     #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
-    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3921.jpg'
-    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC4093.png'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/23b1c83920fd89c9658a481e918b6287.jpg'
+    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+}
+
+at-env &host=$hosts[amausaan] &desktop=$desktops[sway] {
+        # left
+    swaymsg output '"Goldstar Company Ltd 27GL850 004NTWGBX241"' ^
+        transform 0 ^
+        pos 0 0 ^
+        scale 1.4 ^
+        max_render_time 2 ^
+        bg {~}'/Pictures/bg/yande.re 953532.jpg' fill
+
+    swaymsg output '"Goldstar Company Ltd LG Ultra HD 0x00009E6D"' ^
+        transform 0 ^
+        pos 1829 0 ^
+        scale 2 ^
+        max_render_time 2 ^
+        bg {~}'/Pictures/bg/photo/_DSC3936.jpg' fill
+
 }
 
 at-env &host=$hosts[chimame-tai] &desktop=$desktops[i3] {

@@ -19,6 +19,6 @@ use カフェラテ・カフェモカ・カプチーノ/prompt
 # FIXME: not working in elvish 0.15.0 yet
 use カフェラテ・カフェモカ・カプチーノ/completion
 
-if (search-external starship) {
+if (has-external starship) {
     eval (starship init elvish)
 }

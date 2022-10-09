@@ -1,3 +1,5 @@
+use str
+
 fn b {|@args| e:bat --theme="TwoDark" $@args }
 fn c { e:clear }
 fn e {|@args| e:exa $@args }
@@ -7,7 +9,7 @@ fn p {|@args| e:pikaur $@args }
 fn p-rm-orphan { e:pikaur -Rns (e:pikaur -Qtdq) }
 fn pping {|@args| e:prettyping $@args }
 fn atom {|@args| e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
-fn code {|@args| e:code --disable-gpu & }
+fn code {|@args| e:code --disable-gpu $@args & }
 fn aria {|@args| e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s {|@args| e:systemctl $@args }
 fn f {|@args| e:fd $@args }
@@ -29,6 +31,7 @@ fn g {|@args|
   var g--ref-formatter = '--format=%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))'
 
   if (== (count $args) 0) {
+    # give a quick overview of the current branch
     g b | tail -n5
     g tu -s
     return
@@ -36,7 +39,10 @@ fn g {|@args|
 
   var op @rest = $@args
 
+  # Add
   if (==s $op 'a') { g add $@rest; return }
+
+  # Branch
   if (==s $op 'b') {
     if (== (count $rest) 0) {
       git for-each-ref --sort=committerdate --color=always 'refs/heads/' $g--ref-formatter
@@ -45,7 +51,10 @@ fn g {|@args|
     }
     return
   }
+
+  # APply
   if (==s $op 'ap') { g apply $@rest; return }
+  # BLame
   if (==s $op 'bl') { g blame $@rest; return }
 
   # Commit
@@ -58,8 +67,10 @@ fn g {|@args|
   # ChecKout
   if (==s $op 'ck') { g checkout $@rest; return }
   if (==s $op 'ckb') { g checkout -b $@rest; return }
+  if (==s $op 'ck-') { g checkout -; return }
   if (==s $op 'ckm') { g checkout master; return }
 
+  # Current Branch
   if (==s $op 'cb') { g rev-parse --abbrev-ref HEAD; return }
 
   # CherryPick
@@ -70,6 +81,19 @@ fn g {|@args|
   # Diff HEAD
   if (==s $op 'dh') { g diff HEAD $@rest; return }
   if (==s $op 'dhc') { g diff HEAD --cached $@rest; return }
+  # What Changed, latest modified file first
+  if (==s $op 'wc') {
+    var files = [(e:git status --porcelain -s | each {|f|
+      # git status --porcelain -s
+      # " M FILE"
+      # "?? FILE"
+      echo $f[3..]
+    } | ls -t)] # Sort by descending time modified
+    each {|f|
+      e:git diff -U1 -w --color HEAD $f
+    } $files
+    return
+  }
 
   if (==s $op 'fe') { g fetch $@rest; return }
   if (==s $op 'g') { g gui $@rest &; return }
@@ -125,7 +149,6 @@ fn g {|@args|
   if (==s $op 'too') { g tr $g--ol --all $@rest; return }
 
   if (==s $op 'wt') { g worktree $@rest; return }
-  if (==s $op 'wc') { g whatchanged -p $@rest; return }
 
   e:git $@args
 }

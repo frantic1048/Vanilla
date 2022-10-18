@@ -10,6 +10,13 @@ at-env &os="darwin" {
     {~}/bin
     {~}/.n/bin
     {~}/.npm-global/bin
+
+    # tk in MacOS is broken :(
+    #
+    # check `brew info tcl-tk`
+    # https://superuser.com/questions/1696372/wish-based-tools-git-gui-gitk-showing-broken-black-ui-on-macos-monterey
+    /usr/local/opt/tcl-tk/bin
+
     /usr/local/bin
     $@paths
   ]

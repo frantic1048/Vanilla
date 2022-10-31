@@ -1,9 +1,10 @@
 sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
+defaults write .GlobalPreferences com.apple.mouse.scaling -1
+
 ~/bin/yabai-switch-space.elv --init-space-labels
 
-#SPACEBAR_HEIGHT=$(spacebar -m config height)
 yabai -m config external_bar all:24:0
 yabai -m config layout                       bsp
 yabai -m config top_padding                  4
@@ -21,7 +22,7 @@ yabai -m config mouse_action1 move
 # set modifier + right-click drag to resize window (default: resize)
 yabai -m config mouse_action2 resize
 
-yabai -m config focus_follows_mouse autoraise
+yabai -m config focus_follows_mouse on
 yabai -m config mouse_follows_focus off
 
 yabai -m config window_shadow float
@@ -34,4 +35,11 @@ yabai -m config window_topmost on
 yabai -m config window_shadow float
 
 # rules
+
+# MacOS builtin apps
+# MacOS < 13.0 (Monterey and older)
 yabai -m rule --add app="^System Preferences$" manage=off
+# MacOS >= 13.0(Ventura)
+yabai -m rule --add app="^System Settings$" manage=off
+
+yabai -m rule --add app="^System Information$" manage=off

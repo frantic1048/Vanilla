@@ -24,7 +24,7 @@ fn usage {
 }
 
 fn update_bar {
-    if ?(search-external sketchybar) {
+    if (has-external sketchybar) {
         try {
             # sketchybar --update
         } catch e {

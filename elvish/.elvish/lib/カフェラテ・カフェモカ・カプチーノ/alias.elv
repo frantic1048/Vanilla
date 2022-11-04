@@ -28,7 +28,19 @@ fn g {|@args|
   var g--rela = '--date=relative'
   var g--ff = '--ff-only'
   var g--ol = '--pretty=oneline'
-  var g--ref-formatter = '--format=%(HEAD) %(color:#FEA090)%(objectname:short)%(color:reset) %(color:#89FE9F)%(refname:short)%(color:reset) - %(authorname) (%(color:#FEACD6)%(committerdate:relative)%(color:reset))'
+
+  # colors
+  # - https://github.com/git/git/blob/87f17d790d8e350e8df1101476882f7751581ee0/Documentation/config.txt#L264-L268
+  # - https://stackoverflow.com/questions/15458237/git-pretty-format-colors
+  # field names: https://git-scm.com/docs/git-for-each-ref#_field_names
+  var g--ref-formatter = (str:join ' ' [
+      '--format=%(HEAD)'
+      '%(color:bold brightred)%(objectname:short)%(color:reset)'
+      '%(color:bold italic brightblue)%(refname:short)%(color:reset)'
+      '%(color:dim)-%(color:reset)'
+      '%(authorname)'
+      '%(color:dim)[%(color:reset)%(color:brightmagenta)%(committerdate:relative)%(color:reset)%(color:dim)]%(color:reset)'
+      ])
 
   if (== (count $args) 0) {
     # give a quick overview of the current branch
@@ -197,3 +209,9 @@ fn ipwan { e:dig +short myip.opendns.com @resolver1.opendns.com }
 # get ipinfo(need prpr configured)
 fn ipinfo {|@args| prpr curl --silent ipinfo.io/$@args }
 fn ipwaninfo { ipinfo (ipwan) }
+
+fn renewip {
+  # macOS only
+  e:networksetup -setbootp Ethernet
+  e:networksetup -setdhcp Ethernet
+}

@@ -6,8 +6,13 @@ return {
     -- light
     color_scheme = 'Spring',
     colors = {
-        foreground = '#000000',
-        background = '#eeefef'
+        -- light
+        background = '#cecfcf',
+        foreground = '#3a3a3a',
+
+        -- dark
+        -- background = '#111111',
+        -- foreground = '#cecfcf'
     },
 
     font = wezterm.font 'JetBrains Mono',

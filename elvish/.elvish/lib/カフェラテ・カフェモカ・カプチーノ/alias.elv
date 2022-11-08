@@ -35,7 +35,7 @@ fn g {|@args|
   # field names: https://git-scm.com/docs/git-for-each-ref#_field_names
   var g--ref-formatter = (str:join ' ' [
       '--format=%(HEAD)'
-      '%(color:bold brightred)%(objectname:short)%(color:reset)'
+      '%(color:dim red)%(objectname:short)%(color:reset)'
       '%(color:bold italic brightblue)%(refname:short)%(color:reset)'
       '%(color:dim)-%(color:reset)'
       '%(authorname)'

@@ -3,23 +3,50 @@ use kokkoro
 
 var at-env~ = $kokkoro:at-env~
 
+
 # PATH
 at-env &os="darwin" {
   # MacOS
+
+  # https://nixos.org/manual/nix/stable/installation/env-variables.html
+  var nixPaths = [
+    {~}/.nix-profile/bin
+    /nix/var/nix/profiles/default/bin
+    /run/current-system/sw/bin
+  ]
+
   set paths = [
     {~}/bin
     {~}/.n/bin
     {~}/.npm-global/bin
+
+    $@nixPaths
 
     # tk in MacOS is broken :(
     #
     # check `brew info tcl-tk`
     # https://superuser.com/questions/1696372/wish-based-tools-git-gui-gitk-showing-broken-black-ui-on-macos-monterey
     /usr/local/opt/tcl-tk/bin
-
     /usr/local/bin
     $@paths
   ]
+}
+
+# Nix
+at-env &os="darwin" {
+  set-env NIX_PATH (str:join : [
+    darwin-config={~}/.nixpkgs/darwin-configuration.nix
+    {~}/.nix-defexpr/channels
+    # (if (has-env NIX_PATH) { put $E:NIX_PATH })
+  ])
+  #set-env NIX_SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+  set-env NIX_PROFILE_DIR /nix/var/nix/profiles/per-user/(whoami)
+  set-env NIX_PROFILES (str:join " " [
+    /nix/var/nix/profiles/default
+    /run/current-system/sw
+    /Users/(whoami)/.nix-profile
+  ])
+  set-env NIX_REMOTE daemon
 }
 
 at-env &os="linux" {
@@ -39,6 +66,7 @@ at-env &os="linux" {
 at-env &os="darwin" {
   set-env N_PREFIX {~}/.n
   set-env PNPM_HOME {~}/Library/pnpm
+
   set paths = [
     $E:PNPM_HOME
     $@paths

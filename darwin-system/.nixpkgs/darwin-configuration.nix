@@ -1,5 +1,4 @@
 { config, pkgs, ... }:
-
 {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
@@ -26,8 +25,7 @@
     neofetch # system info, fancy
     mas # Mac App Store CLI
     coreutils
-
-    #htop # FIXME: segfault
+    htop
 
     # file system
     fd # find
@@ -37,6 +35,13 @@
     qalculate-gtk
     starship # shell prompt
   ];
+  nixpkgs.config.packageOverrides = pkgs: {
+    htop = pkgs.htop.overrideAttrs
+      (oldAttrs: {
+        systemdSupport = false;
+        sensorsSupport = false;
+      });
+  };
 
 
   # Use a custom configuration.nix location.

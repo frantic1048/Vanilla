@@ -2,10 +2,19 @@ macOS configuration, managed with `nix-darwin`: https://github.com/LnL7/nix-darw
 
 # Bootstrap
 
-1. Install Nix: https://nixos.org/download.html#nix-install-macos
-2. Install nix-darwin: https://github.com/LnL7/nix-darwin/#install
-3. TODO: add more explanation
-4. apply configuration to system: `darwin-rebuild switch`
+Install Nix: https://nixos.org/download.html#nix-install-macos
+
+Setup Nix, `nix-darwin` and `home-manager`:
+
+```
+nix-channel --add https://nixos.org/channels/nixpkgs-unstable
+nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer
+```
+
+TODO: add more explanation.
+
+Apply configuration to system: `darwin-rebuild switch`
 
 # Memo
 

@@ -1,11 +1,11 @@
 { config, pkgs, ... }:
 {
-  imports = [ <home-manager/nix-darwin> ];
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     # dev
     git
+    delta # pager for git, fancy
     git-lfs
     vim # text editor
     nano # text editor
@@ -63,4 +63,15 @@
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
   system.stateVersion = 4;
+  system.defaults = {
+    # defaults read .GlobalPreferences
+    ".GlobalPreferences" = {
+      # Disable mouse acceleration
+      # https://apple.stackexchange.com/questions/439131/how-to-permanently-disable-mouse-acceleration-macos-monterey
+      "com.apple.mouse.scaling" = "-1";
+    };
+    dock = {
+      autohide = true;
+    };
+  };
 }

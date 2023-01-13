@@ -14,7 +14,7 @@ nix-build https://github.com/LnL7/nix-darwin/archive/master.tar.gz -A installer
 
 TODO: add more explanation.
 
-Apply configuration to system: `darwin-rebuild switch`
+Apply configuration to system: `darwin-rebuild switch --flake .`
 
 # Memo
 

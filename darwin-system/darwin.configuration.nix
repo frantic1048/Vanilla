@@ -7,8 +7,10 @@
     git
     delta # pager for git, fancy
     git-lfs
+    git-annex
     vim # text editor
     nano # text editor
+    o # text editor
     nixpkgs-fmt # nix
     cloc # code stats
     scc # code stats, fancy
@@ -43,6 +45,7 @@
         sensorsSupport = false;
       });
   };
+  nixpkgs.config.allowUnfree = true;
 
 
   # Use a custom configuration.nix location.
@@ -69,6 +72,14 @@
       # Disable mouse acceleration
       # https://apple.stackexchange.com/questions/439131/how-to-permanently-disable-mouse-acceleration-macos-monterey
       "com.apple.mouse.scaling" = "-1";
+    };
+    "NSGlobalDomain" = {
+      AppleInterfaceStyle = "Dark";
+      AppleShowScrollBars = "WhenScrolling";
+      NSWindowResizeTime = 0.001;
+      AppleICUForce24HourTime = true;
+      KeyRepeat = 2;
+      "com.apple.keyboard.fnState" = true;
     };
     dock = {
       autohide = true;

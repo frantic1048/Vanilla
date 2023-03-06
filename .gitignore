@@ -5,10 +5,12 @@
 
 # elvish
 /elvish/*
-!/elvish/.elvish
-/elvish/.elvish/*
-!/elvish/.elvish/rc.elv
-!/elvish/.elvish/lib
+!/elvish/.config
+/elvish/.config/*
+!/elvish/.config/elvish
+/elvish/.config/elvish/*
+!/elvish/.config/elvish/rc.elv
+!/elvish/.config/elvish/lib
 
 # atom
 /atom

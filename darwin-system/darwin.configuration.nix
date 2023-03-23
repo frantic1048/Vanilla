@@ -15,6 +15,7 @@
     cloc # code stats
     scc # code stats, fancy
     tmux
+    shellcheck
     # pinentry_mac, useful ?
 
     # scripting

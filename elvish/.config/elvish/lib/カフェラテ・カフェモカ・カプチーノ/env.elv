@@ -20,6 +20,7 @@ at-env &os="darwin" {
     {~}/.n/bin
     {~}/.npm-global/bin
 
+    {~}/go/bin
     $@nixPaths
 
     # tk in MacOS is broken :(
@@ -30,6 +31,12 @@ at-env &os="darwin" {
     /usr/local/bin
     $@paths
   ]
+}
+
+# Go
+at-env &os="darwin" {
+  set-env GOPATH {~}/go
+  set-env GOBIN {~}/go/bin
 }
 
 # Nix

@@ -16,6 +16,7 @@
     scc # code stats, fancy
     tmux
     shellcheck
+    go
     # pinentry_mac, useful ?
 
     # scripting

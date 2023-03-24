@@ -130,6 +130,7 @@ fn g {|@args|
   if (==s $op 'rb') { g rebase $@rest; return }
   if (==s $op 'rbo') { g rebase --onto $@rest; return }
   if (==s $op 'rbi') { g rebase -i $@rest; return }
+  if (or (==s $op 'rbio') (==s $op 'rboi')) { g rebase -i --onto $@rest; return }
   # extra "b" means rebase more stuff -> rebase merges
   if (==s $op 'rbbi') { g rebase --rebase-merges -i $@rest; return }
   if (==s $op 'rbm') { g rebase $@rest master; return }

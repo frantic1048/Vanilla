@@ -31,6 +31,7 @@
     mas # Mac App Store CLI
     coreutils
     htop
+    ldns # drill
 
     # file system
     fd # find

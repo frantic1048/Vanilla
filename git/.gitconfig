@@ -12,6 +12,7 @@
 	gpgsign = false
 [merge]
 	ff = only
+	conflictStyle = zdiff3
 [push]
 	default = simple
 [pull]

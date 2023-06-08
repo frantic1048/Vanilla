@@ -82,6 +82,11 @@ fn g {|@args|
   if (==s $op 'ck-') { g checkout -; return }
   if (==s $op 'ckm') { g checkout master; return }
 
+  # SWitch
+  if (==s $op 'sw') { g switch $@rest; return }
+  if (==s $op 'swc') { g switch -c $@rest; return }
+  if (==s $op 'sw-') { g switch - $@rest; return }
+
   # Current Branch
   if (==s $op 'cb') { g rev-parse --abbrev-ref HEAD; return }
 

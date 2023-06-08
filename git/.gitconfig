@@ -15,6 +15,7 @@
 	conflictStyle = zdiff3
 [push]
 	default = simple
+	autoSetupRemote = false
 [pull]
 	ff = only
 [rebase]

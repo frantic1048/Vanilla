@@ -32,6 +32,7 @@
     coreutils
     htop
     ldns # drill
+    mtr
 
     # file system
     fd # find

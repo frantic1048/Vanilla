@@ -23,6 +23,8 @@ at-env &os="darwin" {
     {~}/go/bin
     $@nixPaths
 
+    /usr/local/gnupg-2.2/bin
+
     # tk in MacOS is broken :(
     #
     # check `brew info tcl-tk`
@@ -84,13 +86,20 @@ set-env VISUAL nano
 
 # GPG
 at-env &os="darwin" {
-  if (not ?(pgrep gpg-agent)) {
+  if (not ?(pgrep gpg-agent >&-)) {
       gpgconf --launch gpg-agent > /dev/null
   }
-  if (not (has-env SSH_AUTH_SOCK)) {
+
+  # macOS sometimes set SSH_AUTH_SOCK to a weird path like
+  # /private/tmp/com.apple.launchd.abcdefg123/Listeners
+  # which is listened by ssh-agent, but not gpg-agent
+  # (check with `lsof /private/tmp/com.apple.launchd.abcdefg123/Listeners`)
+  # so we need to set it to the correct path every time :(
+  if ?(pgrep gpg-agent >&-) {
       set-env SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
   }
-    if (not (has-env GPG_TTY)) {
+
+  if (not (has-env GPG_TTY)) {
       set-env GPG_TTY (tty)
   }
 }

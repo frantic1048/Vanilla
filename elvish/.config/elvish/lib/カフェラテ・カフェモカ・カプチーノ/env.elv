@@ -23,7 +23,7 @@ at-env &os="darwin" {
     {~}/go/bin
     $@nixPaths
 
-    /usr/local/gnupg-2.2/bin
+    /usr/local/gnupg-2.4/bin
 
     # tk in MacOS is broken :(
     #

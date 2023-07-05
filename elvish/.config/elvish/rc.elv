@@ -6,7 +6,7 @@ use カフェラテ・カフェモカ・カプチーノ/env
 # injecting variables in alias module to current scope
 #
 # https://elv.sh/ref/builtin.html#use-mod
-# https://elv.sh/ref/edit.html#editadd-var
+# https://elv.sh/ref/edit.html#edit:add-var
 var alias = (use-mod カフェラテ・カフェモカ・カプチーノ/alias)
 keys $alias | each {|f| edit:add-var $f $alias[$f] }
 

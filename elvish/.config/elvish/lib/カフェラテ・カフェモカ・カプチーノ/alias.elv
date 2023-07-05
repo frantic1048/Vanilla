@@ -1,4 +1,5 @@
 use str
+use path
 
 fn b {|@args| e:bat --theme="TwoDark" $@args }
 fn c { e:clear }
@@ -169,6 +170,10 @@ fn g {|@args|
   if (==s $op 'wt') { g worktree $@rest; return }
 
   e:git $@args
+}
+
+fn cz {|@args|
+  e:pnpm exec cz $@args
 }
 
 fn br {

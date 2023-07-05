@@ -1,5 +1,6 @@
 #!/usr/bin/env elvish
 use platform
+use path
 
 fn string-enum {|items-list|
     var result = [&]
@@ -20,7 +21,7 @@ var desktops = (string-enum [
     sway
 ])
 
-var current-host = (uname -n)
+var current-host = (constantly (uname -n))
 var current-desktop = $E:XDG_SESSION_DESKTOP
 
 # linux,darwin
@@ -42,3 +43,6 @@ fn at-env {|
 
     callback
 }
+
+# return input string if it is a valid directory, otherwise return nothing
+fn existing-dir { |maybe-dir| if (path:is-dir $maybe-dir) { put $maybe-dir } }

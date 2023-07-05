@@ -1,6 +1,8 @@
 use str
+
 use kokkoro
 
+var existing-dir~ = $kokkoro:existing-dir~
 var at-env~ = $kokkoro:at-env~
 
 
@@ -23,13 +25,20 @@ at-env &os="darwin" {
     {~}/go/bin
     $@nixPaths
 
-    /usr/local/gnupg-2.4/bin
+    # kitty shell
+    (existing-dir /Applications/kitty.app/Contents/MacOS)
+
+    # GnuPG for OS X
+    # https://sourceforge.net/p/gpgosx/docu/Download/
+    (existing-dir /usr/local/gnupg-2.4/bin)
 
     # tk in MacOS is broken :(
     #
     # check `brew info tcl-tk`
     # https://superuser.com/questions/1696372/wish-based-tools-git-gui-gitk-showing-broken-black-ui-on-macos-monterey
-    /usr/local/opt/tcl-tk/bin
+    (existing-dir /usr/local/opt/tcl-tk/bin)
+
+    # homebrew, mainly
     /usr/local/bin
     $@paths
   ]

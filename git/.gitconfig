@@ -6,6 +6,9 @@
     path = ~/.gitconfig.user.work
 [core]
 	excludesfile = ~/.gitignore
+	fsmonitor = true
+[feature]
+	manyFiles = true
 [diff]
 	algorithm = histogram
 [commit]

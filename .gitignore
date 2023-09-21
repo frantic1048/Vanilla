@@ -1,3 +1,9 @@
+# macOS
+.DS_Store
+
+/git/.gitconfig.user.work
+/darwin-system/result
+
 #dolphin
 .directory
 !/.directory
@@ -83,5 +89,3 @@
 /pipewire/.config/pipewire/*
 !/pipewire/.config/pipewire/pipewire.conf.d
 !/pipewire/.config/pipewire/client.conf.d
-
-/git/.gitconfig.user.work

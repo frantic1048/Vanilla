@@ -3,7 +3,8 @@
 # apps
 # for keycode, run: skhd -o
 # 0x24: enter key
-alt - 0x24: wezterm start
+# alt - 0x24: wezterm start
+alt - 0x24: kitty
 
 # https://github.com/koekeishiya/yabai/wiki/Commands#window-commands
 alt - n: yabai -m window --focus west

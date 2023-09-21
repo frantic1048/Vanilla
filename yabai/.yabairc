@@ -3,15 +3,15 @@ yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 
 defaults write .GlobalPreferences com.apple.mouse.scaling -1
 
-~/bin/yabai-switch-space.elv --init-space-labels
+~/bin/yabaictl.elv --init-space-labels
 
-yabai -m config external_bar all:24:0
+# yabai -m config external_bar all:24:0
 yabai -m config layout                       bsp
-yabai -m config top_padding                  4
-yabai -m config bottom_padding               4
-yabai -m config left_padding                 4
-yabai -m config right_padding                4
-yabai -m config window_gap                   4
+yabai -m config top_padding                  2
+yabai -m config bottom_padding               2
+yabai -m config left_padding                 2
+yabai -m config right_padding                2
+yabai -m config window_gap                   2
 
 # set mouse interaction modifier key (default: fn)
 yabai -m config mouse_modifier cmd

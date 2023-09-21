@@ -76,6 +76,8 @@ fn g {|@args|
   if (==s $op 'cnmw') { g a .; g c -n --allow-empty -m '[skip ci] wip'; return }
   if (==s $op 'f') { g c -n --fixup ':/'$@rest; return }
   if (==s $op 'ff') { g c -n --fixup $@rest; return }
+  # Commit message
+  if (==s $op 'body') { g rev-list --max-count=1 --no-commit-header --format=%B HEAD $@rest; return }
 
   # ChecKout
   if (==s $op 'ck') { g checkout $@rest; return }

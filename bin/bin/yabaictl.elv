@@ -137,13 +137,15 @@ fn init_sketchybar_spaces {
                 icon=$space_id                                      ^
                 icon.padding_left=8                                 ^
                 icon.padding_right=8                                ^
+                icon.color=0xff333333                               ^
                 background.padding_left=5                           ^
                 background.padding_right=5                          ^
                 background.color=0x44ffffff                         ^
                 background.corner_radius=5                          ^
                 background.height=22                                ^
-                background.drawing=off                              ^
-                label=""                                            ^
+                background.drawing=on                               ^
+                label=$space_id                                     ^
+                label.color=0xff333333                              ^
                 label.drawing=off                                   ^
                 script="~/bin/yabaictl.elv --update-sketchybar-space "$space_id ^
                 click_script="~/bin/yabaictl.elv --switch-to-space "$space_id

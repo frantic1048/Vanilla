@@ -1,5 +1,5 @@
 {
-  "[html]": {
+  "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
@@ -12,7 +12,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[python]": {
-    "editor.defaultFormatter": "ms-python.python"
+    "editor.formatOnType": true
   },
   "[ruby]": {},
   "[shellscript]": {},
@@ -22,55 +22,70 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "atomKeymap.promptV3Features": true,
-  "breadcrumbs.enabled": true,
-  "editor.columnSelection": false,
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "blockman.n04Sub04RightSideBaseOfBlocks": "Rightmost Edge Of Viewport",
+  "blockman.n18CustomColorOfFocusedBlockBorder": "rgba(55,105,250,0.4)",
+  "blockman.n19CustomColorOfBlockBorder": "rgba(0,0,0,0)",
+  "blockman.n20CustomColorOfDepth0Border": "rgba(0,0,0,0)",
+  "blockman.n21BorderRadius": 2,
+  "blockman.n34A02BorderThicknessOfFocusedBlock": 1,
+  "debug.disassemblyView.showSourceCode": false,
+  "diffEditor.wordWrap": "off",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
   "editor.cursorBlinking": "phase",
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.fontFamily": "Victor Mono Medium",
+  "editor.fontFamily": "Fantasque Sans Mono, JetBrains Mono, Victor Mono Medium, monospace, Electroharmonix",
   "editor.fontLigatures": true,
   "editor.fontSize": 13,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
   "editor.formatOnType": false,
+  "editor.guides.bracketPairs": false,
+  "editor.guides.indentation": false,
+  "editor.inlayHints.enabled": "off",
+  "editor.inlineSuggest.enabled": true,
   "editor.minimap.enabled": false,
   "editor.minimap.renderCharacters": false,
+  "editor.mouseWheelZoom": true,
   "editor.multiCursorModifier": "ctrlCmd",
-  "editor.renderIndentGuides": false,
   "editor.renderLineHighlight": "gutter",
   "editor.renderWhitespace": "none",
+  "editor.semanticHighlighting.enabled": true,
   "editor.tabSize": 2,
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ],
+  "editor.wordWrap": "off",
+  "eslint.lintTask.enable": true,
   "files.associations": {
+    ".git-blame-ignore-revs": "ignore",
     "Dangerfile": "ruby"
   },
-  "go.formatTool": "goimports",
+  "github.copilot.enable": {
+    "*": true,
+    "markdown": true,
+    "plaintext": true,
+    "properties": true,
+    "scminput": false,
+    "shellscript": true,
+    "typescript": true,
+    "typescriptreact": true,
+    "yaml": true
+  },
+  "gitlens.advanced.blame.customArguments": [],
+  "gitlens.mode.active": "zen",
   "javascript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.referencesCodeLens.enabled": false,
-  "javascript.referencesCodeLens.showOnAllFunctions": false,
-  "javascript.updateImportsOnFileMove.enabled": "always",
   "javascript.validate.enable": false,
-  "python.formatting.provider": "yapf",
-  "python.formatting.yapfPath": "/usr/bin/yapf",
-  "telemetry.enableCrashReporter": false,
-  "telemetry.enableTelemetry": false,
-  "terminal.integrated.tabs.enabled": true,
-  "todomd.defaultFile": "/home/chino/Documents/todo.txt",
-  "todomd.sortProjectsView": "alphabetic",
-  "todomd.webview.completedStrikeThrough": true,
-  "typescript.implementationsCodeLens.enabled": false,
+  "playwright.reuseBrowser": false,
+  "problems.sortOrder": "position",
+  "redhat.telemetry.enabled": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "typescript.referencesCodeLens.enabled": false,
-  "typescript.referencesCodeLens.showOnAllFunctions": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.maxTsServerMemory": 10240,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.validate.enable": true,
-  "update.mode": "none",
+  "update.mode": "start",
+  "window.commandCenter": false,
   "window.menuBarVisibility": "hidden",
-  "window.titleBarStyle": "native",
   "workbench.activityBar.visible": false,
   "workbench.colorCustomizations": {
     "activityBar.background": "#0000006a",
@@ -104,8 +119,7 @@
     "titleBar.activeBackground": "#00000030",
     "workbench.background": "#00000080" // only in code-transparent
   },
-  "workbench.colorTheme": "Solarized Dark",
-  "workbench.editor.showTabs": true,
-  "workbench.sideBar.location": "right",
-  "workbench.statusBar.visible": true
+  "workbench.colorTheme": "Base16 Tomorrow Dark",
+  "workbench.layoutControl.enabled": false,
+  "workbench.sideBar.location": "left"
 }

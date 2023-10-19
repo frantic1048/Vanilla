@@ -7,6 +7,7 @@
 [core]
 	excludesfile = ~/.gitignore
 	fsmonitor = true
+	pager = delta
 [feature]
 	manyFiles = true
 [diff]
@@ -70,3 +71,5 @@
 	clean = sed -e '/window.zoomLevel/d'
 	smudge = cat
 	required = true
+[delta]
+	theme = OneHalfDark

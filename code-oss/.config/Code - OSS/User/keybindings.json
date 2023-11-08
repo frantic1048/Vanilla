@@ -2,11 +2,11 @@
 [
   {
     "key": "ctrl+e",
-    "command": "-workbench.action.quickOpenNavigateNextInFilePicker",
+    "command": "-workbench.action.quickOpenNavigateNextInFilePicker"
   },
   {
     "key": "ctrl+e",
-    "command": "eslint.executeAutofix",
+    "command": "eslint.executeAutofix"
   },
   {
     "key": "ctrl+.",
@@ -26,12 +26,16 @@
     "command": "editor.action.formatDocument"
   },
   {
-    "key": "ctrl+shift+g g",
+    "key": "shift+cmd+g",
     "command": "workbench.view.scm"
   },
   {
     "key": "ctrl+shift+g",
     "command": "-workbench.view.scm"
+  },
+  {
+    "key": "shift+cmd+e",
+    "command": "workbench.explorer.fileView.focus"
   },
   {
     "key": "ctrl+shift+m",

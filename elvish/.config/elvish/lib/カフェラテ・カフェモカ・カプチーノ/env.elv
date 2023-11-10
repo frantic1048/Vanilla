@@ -91,7 +91,12 @@ at-env &os="darwin" {
   ]
 }
 
-set-env VISUAL nano
+if (has-external hx) {
+  set-env VISUAL hx
+} else {
+  set-env VISUAL nano
+}
+
 
 # GPG
 at-env &os="darwin" {

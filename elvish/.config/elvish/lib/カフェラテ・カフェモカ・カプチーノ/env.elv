@@ -91,6 +91,14 @@ at-env &os="darwin" {
   ]
 }
 
+# proto
+set-env PROTO_HOME {~}/.proto
+set paths = [
+  $E:PROTO_HOME/shims
+  $E:PROTO_HOME/bin
+  $@paths
+]
+
 if (has-external hx) {
   set-env VISUAL hx
 } else {

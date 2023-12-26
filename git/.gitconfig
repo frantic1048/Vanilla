@@ -31,15 +31,6 @@
 	fontui = -family \"Linden Hill\" -size 11 -weight normal -slant roman -underline 0 -overstrike 0
 
 # filters
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-
-# private filters for Vanilla repo
-# MEMO: debugging is not easy...
-# remove geometry lines from gitk config
 [filter "vanilla.gitk"]
 	clean = sed -e '/^set geometry/d'
 	smudge = cat
@@ -73,3 +64,11 @@
 	required = true
 [delta]
 	theme = OneHalfDark
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[diff "lockb"]
+	textconv = bun
+	binary = true

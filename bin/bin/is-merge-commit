@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+parent_count="$(git show -s --pretty=format:%p "${1:-HEAD}" | wc -w)"
+if [[ "$parent_count" -le 1 ]]; then
+  # this is not a merge commit
+  exit 1
+fi
+exit 0

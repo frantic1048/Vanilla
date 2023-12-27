@@ -80,6 +80,20 @@ at-env &os="linux" {
   ]
 }
 
+# Proto
+# https://moonrepo.dev/proto
+set-env PROTO_HOME {~}/.proto
+set paths = [
+  $E:PROTO_HOME/shims
+  $E:PROTO_HOME/bin
+  $@paths
+]
+
+# Rust
+set-env RUSTUP_HOME {~}/.rustup
+set-env CARGO_HOME {~}/.cargo
+set paths = [{~}/.cargo/bin $@paths]
+
 # Node
 at-env &os="darwin" {
   set-env N_PREFIX {~}/.n
@@ -91,13 +105,6 @@ at-env &os="darwin" {
   ]
 }
 
-# proto
-set-env PROTO_HOME {~}/.proto
-set paths = [
-  $E:PROTO_HOME/shims
-  $E:PROTO_HOME/bin
-  $@paths
-]
 
 if (has-external hx) {
   set-env VISUAL hx

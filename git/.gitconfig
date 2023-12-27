@@ -31,6 +31,9 @@
 	fontui = -family \"Linden Hill\" -size 11 -weight normal -slant roman -underline 0 -overstrike 0
 
 # filters
+# private filters for Vanilla repo
+# MEMO: debugging is not easy...
+# remove geometry lines from gitk config
 [filter "vanilla.gitk"]
 	clean = sed -e '/^set geometry/d'
 	smudge = cat

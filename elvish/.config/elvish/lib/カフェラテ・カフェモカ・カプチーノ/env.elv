@@ -25,9 +25,6 @@ at-env &os="darwin" {
     {~}/go/bin
     $@nixPaths
 
-    # kitty shell
-    (existing-dir /Applications/kitty.app/Contents/MacOS)
-
     # GnuPG for OS X
     # https://sourceforge.net/p/gpgosx/docu/Download/
     (existing-dir /usr/local/gnupg-2.4/bin)

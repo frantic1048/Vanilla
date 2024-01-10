@@ -52,7 +52,8 @@ fi
 # Install Homebrew packages
 brew bundle install
 
+# Install dotfiles
 # ./stow.nu
 
 # MEMO: once
-# ./macos.sh
+# ./macos_sysctl.sh

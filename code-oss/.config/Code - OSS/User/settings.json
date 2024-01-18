@@ -60,19 +60,20 @@
   "eslint.lintTask.enable": true,
   "files.associations": {
     ".git-blame-ignore-revs": "ignore",
-    "Dangerfile": "ruby"
+    "Dangerfile": "ruby", // https://danger.systems/
+    ".prototools": "toml" // https://moonrepo.dev/docs/proto/config
   },
   "github.copilot.enable": {
-    "*": false,
-    "jsonnet": true,
-    "markdown": true,
+    "*": true,
     "plaintext": true,
-    "properties": true,
+    "markdown": true,
     "scminput": false,
+    "jsonnet": true,
+    "properties": true,
     "shellscript": true,
     "typescript": true,
     "typescriptreact": true,
-    "yaml": false
+    "yaml": true
   },
   "gitlens.advanced.blame.customArguments": [],
   "gitlens.plusFeatures.enabled": false,
@@ -103,7 +104,7 @@
     "breadcrumbPicker.background": "#000000a0",
     "button.background": "#00000040",
     "button.hoverBackground": "#00000080",
-    // "editor.background": "#00000022",
+    "editor.background": "#00000030",
     "editor.lineHighlightBackground": "#707effa0",
     "editorCursor.foreground": "#80c1ff",
     "editorError.background": "#eb178149",
@@ -122,19 +123,26 @@
     "list.inactiveSelectionBackground": "#00000040",
     "panel.background": "#00000080",
     "panel.border": "#00000000",
-    "sideBar.background": "#0000006a",
+    "sideBar.background": "#0000002a",
     "sideBarSectionHeader.background": "#00000000",
     "statusBar.background": "#00000080",
     "statusBar.noFolderBackground": "#00000080",
     "tab.activeBackground": "#00000050",
     "tab.border": "#00000000",
     "tab.inactiveBackground": "#00000010",
-    // "terminal.background": "#0000",
+    "terminal.background": "#0000",
     "titleBar.activeBackground": "#00000030",
-    "workbench.background": "#00000080" // only in code-transparent
+    // "workbench.background": "#00000080" // only in code-transparent
+    "window.background": "#000000a0"
   },
+  "yaml.customTags": [
+    // GitLab's custom tag
+    // @see https://docs.gitlab.com/ee/ci/yaml/yaml_optimization.html#configure-your-ide-to-support-reference-tags
+    "!reference sequence"
+  ],
   "workbench.colorTheme": "GitHub Dark Default",
   "workbench.editor.empty.hint": "hidden",
   "workbench.layoutControl.enabled": false,
-  "workbench.sideBar.location": "left"
+  "workbench.sideBar.location": "left",
+  "graphviz-interactive-preview.renderLockAdditionalTimeout": 5000
 }

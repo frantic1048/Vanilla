@@ -6,6 +6,7 @@ function handle_exit {
 }
 trap handle_exit EXIT
 
+# helpers from: https://github.com/Homebrew/install/blob/master/install.sh
 major_minor() {
   echo "${1%%.*}.$(
     x="${1#*.}"
@@ -22,12 +23,15 @@ macos_version="$(major_minor "$(/usr/bin/sw_vers -productVersion)")"
 should_install_command_line_tools() {
   if version_gt "${macos_version}" "10.13"
   then
+    # shellcheck disable=SC2251
     ! [[ -e "/Library/Developer/CommandLineTools/usr/bin/git" ]]
   else
     ! [[ -e "/Library/Developer/CommandLineTools/usr/bin/git" ]] ||
       ! [[ -e "/usr/include/iconv.h" ]]
   fi
 }
+
+###############################################################################
 
 # Install Command Line Tools if necessary
 if should_install_command_line_tools

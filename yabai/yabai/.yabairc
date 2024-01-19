@@ -35,6 +35,7 @@ yabai -m config window_topmost on
 yabai -m config window_shadow float
 
 # rules
+# https://github.com/koekeishiya/yabai/wiki/Commands#querying-information
 
 # MacOS builtin apps
 # MacOS < 13.0 (Monterey and older)
@@ -43,3 +44,6 @@ yabai -m rule --add app="^System Preferences$" manage=off
 yabai -m rule --add app="^System Settings$" manage=off
 
 yabai -m rule --add app="^System Information$" manage=off
+
+# other apps
+yabai -m rule --add app="^Raycast$" manage=off

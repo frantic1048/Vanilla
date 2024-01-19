@@ -111,9 +111,15 @@ def "main install" [] {
   init
 }
 
-# init stow
+# Init stow
 def "main init" [] {
   init
+}
+
+# TODO: List all profiles and packages used
+def "main stat" [] {
+  # packages used in which profile
+  # packages not used in any profile
 }
 
 def main [] {

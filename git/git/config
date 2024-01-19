@@ -3,7 +3,7 @@
 	email = im@pyonpyon.today
 	signingkey = 22D8A46B2CDA6605A1C0CFD1E060B3E215CE49BB
 [includeIf "gitdir:~/work/"]
-    path = ~/.gitconfig.user.work
+    path = config.user.work
 [core]
 	excludesfile = ~/.gitignore
 	fsmonitor = true

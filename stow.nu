@@ -22,6 +22,7 @@ let stow_dir = $env.FILE_PWD
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
+  ["bin" $home_path]
   ["git" $xdg_config_home_path]
   ["yabai" $xdg_config_home_path]
   ["skhd" $xdg_config_home_path]

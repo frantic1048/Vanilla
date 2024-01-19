@@ -1,2 +1,2 @@
---dir=~/Vanilla
---target=~
+--ignore=\.DS_Store
+--ignore=program\.home\.nix

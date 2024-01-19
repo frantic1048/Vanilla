@@ -23,6 +23,8 @@ let stow_dir = $env.FILE_PWD
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
   ["git" $xdg_config_home_path]
+  ["yabai" $xdg_config_home_path]
+  ["skhd" $xdg_config_home_path]
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -93,7 +95,7 @@ def init [] {
   let profile = (get_stow_profile)
   log info $"Using profile: ($profile.name)"
   $profile.table | each {|row|
-    log info $"Stowing ($row.package) to ($row.prefix)")
+    log info $"Stowing ($row.package) to ($row.prefix)"
     log info $"stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)"
     stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)
   }

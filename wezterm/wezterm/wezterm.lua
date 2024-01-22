@@ -1,3 +1,8 @@
+-- See https://wezfurlong.org/wezterm/
+-- Add config folder to watchlist for config reloads.
+local wezterm = require 'wezterm';
+wezterm.add_to_config_reload_watch_list(wezterm.config_dir)
+
 local wezterm = require 'wezterm'
 
 return {
@@ -24,9 +29,8 @@ return {
         -- brights = {"#57606a", "#a40e26", "#1a7f37", "#633c01", "#218bff", "#a475f9", "#3192aa", "#8c959f"}
     },
 
-    -- font = wezterm.font 'JetBrains Mono',
-    font = wezterm.font 'JetBrainsMono Nerd Font Mono',
+    font = wezterm.font 'JetBrains Mono',
     window_background_opacity = 0.64,
-    enable_tab_bar = true,
+    enable_tab_bar = false,
     hide_tab_bar_if_only_one_tab = true
 }

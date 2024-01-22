@@ -10,12 +10,10 @@
 
 # elvish
 /elvish/*
-!/elvish/.config
-/elvish/.config/*
-!/elvish/.config/elvish
-/elvish/.config/elvish/*
-!/elvish/.config/elvish/rc.elv
-!/elvish/.config/elvish/lib
+!/elvish/elvish
+/elvish/elvish/*
+!/elvish/elvish/rc.elv
+!/elvish/elvish/lib
 
 # atom
 /atom
@@ -34,15 +32,13 @@
 
 # vscode
 /vscode/*
-!/vscode/.config
-/vscode/.config/*
-!/vscode/.config/Code
-/vscode/.config/Code/*
-!/vscode/.config/Code/custom_css.css
-!/vscode/.config/Code/User
-/vscode/.config/Code/User/*
-!/vscode/.config/Code/User/settings.json
-!/vscode/.config/Code/User/keybindings.json
+!/vscode/Code
+/vscode/Code/*
+!/vscode/Code/custom_css.css
+!/vscode/Code/User
+/vscode/Code/User/*
+!/vscode/Code/User/settings.json
+!/vscode/Code/User/keybindings.json
 
 # code
 /code-oss/*
@@ -88,3 +84,9 @@
 /pipewire/.config/pipewire/*
 !/pipewire/.config/pipewire/pipewire.conf.d
 !/pipewire/.config/pipewire/client.conf.d
+
+# Proto
+/proto/*
+!/proto/.proto
+/proto/.proto/*
+!/proto/.proto/.prototools

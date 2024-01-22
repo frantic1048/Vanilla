@@ -1,15 +1,15 @@
 #!/usr/bin/env nu
 use std log
 
-const not_stow_list = [
+const not_package_name = [
   "darwin-system" # nix-darwin
   "root" # linux system config, not managed by stow
   "screenshots" # screenshots
 ]
 
-let all_stow_list: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
+let all_packages: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
   | lines
-  | where not $it in $not_stow_list
+  | where $in not-in $not_package_name
 )
 
 let home_path = $nu.home-path
@@ -22,10 +22,17 @@ let stow_dir = $env.FILE_PWD
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
+  ["elvish" $xdg_config_home_path]
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
   ["yabai" $xdg_config_home_path]
   ["skhd" $xdg_config_home_path]
+  ["alacritty" $xdg_config_home_path]
+  ["kitty" $xdg_config_home_path]
+  ["wezterm" $xdg_config_home_path]
+  ["sketchybar" $xdg_config_home_path]
+  ["starship" $xdg_config_home_path]
+  ["proto" $home_path]
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -39,7 +46,7 @@ let stow_profiles: table<name: string, table: table<package: string, prefix: str
 ]
 
 def assert_stow_profile_exist [profile: string] {
-  if not $profile in ($stow_profiles | get name) {
+  if $profile not-in ($stow_profiles | get name) {
     log error $"Error: profile ($profile) does not exist."
     exit 1
   }
@@ -56,7 +63,7 @@ def get_stow_profile [] -> table<name: string, table: table<package: string, pre
 }
 
 def assert_stow_profile_only_contains_known_items [profile: table<name: string, table: table<package: string, prefix: string>>] {
-  let unknown_items = $profile | get table | where not $it.package in $all_stow_list
+  let unknown_items = $profile | get table | where package not-in $all_packages
   if ($unknown_items | length) > 0 {
     log error $"Error: in profile ($profile.name) found unknown items: ($unknown_items)"
     exit 1
@@ -90,11 +97,15 @@ def provision_essential_paths [] {
 
 def init [] {
   provision_essential_paths
-  log info $"All stow list: ($all_stow_list)"
+  log info $"All packages: ($all_packages)"
   verify
   log info "Initializing stow..."
   let profile = (get_stow_profile)
   log info $"Using profile: ($profile.name)"
+}
+
+def install [] {
+  let profile = (get_stow_profile)
   $profile.table | each {|row|
     log info $"Stowing ($row.package) to ($row.prefix)"
     log info $"stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)"
@@ -102,13 +113,10 @@ def init [] {
   }
 }
 
-def install [] {
-
-}
-
 # Install package configs
 def "main install" [] {
   init
+  install
 }
 
 # Init stow
@@ -116,11 +124,22 @@ def "main init" [] {
   init
 }
 
-# TODO: List all profiles and packages used
+# Print packages and their profiles
 def "main stat" [] {
-  # packages used in which profile
-  # packages not used in any profile
+  let stat_table = ($all_packages | each {|package|
+    let profiles_of_package = ($stow_profiles | each {|profile|
+      if $package in ($profile.table | get package) {
+        $profile.name
+      }
+    })
+    [[package profiles]; [$package $profiles_of_package]]
+  } | reduce {|it, acc| $it ++ $acc })
+
+  $stat_table | sort-by -r profiles | update profiles {|row|
+    $row.profiles | str join ", "
+  }
 }
 
 def main [] {
+  init
 }

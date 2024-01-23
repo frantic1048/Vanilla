@@ -57,7 +57,7 @@ fi
 brew bundle install
 
 # Install dotfiles
-# ./stow.nu
+./blend install
 
 # MEMO: once
 # ./macos_sysctl.sh

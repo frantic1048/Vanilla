@@ -1,6 +1,10 @@
 # macOS
 .DS_Store
 
+# brew bundle
+# https://github.com/Homebrew/homebrew-bundle?tab=readme-ov-file#versions-and-lockfiles
+Brewfile.lock.json
+
 /darwin-system/result
 
 #dolphin

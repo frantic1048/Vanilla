@@ -13,7 +13,7 @@ let all_packages: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
 )
 
 let home_path = $nu.home-path
-let macos_application_path = [$home_path "Library" "Application Support"] | path join
+let macos_application_support_path = [$home_path "Library" "Application Support"] | path join
 let xdg_config_home_path = [$home_path ".config"] | path join
 def make_xdg_config_subpath [subpath: string] {
   [$xdg_config_home_path $subpath] | path join
@@ -22,17 +22,22 @@ let stow_dir = $env.FILE_PWD
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
-  ["elvish" $xdg_config_home_path]
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
-  ["yabai" $xdg_config_home_path]
-  ["skhd" $xdg_config_home_path]
+  ["elvish" $xdg_config_home_path]
+  ["nushell" $macos_application_support_path]
+  ["starship" $xdg_config_home_path]
+  ["proto" $home_path]
+
+  # terminals
   ["alacritty" $xdg_config_home_path]
   ["kitty" $xdg_config_home_path]
   ["wezterm" $xdg_config_home_path]
+
+  ["yabai" $xdg_config_home_path]
+  ["skhd" $xdg_config_home_path]
   ["sketchybar" $xdg_config_home_path]
-  ["starship" $xdg_config_home_path]
-  ["proto" $home_path]
+
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];

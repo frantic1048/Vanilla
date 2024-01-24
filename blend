@@ -11,7 +11,7 @@ const not_package_name = [
 let all_top_dirs: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
   | lines)
 
-let all_packages: list<string> = ($all_top_dirs | where $in not-in $not_package_name)
+let all_packages: list<string> = ($all_top_dirs | where $it not-in $not_package_name)
 
 let home_path = $nu.home-path
 let macos_application_support_path = [$home_path "Library" "Application Support"] | path join
@@ -29,6 +29,7 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["nushell" $macos_application_support_path]
   ["starship" $xdg_config_home_path]
   ["proto" $home_path]
+  ["vscode" ([$macos_application_support_path 'Code'] | path join)]
 
   # terminals
   ["alacritty" $xdg_config_home_path]
@@ -43,6 +44,9 @@ let macos_stow_table: table<package: string, prefix: string> = [
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
   ["git" $xdg_config_home_path]
+  ["bin" $home_path]
+  ["git" $xdg_config_home_path]
+  ["elvish" $xdg_config_home_path]
 ]
 
 let stow_profiles: table<name: string, table: table<package: string, prefix: string>> = [
@@ -68,8 +72,12 @@ def get_stow_profile [] -> table<name: string, table: table<package: string, pre
   $stow_profiles | where name == $profile_name | first
 }
 
+def is_known_package [package: string] {
+  $package in $all_packages
+}
+
 def assert_stow_profile_only_contains_known_items [profile: table<name: string, table: table<package: string, prefix: string>>] {
-  let unknown_items = $profile | get table | where package not-in $all_packages
+  let unknown_items = $profile | get table | where not (is_known_package $it.package)
   if ($unknown_items | length) > 0 {
     log error $"Error: in profile ($profile.name) found unknown items: ($unknown_items)"
     exit 1
@@ -110,19 +118,34 @@ def init [] {
   log info $"Using profile: ($profile.name)"
 }
 
-def install [] {
+def install [packages?: list<string>] {
   let profile = (get_stow_profile)
-  $profile.table | each {|row|
-    log info $"Stowing ($row.package) to ($row.prefix)"
-    log info $"stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)"
-    stow --dir $stow_dir --target $row.prefix -S $row.package
+  if ($packages | length) > 0 {
+    $packages | each {|package|
+      if (is_known_package $package) {
+        log error $"Error: package ($package) is not known."
+        exit 1
+      }
+      let prefix = ($profile.table | where package == $package | first | get prefix)
+      log info $"Stowing ($package) to ($prefix)"
+      log info $"stow --dir ($stow_dir) --target ($prefix) -S ($package)"
+      stow --dir $stow_dir --target $prefix -S $package
+    }
+  } else {
+    $profile.table | each {|row|
+      log info $"Stowing ($row.package) to ($row.prefix)"
+      log info $"stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)"
+      stow --dir $stow_dir --target $row.prefix -S $row.package
+    }
   }
 }
 
 # Install package configs
-def "main install" [] {
+def "main install" [
+  ...packages: string # packages to install, default: install all available packages
+  ] {
   init
-  install
+  install $packages
 }
 
 # Init stow

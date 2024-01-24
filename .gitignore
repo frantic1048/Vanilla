@@ -7,6 +7,9 @@ Brewfile.lock.json
 
 /darwin-system/result
 
+# npm
+node_modules
+
 #dolphin
 .directory
 !/.directory

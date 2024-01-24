@@ -7,10 +7,11 @@ const not_package_name = [
   "screenshots" # screenshots
 ]
 
-let all_packages: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
-  | lines
-  | where $in not-in $not_package_name
-)
+# FIXME: not listing newly added dirs
+let all_top_dirs: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
+  | lines)
+
+let all_packages: list<string> = ($all_top_dirs | where $in not-in $not_package_name)
 
 let home_path = $nu.home-path
 let macos_application_support_path = [$home_path "Library" "Application Support"] | path join
@@ -114,7 +115,7 @@ def install [] {
   $profile.table | each {|row|
     log info $"Stowing ($row.package) to ($row.prefix)"
     log info $"stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)"
-    stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)
+    stow --dir $stow_dir --target $row.prefix -S $row.package
   }
 }
 

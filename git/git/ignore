@@ -1,0 +1,11 @@
+# global gitignore
+
+# dolphin
+.directory
+# macOS
+.DS_Store
+# windows
+Thumbs.db
+
+# node
+node_modules

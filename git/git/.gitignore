@@ -1,16 +1,1 @@
-# dolphin
-.directory
-
-# Atom imdone
-/.imdone
-
-# node
-node_modules
-
-# log files
-*.log
-
-# MacOS
-.DS_Store
-
 config.user.work

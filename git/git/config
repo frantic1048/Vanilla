@@ -5,7 +5,6 @@
 [includeIf "gitdir:~/work/"]
     path = config.user.work
 [core]
-	excludesfile = ~/.gitignore
 	fsmonitor = true
 	pager = delta
 [feature]

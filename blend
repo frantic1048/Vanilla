@@ -173,11 +173,22 @@ def "main stat" [] {
   }
 }
 
+def expand_package_dir [package_dir: string] {
+  if (ls $package_dir | length) == 1 and (ls $package_dir | first | get type) == "dir" {
+    [$package_dir (expand_package_dir (ls $package_dir | first | get name))] | path join
+  } else {
+    $package_dir
+  }
+}
+
 def "main stat_markdown" [] {
   let stat_table = (stat)
 
   $stat_table | sort-by -r profiles | update package {|row|
-    $"[($row.package)]\(($row.package)\)"
+    let link_title = $row.package
+    let link_url = (expand_package_dir $row.package)
+
+    $"[($link_title)]\(($link_url)\)"
   } | update profiles {|row|
     $row.profiles | each { $"`($in)`" } | str join ", "
   } | to md --pretty

@@ -15,53 +15,53 @@ _i3_:
 
 ## Config packages
 
-| package                  | profiles                       |
-| ------------------------ | ------------------------------ |
-| [bin](bin)               | `macos-x86_64`, `linux-x86_64` |
-| [elvish](elvish)         | `macos-x86_64`, `linux-x86_64` |
-| [git](git)               | `macos-x86_64`, `linux-x86_64` |
-| [alacritty](alacritty)   | `macos-x86_64`                 |
-| [kitty](kitty)           | `macos-x86_64`                 |
-| [nushell](nushell)       | `macos-x86_64`                 |
-| [proto](proto)           | `macos-x86_64`                 |
-| [sketchybar](sketchybar) | `macos-x86_64`                 |
-| [skhd](skhd)             | `macos-x86_64`                 |
-| [starship](starship)     | `macos-x86_64`                 |
-| [vscode](vscode)         | `macos-x86_64`                 |
-| [wezterm](wezterm)       | `macos-x86_64`                 |
-| [yabai](yabai)           | `macos-x86_64`                 |
-| [X](X)                   |                                |
-| [alsa](alsa)             |                                |
-| [atom](atom)             |                                |
-| [bash](bash)             |                                |
-| [code-oss](code-oss)     |                                |
-| [color](color)           |                                |
-| [commitizen](commitizen) |                                |
-| [conky](conky)           |                                |
-| [fcitx](fcitx)           |                                |
-| [fontconfig](fontconfig) |                                |
-| [htop](htop)             |                                |
-| [i3wm](i3wm)             |                                |
-| [krita](krita)           |                                |
-| [makepkg](makepkg)       |                                |
-| [mako](mako)             |                                |
-| [nano](nano)             |                                |
-| [neofetch](neofetch)     |                                |
-| [npm](npm)               |                                |
-| [pam_env](pam_env)       |                                |
-| [picom](picom)           |                                |
-| [pipewire](pipewire)     |                                |
-| [psd](psd)               |                                |
-| [pulseaudio](pulseaudio) |                                |
-| [rofi](rofi)             |                                |
-| [sakura](sakura)         |                                |
-| [stow](stow)             |                                |
-| [sway](sway)             |                                |
-| [swayshot](swayshot)     |                                |
-| [sxiv](sxiv)             |                                |
-| [tint2](tint2)           |                                |
-| [tmux](tmux)             |                                |
-| [waybar](waybar)         |                                |
+| package                                        | profiles                       |
+| ---------------------------------------------- | ------------------------------ |
+| [bin](bin/bin/bin)                             | `macos-x86_64`, `linux-x86_64` |
+| [elvish](elvish/elvish/elvish)                 | `macos-x86_64`, `linux-x86_64` |
+| [git](git/git/git)                             | `macos-x86_64`, `linux-x86_64` |
+| [alacritty](alacritty)                         | `macos-x86_64`                 |
+| [kitty](kitty/kitty/kitty)                     | `macos-x86_64`                 |
+| [nushell](nushell/nushell/nushell)             | `macos-x86_64`                 |
+| [proto](proto)                                 | `macos-x86_64`                 |
+| [sketchybar](sketchybar/sketchybar/sketchybar) | `macos-x86_64`                 |
+| [skhd](skhd/skhd/skhd)                         | `macos-x86_64`                 |
+| [starship](starship)                           | `macos-x86_64`                 |
+| [vscode](vscode/vscode/User)                   | `macos-x86_64`                 |
+| [wezterm](wezterm)                             | `macos-x86_64`                 |
+| [yabai](yabai/yabai/yabai)                     | `macos-x86_64`                 |
+| [X](X)                                         |                                |
+| [alsa](alsa)                                   |                                |
+| [atom](atom)                                   |                                |
+| [bash](bash)                                   |                                |
+| [code-oss](code-oss)                           |                                |
+| [color](color)                                 |                                |
+| [commitizen](commitizen)                       |                                |
+| [conky](conky)                                 |                                |
+| [fcitx](fcitx)                                 |                                |
+| [fontconfig](fontconfig)                       |                                |
+| [htop](htop)                                   |                                |
+| [i3wm](i3wm)                                   |                                |
+| [krita](krita)                                 |                                |
+| [makepkg](makepkg)                             |                                |
+| [mako](mako)                                   |                                |
+| [nano](nano)                                   |                                |
+| [neofetch](neofetch)                           |                                |
+| [npm](npm)                                     |                                |
+| [pam_env](pam_env)                             |                                |
+| [picom](picom)                                 |                                |
+| [pipewire](pipewire)                           |                                |
+| [psd](psd)                                     |                                |
+| [pulseaudio](pulseaudio)                       |                                |
+| [rofi](rofi)                                   |                                |
+| [sakura](sakura)                               |                                |
+| [stow](stow)                                   |                                |
+| [sway](sway)                                   |                                |
+| [swayshot](swayshot)                           |                                |
+| [sxiv](sxiv)                                   |                                |
+| [tint2](tint2)                                 |                                |
+| [tmux](tmux)                                   |                                |
+| [waybar](waybar)                               |                                |
 
 ## Usage
 

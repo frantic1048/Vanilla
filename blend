@@ -1,5 +1,6 @@
 #!/usr/bin/env nu
 use std log
+use blend_util expand_package_dir
 
 const not_package_name = [
   "darwin-system" # nix-darwin
@@ -39,7 +40,6 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["yabai" $xdg_config_home_path]
   ["skhd" $xdg_config_home_path]
   ["sketchybar" $xdg_config_home_path]
-
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -91,10 +91,6 @@ def verify [] {
     assert_stow_profile_only_contains_known_items $row
   }
   log info "Stow list verified."
-}
-
-def mk_stow_rc [] {
-
 }
 
 def provision_essential_paths [] {
@@ -153,7 +149,7 @@ def "main init" [] {
   init
 }
 
-export def stat [] {
+def stat [] {
 $all_packages | each {|package|
     let profiles_of_package = ($stow_profiles | each {|profile|
       if $package in ($profile.table | get package) {
@@ -173,14 +169,6 @@ def "main stat" [] {
   }
 }
 
-def expand_package_dir [package_dir: string] {
-  if (ls $package_dir | length) == 1 and (ls $package_dir | first | get type) == "dir" {
-    [$package_dir (expand_package_dir (ls $package_dir | first | get name))] | path join
-  } else {
-    $package_dir
-  }
-}
-
 def "main stat_markdown" [] {
   let stat_table = (stat)
 
@@ -192,6 +180,16 @@ def "main stat_markdown" [] {
   } | update profiles {|row|
     $row.profiles | each { $"`($in)`" } | str join ", "
   } | to md --pretty
+}
+
+def test [] {
+  log info "Running tests..."
+  ./blend_test
+  log info "Tests passed."
+}
+
+def "main test" [] {
+  test
 }
 
 def main [] {

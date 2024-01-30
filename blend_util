@@ -1,0 +1,11 @@
+#!/usr/bin/env nu
+
+export def expand_package_dir [package_dir: string] {
+  if (ls $package_dir | length) == 1 and (ls $package_dir | first | get type) == "dir" {
+    # MEMO: nushell `ls` is not the same as system's `ls`
+    # @see https://www.nushell.sh/commands/docs/ls.html
+    expand_package_dir (ls $package_dir | first | get name)
+  } else {
+    $package_dir
+  }
+}

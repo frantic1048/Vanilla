@@ -184,7 +184,7 @@ def "main stat_markdown" [] {
 
 def test [] {
   log info "Running tests..."
-  ./blend_test
+  ./blend.test.nu
   log info "Tests passed."
 }
 

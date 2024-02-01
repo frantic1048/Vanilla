@@ -3,6 +3,7 @@ use path
 
 fn b {|@args| e:bat --theme="TwoDark" $@args }
 fn c { e:clear }
+fn ip {|@args| e:ip -c $@args }
 fn e {|@args| e:exa $@args }
 fn ee {|@args| e:exa -l $@args }
 fn l {|@args| e:ls --color $@args }

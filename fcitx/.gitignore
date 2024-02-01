@@ -1,0 +1,8 @@
+/*
+!.gitignore
+!/fcitx
+/fcitx/*
+!/fcitx/config
+!/fcitx/data
+/fcitx/data/*
+!/fcitx/data/QuickPhrase.mb

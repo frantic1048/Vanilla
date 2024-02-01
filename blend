@@ -9,8 +9,9 @@ const not_package_name = [
 ]
 
 # FIXME: not listing newly added dirs
+# MEMO: extra `where ("dir" == ($it | path type))` to filter out deleted dirs
 let all_top_dirs: list<string> = (git ls-tree --name-only --full-name -d HEAD :/
-  | lines)
+  | lines | where ("dir" == ($it | path type)))
 
 let all_packages: list<string> = ($all_top_dirs | where $it not-in $not_package_name)
 
@@ -24,29 +25,66 @@ let stow_dir = $env.FILE_PWD
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
-  ["bin" $home_path]
-  ["git" $xdg_config_home_path]
+  # shell and friends
   ["elvish" $xdg_config_home_path]
   ["nushell" $macos_application_support_path]
   ["starship" $xdg_config_home_path]
-  ["proto" $home_path]
-  ["vscode" ([$macos_application_support_path 'Code'] | path join)]
 
-  # terminals
+  # terminal
   ["alacritty" $xdg_config_home_path]
   ["kitty" $xdg_config_home_path]
   ["wezterm" $xdg_config_home_path]
 
+  # desktop
   ["yabai" $xdg_config_home_path]
   ["skhd" $xdg_config_home_path]
   ["sketchybar" $xdg_config_home_path]
+
+  # app
+  ["bin" $home_path]
+  ["git" $xdg_config_home_path]
+  ["proto" $home_path]
+  ["vscode" ([$macos_application_support_path 'Code'] | path join)]
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
-  ["git" $xdg_config_home_path]
+  # shell and friends
+  ["nushell" $xdg_config_home_path]
+  ["elvish" $xdg_config_home_path]
+  ["starship" $xdg_config_home_path]
+
+  # terminal
+  ["alacritty" $xdg_config_home_path]
+  ["tmux" $home_path]
+
+  # desktop
+  ["alsa" $home_path]
+  ["pipewire" $xdg_config_home_path]
+  ["pulseaudio" $xdg_config_home_path]
+  ["fontconfig" $xdg_config_home_path]
+  ["pam_env" $home_path]
+  # desktop:X11
+  ["X" $home_path]
+  ["i3wm" $xdg_config_home_path]
+  ["picom" $xdg_config_home_path]
+  ["tint2" $xdg_config_home_path]
+  # desktop:Wayland
+  ["sway" $xdg_config_home_path]
+  ["waybar" $xdg_config_home_path]
+  ["rofi" $xdg_config_home_path]
+  ["mako" $xdg_config_home_path]
+
+  # app
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
-  ["elvish" $xdg_config_home_path]
+  ["vscode" ([$xdg_config_home_path 'Code - OSS'] | path join)]
+  ["htop" $xdg_config_home_path]
+  ["nano" $xdg_config_home_path]
+  ["sxiv" $xdg_config_home_path]
+  ["swayshot" $xdg_config_home_path]
+  ["fcitx" $xdg_config_home_path]
+  ["npm" $home_path]
+  ["makepkg" $home_path]
 ]
 
 let stow_profiles: table<name: string, table: table<package: string, prefix: string>> = [
@@ -93,15 +131,18 @@ def verify [] {
   log info "Stow list verified."
 }
 
-def provision_essential_paths [] {
-  log info "Provisioning essential paths..."
-  let paths = [$xdg_config_home_path]
-  $paths | each {|it|
-    if not ("dir" == ($it | path type)) {
-      log info $"Creating path ($it)..."
-      mkdir $it
+def provision_path [...paths: list<string>] {
+  $paths | each {|path|
+    if not ("dir" == ($path | path type)) {
+      log info $"Creating path ($path)..."
+      mkdir $path
     }
   }
+}
+
+def provision_essential_paths [] {
+  log info "Provisioning essential paths..."
+  provision_path $xdg_config_home_path
   log info $"Provisioned essential paths."
 }
 
@@ -124,6 +165,7 @@ def install [packages?: list<string>] {
       }
       let prefix = ($profile.table | where package == $package | first | get prefix)
       log info $"Stowing ($package) to ($prefix)"
+      provision_path $prefix
       log info $"stow --dir ($stow_dir) --target ($prefix) -S ($package)"
       stow --dir $stow_dir --target $prefix -S $package
     }

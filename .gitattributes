@@ -3,10 +3,9 @@
 
 # Text filters
 /git/git/gitk filter=vanilla.gitk
-/sway/.config/sway/config filter=vanilla.sway
-/htop/.config/htop/htoprc filter=vanilla.htop
+/sway/sway/config filter=vanilla.sway
+/htop/htop/htoprc filter=vanilla.htop
 /npm/.npmrc filter=vanilla.npm
-"code-oss/.config/Code - OSS/User/settings.json" filter=vanilla.code
 /vscode/User/settings.json filter=vanilla.code
 
 # Binary stuff

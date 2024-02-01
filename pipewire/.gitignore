@@ -1,0 +1,7 @@
+# pipewire
+/*
+!.gitignore
+!/pipewire
+/pipewire/*
+!/pipewire/pipewire.conf.d
+!/pipewire/client.conf.d

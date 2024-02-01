@@ -69,7 +69,9 @@ at-env &os="linux" {
   set paths = [
     {~}/bin
     {~}/.local/bin
-    {~}/npm-global/bin
+    {~}/.n/bin
+    {~}/.npm-global/bin
+    {~}/.nix-profile/bin
     {~}/go/bin
     {~}/.gem/ruby/2.2.0/bin
     /usr/bin/vendor_perl
@@ -92,6 +94,14 @@ set-env CARGO_HOME {~}/.cargo
 set paths = [{~}/.cargo/bin $@paths]
 
 # Node
+at-env &os="linux" {
+  set-env N_PREFIX {~}/.n
+  set-env PNPM_HOME {~}/.pnpm
+  set paths = [
+    $E:PNPM_HOME
+    $@paths
+  ]
+}
 at-env &os="darwin" {
   set-env N_PREFIX {~}/.n
   set-env PNPM_HOME {~}/Library/pnpm

@@ -1,0 +1,7 @@
+# pulseaudio
+/*
+!.gitignore
+!/pulse
+/pulse/*
+!/pulse/default.pa
+!/pulse/daemon.conf

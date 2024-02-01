@@ -6,3 +6,6 @@ export XMODIFIERS=@im=fcitx
 #export QT_QPA_PLATFORMTHEME=kde
 export QT_STYLE_OVERRIDE=kvantum
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=on"
+
+#export QT_AUTO_SCREEN_SCALE_FACTOR=1
+export QT_FONT_DPI=144

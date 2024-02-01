@@ -29,15 +29,19 @@ at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
 at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
     xrandr --dpi 144
     xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
-    xrandr --output DisplayPort-1 --mode 3840x2160 --rate 60
+    xrandr --output DisplayPort-1 --mode 2560x1440 --rate 60
     xrandr --output DisplayPort-0 --left-of DisplayPort-1
     xrandr --output DisplayPort-0 --primary
 
-    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2022-10-03 15-52 sRGB F-S XYZLUT+MTX/27GL850 #1 2022-10-03 15-52 sRGB F-S XYZLUT+MTX.icc'
-    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/Ultra HD #2 2022-10-03 16-58 sRGB F-S XYZLUT+MTX/Ultra HD #2 2022-10-03 16-58 sRGB F-S XYZLUT+MTX.icc'
+    xrandr --output HDMI-A-0 --mode 1920x1080 --rate 60
+    xrandr --output HDMI-A-0 --above DisplayPort-1
+
+    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
+    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
     #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
-    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/23b1c83920fd89c9658a481e918b6287.jpg'
+    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
     nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
 }
 
 at-env &host=$hosts[amausaan] &desktop=$desktops[sway] {
@@ -47,7 +51,7 @@ at-env &host=$hosts[amausaan] &desktop=$desktops[sway] {
         pos 0 0 ^
         scale 1.4 ^
         max_render_time 2 ^
-        bg {~}'/Pictures/bg/yande.re 953532.jpg' fill
+        bg {~}'/Pictures/bg/photo/_DSC3936.jpg' fill
 
     swaymsg output '"Goldstar Company Ltd LG Ultra HD 0x00009E6D"' ^
         transform 0 ^

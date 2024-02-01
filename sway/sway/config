@@ -77,7 +77,8 @@ bindsym $mod+Control+backslash exec env GRIM_DEFAULT_DIR=/home/chino/Pictures/sc
 
 # WINIT_UNIX_BACKEND=x11 for fcitx
 # clear XDG_CURRENT_DESKTOP thus xdg-open will not call kfmclient(kde stuff)
-bindsym $mod+Return exec env LANG=en_US.UTF-8 WINIT_UNIX_BACKEND=x11 XDG_CURRENT_DESKTOP= alacritty
+#bindsym $mod+Return exec env LANG=en_US.UTF-8 WINIT_UNIX_BACKEND=x11 XDG_CURRENT_DESKTOP= alacritty
+bindsym $mod+Return exec env LANG=en_US.UTF-8 alacritty
 
 # kill focused window
 bindsym $mod+x kill

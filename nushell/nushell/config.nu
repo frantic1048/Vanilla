@@ -1,6 +1,7 @@
 # Nushell Config File
 #
 # version = "0.88.1"
+use std log
 
 # For more information on defining custom themes, see
 # https://www.nushell.sh/book/coloring_and_theming.html
@@ -140,6 +141,16 @@ let light_theme = {
 # let carapace_completer = {|spans|
 #     carapace $spans.0 nushell $spans | from json
 # }
+
+# start pueue daemon
+# required for directory history
+if (which pueue pueued | length) == 2 {
+    if (do { pueue status } | complete | get exit_code) != 0 {
+        pueued --daemonize
+    }
+} else {
+    log error "pueue is not installed"
+}
 
 # The default config record. This is where much of your global configuration is setup.
 $env.config = {

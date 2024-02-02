@@ -21,7 +21,7 @@ var desktops = (string-enum [
     sway
 ])
 
-var current-host = (constantly (uname -n))
+var current-host = (uname -n)
 var current-desktop = $E:XDG_SESSION_DESKTOP
 
 # linux,darwin

@@ -1,4 +1,4 @@
-#!/bin/env elvish
+#!/usr/bin/env elvish
 
 script_name=(path-base (src)[name])
 

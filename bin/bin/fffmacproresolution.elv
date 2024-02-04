@@ -1,4 +1,4 @@
-#!/bin/env elvish
+#!/usr/bin/env elvish
 
 internal = eDP1
 external = DP2

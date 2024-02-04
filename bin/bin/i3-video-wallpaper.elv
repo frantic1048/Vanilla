@@ -1,4 +1,4 @@
-#!/bin/env elvish
+#!/usr/bin/env elvish
 use path
 use re
 use whtsky

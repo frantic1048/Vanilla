@@ -1,4 +1,4 @@
-#!/bin/env elvish
+#!/usr/bin/env elvish
 
 beat~ = []{
     echo [(sensors applesmc-isa-0300 | rg '^Exhaust {2}:' | rg -o '[[:digit:]]{1,4}')][0] 'RPM'

@@ -1,4 +1,4 @@
-#!/bin/env elvish
+#!/usr/bin/env elvish
 
 fn select_player {
     var players = [(playerctl -l)]

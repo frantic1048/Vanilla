@@ -1,6 +1,5 @@
 # Nushell Config File
-#
-# version = "0.88.1"
+# https://github.com/nushell/nushell/blob/main/crates/nu-utils/src/sample_config/default_config.nu
 use std log
 
 # For more information on defining custom themes, see
@@ -324,6 +323,31 @@ $env.config = {
                 description_text: yellow
             }
         }
+        {
+            name: directory_history_menu
+            only_buffer_difference: true
+            marker: "->> "
+            type: {
+                layout: list
+                page_size: 10
+            }
+            style: {
+                text: green
+                selected_text: green_reverse
+                description_text: yellow
+            }
+            source: { |buffer, position|
+                scope variables
+                | where name =~ $buffer
+                | sort-by name
+                | each { |it|
+                    {
+                        value: $it.name
+                        description: $it.var_id
+                    }
+                }
+            }
+        }
     ]
 
     keybindings: [
@@ -346,6 +370,13 @@ $env.config = {
             keycode: char_r
             mode: [emacs, vi_insert, vi_normal]
             event: { send: menu name: history_menu }
+        }
+        {
+            name: directory_history_menu
+            modifier: control
+            keycode: char_n
+            mode: [emacs, vi_insert, vi_normal]
+            event: { send: menu name: directory_history_menu }
         }
         {
             name: help_menu
@@ -785,5 +816,14 @@ $env.config = {
         }
     ]
 }
+
+# Built-in commands to be overridden
+# https://www.nushell.sh/book/shells_in_shells.html#working-in-multiple-directories
+alias nu-g = g
+alias nu-p = p
+alias nu-n = n
+
+# git aliases
+use g.nu as g
 
 use ~/.cache/starship/init.nu

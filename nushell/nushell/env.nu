@@ -1,6 +1,10 @@
 # Nushell Environment Config File
-#
-# version = "0.88.1"
+# https://github.com/nushell/nushell/blob/main/crates/nu-utils/src/sample_config/default_env.nu
+
+$env.PROMPT_INDICATOR = {|| "> " }
+$env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
+$env.PROMPT_INDICATOR_VI_NORMAL = {|| "> " }
+$env.PROMPT_MULTILINE_INDICATOR = {|| "::: " }
 
 # If you want previously entered commands to have a different prompt from the usual one,
 # you can uncomment one or more of the following lines.
@@ -31,5 +35,20 @@ $env.ENV_CONVERSIONS = {
 
 # To add entries to PATH (on Windows you might use Path), you can use the following pattern:
 # $env.PATH = ($env.PATH | split row (char esep) | prepend '/some/path')
+
+# DO NOT REMOVE THESES NU_*_DIRS DEFAULTS!
+# otherwise `config.nu` will not be able to use the default values
+
+# Directories to search for scripts when calling source or use
+# The default for this is $nu.default-config-dir/scripts
+$env.NU_LIB_DIRS = [
+    ($nu.default-config-dir | path join 'scripts') # add <nushell-config-dir>/scripts
+]
+
+# Directories to search for plugin binaries when calling register
+# The default for this is $nu.default-config-dir/plugins
+$env.NU_PLUGIN_DIRS = [
+    ($nu.default-config-dir | path join 'plugins') # add <nushell-config-dir>/plugins
+]
 
 starship init nu | save -f ~/.cache/starship/init.nu

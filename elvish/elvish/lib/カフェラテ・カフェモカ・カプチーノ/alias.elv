@@ -155,7 +155,11 @@ fn g {|@args|
   # ReSet
   if (==s $op 'rs') { g reset $@rest; return }
   if (==s $op 'rs1') { g reset "HEAD~1"; return }
-
+  if (==s $op 'rsu') {
+      # reset to upstream
+      # https://git-scm.com/docs/gitrevisions
+      g reset --hard "@{u}"; return
+    }
   # Show Oneline <ref>
   # generating rebase commands
   if (==s $op 'so') { g show -q $g--ol $@rest; return }

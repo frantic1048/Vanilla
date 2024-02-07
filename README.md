@@ -22,6 +22,7 @@ _i3_:
 | [elvish](elvish/elvish)             | `macos-x86_64`, `linux-x86_64` |
 | [git](git/git)                      | `macos-x86_64`, `linux-x86_64` |
 | [jj](jj/jj)                         | `macos-x86_64`, `linux-x86_64` |
+| [neofetch](neofetch)                | `macos-x86_64`, `linux-x86_64` |
 | [nushell](nushell/nushell)          | `macos-x86_64`, `linux-x86_64` |
 | [pueue](pueue/pueue)                | `macos-x86_64`, `linux-x86_64` |
 | [starship](starship)                | `macos-x86_64`, `linux-x86_64` |
@@ -59,7 +60,6 @@ _i3_:
 | [commitizen](commitizen)            |                                |
 | [conky](conky)                      |                                |
 | [krita](krita)                      |                                |
-| [neofetch](neofetch)                |                                |
 | [psd](psd)                          |                                |
 | [sakura](sakura)                    |                                |
 | [stow](stow)                        |                                |

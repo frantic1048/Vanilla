@@ -40,6 +40,8 @@
   // Monaspace
   // "editor.fontLigatures": "'calt', 'liga', 'dlig', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08'",
   "editor.fontSize": 13,
+  "editor.lineNumbers": "on",
+  "editor.showFoldingControls": "never",
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
   "editor.guides.bracketPairs": true,
@@ -97,6 +99,9 @@
   "update.mode": "start",
   "window.commandCenter": false,
   "window.menuBarVisibility": "hidden",
+  "workbench.localHistory.enabled": true,
+  "workbench.localHistory.maxFileEntries": 500,
+  "workbench.localHistory.maxFileSize": 512,
   "workbench.activityBar.location": "hidden",
   "workbench.colorCustomizations": {
     "activityBar.background": "#0000006a",

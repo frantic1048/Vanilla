@@ -26,6 +26,7 @@ fn y {|@args| e:yarn $@args }
 fn yrst { e:rm -rf ./node_modules/;y }
 
 fn rua {|@args| e:rustup $@args }
+fn j {|@args| e:jj $@args }
 fn g {|@args|
   var g--rela = '--date=relative'
   var g--ff = '--ff-only'

@@ -21,6 +21,7 @@ _i3_:
 | [bin](bin/bin)                      | `macos-x86_64`, `linux-x86_64` |
 | [elvish](elvish/elvish)             | `macos-x86_64`, `linux-x86_64` |
 | [git](git/git)                      | `macos-x86_64`, `linux-x86_64` |
+| [jj](jj/jj)                         | `macos-x86_64`, `linux-x86_64` |
 | [nushell](nushell/nushell)          | `macos-x86_64`, `linux-x86_64` |
 | [pueue](pueue/pueue)                | `macos-x86_64`, `linux-x86_64` |
 | [starship](starship)                | `macos-x86_64`, `linux-x86_64` |

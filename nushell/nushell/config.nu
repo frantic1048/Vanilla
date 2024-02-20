@@ -823,7 +823,7 @@ alias nu-g = g
 alias nu-p = p
 alias nu-n = n
 
-# git aliases
-use g.nu as g
-
 use ~/.cache/starship/init.nu
+
+# git aliases
+use g.nu

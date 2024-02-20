@@ -128,7 +128,7 @@ def is_known_package [package: string] {
   $package in $all_packages
 }
 
-def assert_stow_profile_only_contains_known_items [profile: table<name: string, table: table<package: string, prefix: string>>] {
+def assert_stow_profile_only_contains_known_items [profile: record<name: string, table: table<package: string, prefix: string>>] {
   let unknown_items = $profile | get table | where not (is_known_package $it.package)
   if ($unknown_items | length) > 0 {
     log error $"Error: in profile ($profile.name) found unknown items: ($unknown_items)"

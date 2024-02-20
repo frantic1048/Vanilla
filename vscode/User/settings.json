@@ -107,6 +107,8 @@
     "activityBar.background": "#0000006a",
     "breadcrumb.background": "#00000000",
     "breadcrumbPicker.background": "#000000a0",
+    "editorStickyScroll.background": "#111111aa",
+    "editorStickyScroll.border": "#efefef30",
     "button.background": "#00000040",
     "button.hoverBackground": "#00000080",
     "editor.background": "#00000030",
@@ -149,5 +151,6 @@
   "workbench.editor.empty.hint": "hidden",
   "workbench.layoutControl.enabled": false,
   "workbench.sideBar.location": "left",
-  "graphviz-interactive-preview.renderLockAdditionalTimeout": 5000
+  "graphviz-interactive-preview.renderLockAdditionalTimeout": 5000,
+  "terminal.integrated.stickyScroll.enabled": true
 }

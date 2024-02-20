@@ -41,7 +41,10 @@ brew "libqalculate"
 brew "librsvg"
 brew "marksman"
 brew "mtr"
-brew "n"
+
+# use proto instead
+# brew "n"
+
 brew "ncdu"
 brew "neofetch"
 brew "nushell"

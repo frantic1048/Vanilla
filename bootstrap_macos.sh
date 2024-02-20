@@ -56,6 +56,10 @@ fi
 # Install Homebrew packages
 brew bundle install
 
+# Install proto
+# https://moonrepo.dev/docs/proto/install
+curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
+
 # Install dotfiles
 ./blend install
 

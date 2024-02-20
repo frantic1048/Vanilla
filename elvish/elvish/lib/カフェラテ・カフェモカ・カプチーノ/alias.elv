@@ -11,7 +11,7 @@ fn p {|@args| e:paru $@args }
 fn p-rm-orphan { e:pacman -Rns (e:pacman -Qtdq) }
 fn pping {|@args| e:prettyping $@args }
 fn atom {|@args| e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
-fn code {|@args| e:code --disable-gpu $@args & }
+fn code {|@args| e:code $@args & }
 fn aria {|@args| e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s {|@args| e:systemctl $@args }
 fn f {|@args| e:fd $@args }

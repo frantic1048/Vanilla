@@ -19,8 +19,6 @@ at-env &os="darwin" {
 
   set paths = [
     {~}/bin
-    {~}/.n/bin
-    {~}/.npm-global/bin
 
     {~}/go/bin
     $@nixPaths
@@ -69,8 +67,6 @@ at-env &os="linux" {
   set paths = [
     {~}/bin
     {~}/.local/bin
-    {~}/.n/bin
-    {~}/.npm-global/bin
     {~}/.nix-profile/bin
     {~}/go/bin
     {~}/.gem/ruby/2.2.0/bin
@@ -93,32 +89,11 @@ set-env RUSTUP_HOME {~}/.rustup
 set-env CARGO_HOME {~}/.cargo
 set paths = [{~}/.cargo/bin $@paths]
 
-# Node
-at-env &os="linux" {
-  set-env N_PREFIX {~}/.n
-  set-env PNPM_HOME {~}/.pnpm
-  set paths = [
-    $E:PNPM_HOME
-    $@paths
-  ]
-}
-at-env &os="darwin" {
-  set-env N_PREFIX {~}/.n
-  set-env PNPM_HOME {~}/Library/pnpm
-
-  set paths = [
-    $E:PNPM_HOME
-    $@paths
-  ]
-}
-
-
 if (has-external hx) {
   set-env VISUAL hx
 } else {
   set-env VISUAL nano
 }
-
 
 # GPG
 at-env &os="darwin" {
@@ -168,6 +143,6 @@ at-env &os="darwin" {
       )) {
         launchctl setenv $env_name (get-env $env_name)
       }
-  } ['PATH' 'PNPM_HOME' 'N_PREFIX' 'SHELL']
+  } ['PATH' 'PROTO_HOME' 'SHELL']
 }
 

@@ -1,7 +1,7 @@
 # arch linux
 include "/usr/share/nano/*.nanorc"
 # macos
-include "~/repo/nanorc/*.nanorc"
+include "~/repo/misc/nanorc/*.nanorc"
 
 unset breaklonglines
 set tabsize 4

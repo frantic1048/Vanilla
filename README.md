@@ -25,6 +25,7 @@ _i3_:
 | [neofetch](neofetch)                | `macos-x86_64`, `linux-x86_64` |
 | [nushell](nushell/nushell)          | `macos-x86_64`, `linux-x86_64` |
 | [pueue](pueue/pueue)                | `macos-x86_64`, `linux-x86_64` |
+| [sapling](sapling/sapling)          | `macos-x86_64`, `linux-x86_64` |
 | [starship](starship)                | `macos-x86_64`, `linux-x86_64` |
 | [vscode](vscode/User)               | `macos-x86_64`, `linux-x86_64` |
 | [kitty](kitty/kitty)                | `macos-x86_64`                 |

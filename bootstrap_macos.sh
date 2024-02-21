@@ -63,5 +63,7 @@ curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 # Install dotfiles
 ./blend install
 
+git credential-manager configure
+
 # MEMO: once
 # ./macos_sysctl.sh

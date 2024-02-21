@@ -25,6 +25,7 @@ let all_packages: list<string> = ($all_top_dirs | where $it not-in $not_package_
 
 let home_path = $nu.home-path
 let macos_application_support_path = [$home_path "Library" "Application Support"] | path join
+let macos_preferences_path = [$home_path "Library" "Preferences"] | path join
 let xdg_config_home_path = [$home_path ".config"] | path join
 def make_xdg_config_subpath [subpath: string] {
   [$xdg_config_home_path $subpath] | path join
@@ -52,6 +53,7 @@ let macos_stow_table: table<package: string, prefix: string> = [
   # app
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
+  ["sapling" $macos_preferences_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
   ["jj" $macos_application_support_path]
   ["proto" $home_path]
   ["vscode" ([$macos_application_support_path 'Code'] | path join)]
@@ -89,6 +91,7 @@ let linux_stow_table: table<package: string, prefix: string> = [
   # app
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
+  ["sapling" $xdg_config_home_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
   ["jj" $xdg_config_home_path]
   ["vscode" ([$xdg_config_home_path 'Code - OSS'] | path join)]
   ["htop" $xdg_config_home_path]

@@ -1,3 +1,7 @@
+# https://git-scm.com/docs/git-config#FILES
+# Order:
+#  ~/.config/git/config (this file, host-independent user settings, managed by this repo)
+#  ~/.gitconfig (host-specific user settings: maintenance, credential..., not managed by this repo)
 [user]
 	name = Jiahao Guo
 	email = im@pyonpyon.today

@@ -188,9 +188,23 @@ fn br {
   git for-each-ref 'refs/heads' --format="%(color:cyan)%(refname:short)"
 }
 
-# TODO: merge into g
-fn gsign_on { e:git config commit.gpgsign true }
-fn gsign_off { e:git config commit.gpgsign false }
+# TODO: better place for this
+fn gsign_on {
+  if (path:is-dir .sl) {
+    e:sl config --local gpg.enabled true
+  }
+  if (path:is-dir .git) {
+    e:git config commit.gpgsign true
+  }
+}
+fn gsign_off {
+  if (path:is-dir .sl) {
+    e:sl config --local gpg.enabled false
+  }
+  if (path:is-dir .git) {
+    e:git config commit.gpgsign false
+  }
+}
 
 # FIX phantomjs crash issue
 # https://github.com/ariya/phantomjs/issues/14061

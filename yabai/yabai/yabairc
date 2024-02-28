@@ -48,3 +48,5 @@ yabai -m rule --add app="^Weather$" manage=off
 
 # other apps
 yabai -m rule --add app="^Raycast$" manage=off
+yabai -m rule --add app="^Preview$" manage=off
+yabai -m rule --add app="^Music$" manage=off

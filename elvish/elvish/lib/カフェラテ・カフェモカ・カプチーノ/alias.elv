@@ -76,6 +76,12 @@ fn g {|@args|
   if (==s $op 'ap') { g apply $@rest; return }
   # BLame
   if (==s $op 'bl') { g blame $@rest; return }
+  if (==s $op 'bll') {
+    # -C: detect move/copy of lines across files
+    # -w: ignore whitespace(e.g. indentation changes)
+    g blame -w -C $@rest;
+    return;
+  }
 
   # Commit
   if (==s $op 'c') { g commit $@rest; return }

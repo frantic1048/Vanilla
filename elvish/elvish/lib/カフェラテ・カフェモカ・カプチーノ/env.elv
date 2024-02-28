@@ -14,7 +14,6 @@ at-env &os="darwin" {
   var nixPaths = [
     {~}/.nix-profile/bin
     /nix/var/nix/profiles/default/bin
-    /run/current-system/sw/bin
   ]
 
   set paths = [
@@ -47,19 +46,11 @@ at-env &os="darwin" {
 
 # Nix
 at-env &os="darwin" {
-  set-env NIX_PATH (str:join : [
-    darwin-config={~}/.nixpkgs/darwin-configuration.nix
-    {~}/.nix-defexpr/channels
-    # (if (has-env NIX_PATH) { put $E:NIX_PATH })
-  ])
-  #set-env NIX_SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
-  set-env NIX_PROFILE_DIR /nix/var/nix/profiles/per-user/(whoami)
+  set-env NIX_SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
   set-env NIX_PROFILES (str:join " " [
     /nix/var/nix/profiles/default
-    /run/current-system/sw
     /Users/(whoami)/.nix-profile
   ])
-  set-env NIX_REMOTE daemon
 }
 
 at-env &os="linux" {

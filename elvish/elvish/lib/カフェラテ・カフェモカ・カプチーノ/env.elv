@@ -20,6 +20,10 @@ at-env &os="darwin" {
     {~}/bin
 
     {~}/go/bin
+
+    # CLI form Rancher Desktop
+    {~}/.rd/bin
+
     $@nixPaths
 
     # GnuPG for OS X

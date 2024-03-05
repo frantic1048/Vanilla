@@ -172,6 +172,25 @@ def init [] {
   log info $"Using profile: ($profile.name)"
 }
 
+def uninstall [packages: list<string>] {
+  let profile = (get_stow_profile)
+  if ($packages | length) > 0 {
+    $packages | each {|package|
+      if (is_known_package $package) {
+        log error $"Error: package ($package) is not known."
+        exit 1
+      }
+      let prefix = ($profile.table | where package == $package | first | get prefix)
+      log info $"Unstowing ($package) at ($prefix)"
+      provision_path $prefix
+      log info $"stow --dir ($stow_dir) --target ($prefix) -D ($package)"
+      stow --dir $stow_dir --target $prefix -D $package
+    }
+  } else {
+    log info "No packages specified, aborting."
+  }
+}
+
 def install [packages?: list<string>] {
   let profile = (get_stow_profile)
   if ($packages | length) > 0 {
@@ -195,6 +214,13 @@ def install [packages?: list<string>] {
   }
 }
 
+def "main uninstall" [
+  ...packages: string # packages to uninstall
+] {
+  init
+  uninstall $packages
+}
+
 # Install package configs
 def "main install" [
   ...packages: string # packages to install, default: install all available packages
@@ -209,7 +235,7 @@ def "main init" [] {
 }
 
 def stat [] {
-$all_packages | each {|package|
+  $all_packages | each {|package|
     let profiles_of_package = ($stow_profiles | each {|profile|
       if $package in ($profile.table | get package) {
         $profile.name

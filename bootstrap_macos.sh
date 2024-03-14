@@ -23,6 +23,8 @@ else
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+brew analytics off
+
 # Install Homebrew packages
 brew bundle install
 
@@ -34,6 +36,14 @@ curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 "$self_dir/blend" install
 
 git credential-manager configure
+
+# MEMO: start essential service
+# yabai --restart-service
+# skhd --restart-service
+
+
+# MEMO: configure Raycast
+# https://manual.raycast.com/hotkey
 
 # MEMO: once
 # ./macos_sysctl.sh

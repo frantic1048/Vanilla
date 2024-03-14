@@ -33,7 +33,7 @@ Require following dependencies in `PATH`:
 
 ```sh
 # necessary for git
-sudo xcode-select install
+sudo xcode-select --install
 
 git clone https://github.com/frantic1048/Vanilla.git
 cd Vanilla

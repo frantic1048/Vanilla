@@ -6,38 +6,8 @@ function handle_exit {
 }
 trap handle_exit EXIT
 
-# helpers from: https://github.com/Homebrew/install/blob/master/install.sh
-major_minor() {
-  echo "${1%%.*}.$(
-    x="${1#*.}"
-    echo "${x%%.*}"
-  )"
-}
-
-version_gt() {
-  [[ "${1%.*}" -gt "${2%.*}" ]] || [[ "${1%.*}" -eq "${2%.*}" && "${1#*.}" -gt "${2#*.}" ]]
-}
-
-macos_version="$(major_minor "$(/usr/bin/sw_vers -productVersion)")"
-
-should_install_command_line_tools() {
-  if version_gt "${macos_version}" "10.13"
-  then
-    # shellcheck disable=SC2251
-    ! [[ -e "/Library/Developer/CommandLineTools/usr/bin/git" ]]
-  else
-    ! [[ -e "/Library/Developer/CommandLineTools/usr/bin/git" ]] ||
-      ! [[ -e "/usr/include/iconv.h" ]]
-  fi
-}
-
-###############################################################################
-
-# Install Command Line Tools if necessary
-if should_install_command_line_tools
-then
-  sudo xcode-select --install
-fi
+self_path="$(command -v "$0")"
+self_dir="$(dirname "$self_path")"
 
 # Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -61,7 +31,7 @@ brew bundle install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 
 # Install dotfiles
-./blend install
+"$self_dir/blend" install
 
 git credential-manager configure
 

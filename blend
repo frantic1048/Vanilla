@@ -54,7 +54,6 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
   ["sapling" $macos_preferences_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
-  ["jj" $macos_application_support_path]
   ["proto" $home_path]
   ["vscode" ([$macos_application_support_path 'Code'] | path join)]
   ["neofetch" $xdg_config_home_path]
@@ -92,7 +91,6 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
   ["sapling" $xdg_config_home_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
-  ["jj" $xdg_config_home_path]
   ["vscode" ([$xdg_config_home_path 'Code - OSS'] | path join)]
   ["htop" $xdg_config_home_path]
   ["nano" $xdg_config_home_path]

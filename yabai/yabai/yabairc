@@ -27,8 +27,9 @@ yabai -m config mouse_follows_focus off
 
 yabai -m config window_shadow float
 
+# FIXME: deprecated feature
 # floating windows are always on top (default: off)
-yabai -m config window_topmost on
+# yabai -m config window_topmost on
 
 # modify window shadows (default: on, options: on, off, float)
 # example: show shadows only for floating windows

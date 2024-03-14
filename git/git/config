@@ -23,6 +23,8 @@
 [push]
 	default = simple
 	autoSetupRemote = false
+[fetch]
+	writeCommitGraph = true
 [pull]
 	ff = only
 [rebase]
@@ -30,8 +32,6 @@
 	instructionFormat = "%aN\t%s"
 [http]
 	postBuffer = 1048576000
-[gui]
-	fontui = -family \"Linden Hill\" -size 11 -weight normal -slant roman -underline 0 -overstrike 0
 
 # filters
 # private filters for Vanilla repo

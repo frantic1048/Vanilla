@@ -63,7 +63,9 @@
   "files.associations": {
     ".git-blame-ignore-revs": "ignore",
     "Dangerfile": "ruby", // https://danger.systems/
-    ".prototools": "toml" // https://moonrepo.dev/docs/proto/config
+    ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
+    "yabairc": "shellscript",
+    "skhdrc": "shellscript"
   },
   "github.copilot.enable": {
     "*": true,
@@ -125,13 +127,13 @@
     "editorWarning.foreground": "#f9c311db",
     "input.background": "#000000a0",
     "input.border": "#51abff",
-    "list.activeSelectionBackground": "#00000040",
+    "list.activeSelectionBackground": "#000000aa",
     "list.hoverBackground": "#00000040",
-    "list.inactiveSelectionBackground": "#00000040",
+    "list.inactiveSelectionBackground": "#00000060",
     "panel.background": "#00000080",
     "panel.border": "#00000000",
-    "sideBar.background": "#0000002a",
-    "sideBarSectionHeader.background": "#00000000",
+    "sideBar.background": "#1111119a",
+    "sideBarSectionHeader.background": "#0000",
     "statusBar.background": "#00000080",
     "statusBar.noFolderBackground": "#00000080",
     "tab.activeBackground": "#00000050",

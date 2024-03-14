@@ -72,10 +72,17 @@ _i3_:
 
 Require following dependencies in `PATH`:
 
-1. `bash`: https://www.gnu.org/software/bash/
-2. `curl`: https://curl.se/
+1. `git`: https://git-scm.com/
+2. `bash`: https://www.gnu.org/software/bash/
+3. `curl`: https://curl.se/
 
 ```sh
+# necessary for git
+sudo xcode-select install
+
+git clone https://github.com/frantic1048/Vanilla.git
+cd Vanilla
+
 ./bootstrap_macos.sh
 ```
 

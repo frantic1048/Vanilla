@@ -140,6 +140,8 @@ fn g {|@args|
   if (==s $op 'pu') { g push -u origin (g cb); return }
   if (==s $op 'pl') { g pull $@rest; return }
 
+  if (==s $op 'maint') { e:git maintenance $@rest; return }
+
   # Merge
   if (==s $op 'm') { g merge $@rest; return }
   ## ff?(use / as ? alternate) : can current branch fast forward with $@rest

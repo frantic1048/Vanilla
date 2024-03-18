@@ -9,6 +9,9 @@ trap handle_exit EXIT
 self_path="$(command -v "$0")"
 self_dir="$(dirname "$self_path")"
 
+# FIXME: install Xcode Command Line Tools
+# xcode-select --install
+
 # Install Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
@@ -41,9 +44,8 @@ git credential-manager configure
 # yabai --restart-service
 # skhd --restart-service
 
-
-# MEMO: configure Raycast
-# https://manual.raycast.com/hotkey
+echo "To configure Raycast"
+echo "See https://manual.raycast.com/hotkey"
 
 # MEMO: once
 # ./macos_sysctl.sh

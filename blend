@@ -2,11 +2,15 @@
 use std log
 use blend_util expand_package_dir
 
+let stow_path = $env.FILE_PWD
+
 let not_package_name = [
   "darwin-system" # nix-darwin
   "root" # linux system config, not managed by stow
   "screenshots" # screenshots
-  ...(ls (git rev-parse --show-toplevel)
+  ...(
+    cd $stow_path;
+    ls
     | where type == dir
     | get name
     | to text
@@ -16,7 +20,7 @@ let not_package_name = [
   )
 ]
 
-let all_top_dirs: list<string> = (ls (git rev-parse --show-toplevel)
+let all_top_dirs: list<string> = (ls $stow_path
   | where type == dir
   | get name
   | path basename)
@@ -30,7 +34,6 @@ let xdg_config_home_path = [$home_path ".config"] | path join
 def make_xdg_config_subpath [subpath: string] {
   [$xdg_config_home_path $subpath] | path join
 }
-let stow_dir = $env.FILE_PWD
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -57,6 +60,8 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["proto" $home_path]
   ["vscode" ([$macos_application_support_path 'Code'] | path join)]
   ["neofetch" $xdg_config_home_path]
+  ["ncdu" $xdg_config_home_path]
+  ["tealdeer" $macos_application_support_path]
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -100,6 +105,8 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["npm" $home_path]
   ["makepkg" $home_path]
   ["neofetch" $xdg_config_home_path]
+  ["ncdu" $xdg_config_home_path]
+  ["tealdeer" $xdg_config_home_path]
 ]
 
 let stow_profiles: table<name: string, table: table<package: string, prefix: string>> = [
@@ -182,8 +189,8 @@ def uninstall [packages: list<string>] {
       let prefix = ($profile.table | where package == $package | first | get prefix)
       log info $"Unstowing ($package) at ($prefix)"
       provision_path $prefix
-      log info $"stow --dir ($stow_dir) --target ($prefix) -D ($package)"
-      stow --dir $stow_dir --target $prefix -D $package
+      log info $"stow --dir ($stow_path) --target ($prefix) -D ($package)"
+      stow --dir $stow_path --target $prefix -D $package
     }
   } else {
     log info "No packages specified, aborting."
@@ -201,14 +208,14 @@ def install [packages?: list<string>] {
       let prefix = ($profile.table | where package == $package | first | get prefix)
       log info $"Stowing ($package) to ($prefix)"
       provision_path $prefix
-      log info $"stow --dir ($stow_dir) --target ($prefix) -S ($package)"
-      stow --dir $stow_dir --target $prefix -S $package
+      log info $"stow --dir ($stow_path) --target ($prefix) -S ($package)"
+      stow --dir $stow_path --target $prefix -S $package
     }
   } else {
     $profile.table | each {|row|
       log info $"Stowing ($row.package) to ($row.prefix)"
-      log info $"stow --dir ($stow_dir) --target ($row.prefix) -S ($row.package)"
-      stow --dir $stow_dir --target $row.prefix -S $row.package
+      log info $"stow --dir ($stow_path) --target ($row.prefix) -S ($row.package)"
+      stow --dir $stow_path --target $row.prefix -S $row.package
     }
   }
 }
@@ -218,6 +225,7 @@ def "main uninstall" [
 ] {
   init
   uninstall $packages
+  ()
 }
 
 # Install package configs
@@ -226,11 +234,13 @@ def "main install" [
   ] {
   init
   install $packages
+  ()
 }
 
 # Init stow
 def "main init" [] {
   init
+  ()
 }
 
 def stat [] {
@@ -274,6 +284,10 @@ def test [] {
 
 def "main test" [] {
   test
+}
+
+def "main update-readme" [] {
+  ./README.md.nu
 }
 
 def main [] {

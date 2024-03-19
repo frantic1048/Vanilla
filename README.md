@@ -15,54 +15,56 @@ _i3_:
 
 ## Config packages
 
-| package                                 | profiles                                        |
-| --------------------------------------- | ----------------------------------------------- |
-| [alacritty](alacritty)                  | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [bin](bin/bin)                          | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [elvish](elvish/elvish)                 | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [git](git/git)                          | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [neofetch](neofetch)                    | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [nushell](nushell/nushell)              | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [pueue](pueue/pueue)                    | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [sapling](sapling/sapling/sapling.conf) | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [starship](starship/starship.toml)      | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [vscode](vscode/User)                   | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [kitty](kitty/kitty)                    | `macos-x86_64`, `macos-aarch64`                 |
-| [proto](proto)                          | `macos-x86_64`, `macos-aarch64`                 |
-| [sketchybar](sketchybar/sketchybar)     | `macos-x86_64`, `macos-aarch64`                 |
-| [skhd](skhd/skhd/skhdrc)                | `macos-x86_64`, `macos-aarch64`                 |
-| [wezterm](wezterm)                      | `macos-x86_64`, `macos-aarch64`                 |
-| [yabai](yabai/yabai/yabairc)            | `macos-x86_64`, `macos-aarch64`                 |
-| [X](X)                                  | `linux-x86_64`                                  |
-| [alsa](alsa)                            | `linux-x86_64`                                  |
-| [fcitx](fcitx/fcitx)                    | `linux-x86_64`                                  |
-| [fontconfig](fontconfig/fontconfig)     | `linux-x86_64`                                  |
-| [htop](htop/htop/htoprc)                | `linux-x86_64`                                  |
-| [i3wm](i3wm/i3/config)                  | `linux-x86_64`                                  |
-| [makepkg](makepkg)                      | `linux-x86_64`                                  |
-| [mako](mako/mako/config)                | `linux-x86_64`                                  |
-| [nano](nano/nano/nanorc)                | `linux-x86_64`                                  |
-| [npm](npm)                              | `linux-x86_64`                                  |
-| [pam_env](pam_env)                      | `linux-x86_64`                                  |
-| [picom](picom/picom/picom.conf)         | `linux-x86_64`                                  |
-| [pipewire](pipewire/pipewire)           | `linux-x86_64`                                  |
-| [pulseaudio](pulseaudio/pulse)          | `linux-x86_64`                                  |
-| [rofi](rofi/rofi/config.rasi)           | `linux-x86_64`                                  |
-| [sway](sway/sway/config)                | `linux-x86_64`                                  |
-| [swayshot](swayshot/swayshot.sh)        | `linux-x86_64`                                  |
-| [sxiv](sxiv/sxiv/exec/image-info)       | `linux-x86_64`                                  |
-| [tint2](tint2/tint2/tint2rc)            | `linux-x86_64`                                  |
-| [tmux](tmux)                            | `linux-x86_64`                                  |
-| [waybar](waybar/waybar)                 | `linux-x86_64`                                  |
-| [atom](atom)                            |                                                 |
-| [bash](bash)                            |                                                 |
-| [color](color)                          |                                                 |
-| [commitizen](commitizen)                |                                                 |
-| [conky](conky)                          |                                                 |
-| [krita](krita)                          |                                                 |
-| [psd](psd)                              |                                                 |
-| [sakura](sakura)                        |                                                 |
-| [stow](stow)                            |                                                 |
+| package                                   | profiles                                        |
+| ----------------------------------------- | ----------------------------------------------- |
+| [alacritty](alacritty)                    | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [bin](bin/bin)                            | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [elvish](elvish/elvish)                   | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [git](git/git)                            | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [ncdu](ncdu/ncdu/config)                  | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [neofetch](neofetch)                      | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [nushell](nushell/nushell)                | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [pueue](pueue/pueue)                      | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [sapling](sapling/sapling/sapling.conf)   | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [starship](starship/starship.toml)        | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [tealdeer](tealdeer/tealdeer/config.toml) | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [vscode](vscode/User)                     | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [kitty](kitty/kitty)                      | `macos-x86_64`, `macos-aarch64`                 |
+| [proto](proto)                            | `macos-x86_64`, `macos-aarch64`                 |
+| [sketchybar](sketchybar/sketchybar)       | `macos-x86_64`, `macos-aarch64`                 |
+| [skhd](skhd/skhd/skhdrc)                  | `macos-x86_64`, `macos-aarch64`                 |
+| [wezterm](wezterm)                        | `macos-x86_64`, `macos-aarch64`                 |
+| [yabai](yabai/yabai/yabairc)              | `macos-x86_64`, `macos-aarch64`                 |
+| [X](X)                                    | `linux-x86_64`                                  |
+| [alsa](alsa)                              | `linux-x86_64`                                  |
+| [fcitx](fcitx/fcitx)                      | `linux-x86_64`                                  |
+| [fontconfig](fontconfig/fontconfig)       | `linux-x86_64`                                  |
+| [htop](htop/htop/htoprc)                  | `linux-x86_64`                                  |
+| [i3wm](i3wm/i3/config)                    | `linux-x86_64`                                  |
+| [makepkg](makepkg)                        | `linux-x86_64`                                  |
+| [mako](mako/mako/config)                  | `linux-x86_64`                                  |
+| [nano](nano/nano/nanorc)                  | `linux-x86_64`                                  |
+| [npm](npm)                                | `linux-x86_64`                                  |
+| [pam_env](pam_env)                        | `linux-x86_64`                                  |
+| [picom](picom/picom/picom.conf)           | `linux-x86_64`                                  |
+| [pipewire](pipewire/pipewire)             | `linux-x86_64`                                  |
+| [pulseaudio](pulseaudio/pulse)            | `linux-x86_64`                                  |
+| [rofi](rofi/rofi/config.rasi)             | `linux-x86_64`                                  |
+| [sway](sway/sway/config)                  | `linux-x86_64`                                  |
+| [swayshot](swayshot/swayshot.sh)          | `linux-x86_64`                                  |
+| [sxiv](sxiv/sxiv/exec/image-info)         | `linux-x86_64`                                  |
+| [tint2](tint2/tint2/tint2rc)              | `linux-x86_64`                                  |
+| [tmux](tmux)                              | `linux-x86_64`                                  |
+| [waybar](waybar/waybar)                   | `linux-x86_64`                                  |
+| [atom](atom)                              |                                                 |
+| [bash](bash)                              |                                                 |
+| [color](color)                            |                                                 |
+| [commitizen](commitizen)                  |                                                 |
+| [conky](conky)                            |                                                 |
+| [krita](krita)                            |                                                 |
+| [psd](psd)                                |                                                 |
+| [sakura](sakura)                          |                                                 |
+| [stow](stow)                              |                                                 |
 
 ## Usage
 

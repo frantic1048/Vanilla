@@ -17,12 +17,12 @@ at-env &os="darwin" {
   ]
 
   set paths = [
-    {~}/bin
+    ~/bin
 
-    {~}/go/bin
+    (existing-dir ~/go/bin)
 
     # CLI form Rancher Desktop
-    {~}/.rd/bin
+    (existing-dir ~/.rd/bin)
 
     $@nixPaths
 
@@ -36,8 +36,11 @@ at-env &os="darwin" {
     # https://superuser.com/questions/1696372/wish-based-tools-git-gui-gitk-showing-broken-black-ui-on-macos-monterey
     (existing-dir /usr/local/opt/tcl-tk/bin)
 
-    # homebrew, mainly
-    /usr/local/bin
+    # homebrew(x86_64), and other binaries
+    (existing-dir /usr/local/bin)
+    # homebrew(apple silicon)
+    (existing-dir /opt/homebrew/bin)
+
     $@paths
   ]
 }

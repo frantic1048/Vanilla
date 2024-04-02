@@ -35,7 +35,7 @@
   },
   {
     "key": "shift+cmd+e",
-    "command": "workbench.explorer.fileView.focus"
+    "command": "workbench.files.action.showActiveFileInExplorer"
   },
   {
     "key": "ctrl+shift+m",
@@ -49,5 +49,17 @@
   {
     "key": "ctrl+shift+m",
     "command": "editor.action.selectToBracket"
+  },
+  {
+    "key": "ctrl+\\",
+    "command": "workbench.action.toggleSidebarVisibility"
+  },
+  {
+    "key": "ctrl+shift+\\",
+    "command": "workbench.action.toggleAuxiliaryBar"
+  },
+  {
+    "key": "cmd+shift+\\",
+    "command": "workbench.action.toggleAuxiliaryBar"
   }
 ]

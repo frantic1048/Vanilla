@@ -24,7 +24,7 @@ _i3_:
 | [ncdu](ncdu/ncdu/config)                  | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
 | [neofetch](neofetch)                      | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
 | [nushell](nushell/nushell)                | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [pueue](pueue/pueue)                      | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
+| [pueue](pueue/pueue/pueue.yml)            | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
 | [sapling](sapling/sapling/sapling.conf)   | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
 | [starship](starship/starship.toml)        | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
 | [tealdeer](tealdeer/tealdeer/config.toml) | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |

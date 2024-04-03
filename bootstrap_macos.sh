@@ -52,8 +52,8 @@ curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 "$self_dir/blend" install
 
 # FIXME: Change default shell to elvish
-which elvish | sudo tee -a /etc/shells
-chsh -s "$(which elvish)"
+# which elvish | sudo tee -a /etc/shells
+# chsh -s "$(which elvish)"
 
 # FIXME: Configure git for ~/work
 # Copy config.user.work.example to config.user.work and edit it
@@ -64,8 +64,10 @@ git credential-manager configure
 # System Preferences -> Accessibility -> Display -> Pointer
 
 # MEMO: start essential service
-# yabai --restart-service
-# skhd --restart-service
+# prepare for yabai and skhd
+# https://github.com/koekeishiya/yabai/wiki/Disabling-System-Integrity-Protection
+# yabai --start-service
+# skhd --start-service
 
 echo "To configure Raycast"
 echo "See https://manual.raycast.com/hotkey"

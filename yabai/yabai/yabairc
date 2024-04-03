@@ -1,5 +1,5 @@
-sudo yabai --load-sa
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
 
 defaults write .GlobalPreferences com.apple.mouse.scaling -1
 
@@ -24,8 +24,6 @@ yabai -m config mouse_action2 resize
 
 yabai -m config focus_follows_mouse on
 yabai -m config mouse_follows_focus off
-
-yabai -m config window_shadow float
 
 # FIXME: deprecated feature
 # floating windows are always on top (default: off)
@@ -52,3 +50,4 @@ yabai -m rule --add app="^Raycast$" manage=off
 yabai -m rule --add app="^Preview$" manage=off
 yabai -m rule --add app="^Music$" manage=off
 yabai -m rule --add app="^Rancher Desktop$" manage=off
+yabai -m rule --add app="^calibrite PROFILER$" manage=off

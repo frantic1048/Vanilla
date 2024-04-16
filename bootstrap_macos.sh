@@ -35,8 +35,12 @@ brew bundle install
 # https://moonrepo.dev/docs/proto/install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 
-# FIXME: Install Google Chrome
-# https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg
+# Install Google Chrome
+curl -fsSL https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg -o /tmp/googlechrome.dmg
+hdiutil attach /tmp/googlechrome.dmg
+cp -R '/Volumes/Google Chrome/Google Chrome.app' /Applications/
+hdiutil detach '/Volumes/Google Chrome'
+rm -vf /tmp/googlechrome.dmg
 
 # FIXME: configure zsh PATH to include Homebrew binaries path
 
@@ -45,22 +49,22 @@ curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 
 # FIXME: VSCode settings sync
 
-# TODO: Install ZSA keymapp
+# TODO: Install ZSA keymapp in app store/hombrew
 # https://www.zsa.io/flash
 
 # Install dotfiles
 "$self_dir/blend" install
 
 # FIXME: Change default shell to elvish
-# which elvish | sudo tee -a /etc/shells
-# chsh -s "$(which elvish)"
+which elvish | sudo tee -a /etc/shells
+chsh -s "$(which elvish)"
 
 # FIXME: Configure git for ~/work
 # Copy config.user.work.example to config.user.work and edit it
 
 git credential-manager configure
 
-# TODO: Ponter size: very large
+# TODO: Pointer size: very large
 # System Preferences -> Accessibility -> Display -> Pointer
 
 # MEMO: start essential service

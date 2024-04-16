@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 
 export def expand_package_dir [package_dir: string] {
-  if (ls $package_dir | length) == 1 {
+  if (ls $package_dir | where name != .gitignore | length) == 1 {
     let first_item = (ls $package_dir | first)
     if ($first_item.type == "dir") {
       # MEMO: nushell `ls` is not the same as system's `ls`

@@ -61,5 +61,15 @@
   {
     "key": "cmd+shift+\\",
     "command": "workbench.action.toggleAuxiliaryBar"
+  },
+  {
+    "key": "cmd+y",
+    "command": "editor.action.smartSelect.expand",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "cmd+u",
+    "command": "editor.action.smartSelect.shrink",
+    "when": "editorTextFocus"
   }
 ]

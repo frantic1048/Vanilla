@@ -42,24 +42,21 @@ cp -R '/Volumes/Google Chrome/Google Chrome.app' /Applications/
 hdiutil detach '/Volumes/Google Chrome'
 rm -vf /tmp/googlechrome.dmg
 
-# FIXME: configure zsh PATH to include Homebrew binaries path
+# TODO: configure zsh PATH to include Homebrew binaries path
 
-# FIXME: install gpg(GnuPG for OS X)
+# TODO: install gpg(GnuPG for OS X)
 # https://sourceforge.net/p/gpgosx/docu/Download/
 
-# FIXME: VSCode settings sync
-
-# TODO: Install ZSA keymapp in app store/hombrew
-# https://www.zsa.io/flash
+# MEMO: VSCode settings sync
 
 # Install dotfiles
-"$self_dir/blend" install
+"$self_dir/blend"
 
-# FIXME: Change default shell to elvish
+# MEMO: Change default shell to elvish
 which elvish | sudo tee -a /etc/shells
 chsh -s "$(which elvish)"
 
-# FIXME: Configure git for ~/work
+# TODO: Configure git for ~/work
 # Copy config.user.work.example to config.user.work and edit it
 
 git credential-manager configure

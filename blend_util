@@ -1,8 +1,20 @@
 #!/usr/bin/env nu
 
+export const git_files = [
+  .gitignore
+  .gitattributes
+  .gitmodules
+]
+
+export def is_git_ignored [path: string] -> boolean {
+  # FIXME: this method is not very efficient but works for now
+  git check-ignore $path | str length | $in > 0
+}
+
 export def expand_package_dir [package_dir: string] {
-  if (ls $package_dir | where name != .gitignore | length) == 1 {
-    let first_item = (ls $package_dir | first)
+  let dir_contents = (ls $package_dir | where name not-in $git_files and not (is_git_ignored $it.name))
+  if ($dir_contents | length) == 1 {
+    let first_item = ($dir_contents | first)
     if ($first_item.type == "dir") {
       # MEMO: nushell `ls` is not the same as system's `ls`
       # @see https://www.nushell.sh/commands/docs/ls.html

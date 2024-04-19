@@ -96,6 +96,12 @@
   ],
   "tailscale.ssh.defaultUsername": "root",
   "terminal.integrated.stickyScroll.enabled": true,
+  "todohighlight.keywords": [
+    { "backgroundColor": "#e85854", "color": "#fefefe", "text": "FIXME:" },
+    { "backgroundColor": "#57b031", "color": "#fefefe", "text": "TODO:" },
+    { "backgroundColor": "#0597f2", "color": "#fefefe", "text": "MEMO:" },
+    { "backgroundColor": "#dbac12", "color": "#fefefe", "text": "WARN:" }
+  ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   "typescript.tsserver.maxTsServerMemory": 10240,

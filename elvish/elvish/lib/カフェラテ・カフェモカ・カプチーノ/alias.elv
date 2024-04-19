@@ -193,6 +193,10 @@ fn g {|@args|
   e:git $@args
 }
 
+fn gcm {|@args|
+  e:git credential-manager $@args
+}
+
 fn cz {|@args|
   e:pnpm exec cz $@args
 }

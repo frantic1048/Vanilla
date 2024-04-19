@@ -2,14 +2,14 @@
 use std log
 use blend_util expand_package_dir
 
-let stow_path = $env.FILE_PWD
+let self_dir = $env.FILE_PWD
 
 let not_package_name = [
   "darwin-system" # nix-darwin
   "root" # linux system config, not managed by stow
   "screenshots" # screenshots
   ...(
-    cd $stow_path;
+    cd $self_dir;
     ls
     | where type == dir
     | get name
@@ -20,7 +20,7 @@ let not_package_name = [
   )
 ]
 
-let all_top_dirs: list<string> = (ls $stow_path
+let all_top_dirs: list<string> = (ls $self_dir
   | where type == dir
   | get name
   | path basename)
@@ -175,7 +175,7 @@ def init [] {
   verify
   log info "Initializing stow..."
   let profile = (get_stow_profile)
-  log info $"Using profile: ($profile.name)"
+  log info $"Found profile: ($profile.name)"
 }
 
 def uninstall [packages: list<string>] {
@@ -189,8 +189,8 @@ def uninstall [packages: list<string>] {
       let prefix = ($profile.table | where package == $package | first | get prefix)
       log info $"Unstowing ($package) at ($prefix)"
       provision_path $prefix
-      log info $"stow --dir ($stow_path) --target ($prefix) -D ($package)"
-      stow --dir $stow_path --target $prefix -D $package
+      leog info $"stow --dir ($self_dir) --target ($prefix) -D ($package)"
+      stow --dir $self_dir --target $prefix -D $package
     }
   } else {
     log info "No packages specified, aborting."
@@ -208,18 +208,19 @@ def install [packages?: list<string>] {
       let prefix = ($profile.table | where package == $package | first | get prefix)
       log info $"Stowing ($package) to ($prefix)"
       provision_path $prefix
-      log info $"stow --dir ($stow_path) --target ($prefix) -S ($package)"
-      stow --dir $stow_path --target $prefix -S $package
+      log info $"stow --dir ($self_dir) --target ($prefix) -S ($package)"
+      stow --dir $self_dir --target $prefix -S $package
     }
   } else {
     $profile.table | each {|row|
       log info $"Stowing ($row.package) to ($row.prefix)"
-      log info $"stow --dir ($stow_path) --target ($row.prefix) -S ($row.package)"
-      stow --dir $stow_path --target $row.prefix -S $row.package
+      log info $"stow --dir ($self_dir) --target ($row.prefix) -S ($row.package)"
+      stow --dir $self_dir --target $row.prefix -S $row.package
     }
   }
 }
 
+# Uninstall package configs
 def "main uninstall" [
   ...packages: string # packages to uninstall
 ] {
@@ -237,7 +238,7 @@ def "main install" [
   ()
 }
 
-# Init stow
+# Initial self check
 def "main init" [] {
   init
   ()
@@ -276,18 +277,35 @@ def "main stat_markdown" [] {
   } | to md --pretty
 }
 
-def test [] {
+# Run blend self tests
+def "main test" [] {
   log info "Running tests..."
-  ./blend.test.nu
+  do {
+    cd $self_dir
+    ./blend.test.nu
+  }
   log info "Tests passed."
 }
 
-def "main test" [] {
-  test
+# Generate README.md
+def "main readme" [] {
+  do {
+    cd $self_dir
+    ./README.md.nu
+  }
 }
 
-def "main update-readme" [] {
-  ./README.md.nu
+# Upgrade system packages
+def "main s" [] {
+  do {
+    cd $self_dir
+    if ("macos" == ($nu | get os-info.name)) {
+      ./upgrade_macos.nu
+    } else {
+      # TODO: add upgrade script for Arch
+      log error "Unsupported OS."
+    }
+  }
 }
 
 def main [] {

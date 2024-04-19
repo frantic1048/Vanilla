@@ -11,6 +11,8 @@
 [core]
 	fsmonitor = true
 	pager = delta
+	precomposeunicode = true
+	quotepath = false
 [feature]
 	manyFiles = true
 [diff]

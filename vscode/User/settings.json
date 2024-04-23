@@ -30,6 +30,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "debug.disassemblyView.showSourceCode": false,
+  "diffEditor.maxComputationTime": 0,
   "diffEditor.wordWrap": "off",
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.codeActionsOnSave": {
@@ -97,10 +98,26 @@
   "tailscale.ssh.defaultUsername": "root",
   "terminal.integrated.stickyScroll.enabled": true,
   "todohighlight.keywords": [
-    { "backgroundColor": "#e85854", "color": "#fefefe", "text": "FIXME:" },
-    { "backgroundColor": "#57b031", "color": "#fefefe", "text": "TODO:" },
-    { "backgroundColor": "#0597f2", "color": "#fefefe", "text": "MEMO:" },
-    { "backgroundColor": "#dbac12", "color": "#fefefe", "text": "WARN:" }
+    {
+      "backgroundColor": "#e85854",
+      "color": "#fefefe",
+      "text": "FIXME:"
+    },
+    {
+      "backgroundColor": "#57b031",
+      "color": "#fefefe",
+      "text": "TODO:"
+    },
+    {
+      "backgroundColor": "#0597f2",
+      "color": "#fefefe",
+      "text": "MEMO:"
+    },
+    {
+      "backgroundColor": "#dbac12",
+      "color": "#fefefe",
+      "text": "WARN:"
+    }
   ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,

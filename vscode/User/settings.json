@@ -144,8 +144,8 @@
     "editorGutter.background": "#00000030",
     "editorLineNumber.activeForeground": "#FFF",
     "editorLineNumber.foreground": "#aaa",
-    "editorStickyScroll.background": "#111111aa",
-    "editorStickyScroll.border": "#efefef30",
+    "editorStickyScroll.background": "#2c2868c5",
+    "editorStickyScroll.border": "#6331b340",
     "editorWarning.background": "#ebcb1745",
     "editorWarning.foreground": "#f9c311db",
     "input.background": "#000000a0",
@@ -165,7 +165,7 @@
     "terminal.background": "#0000",
     "titleBar.activeBackground": "#00000030",
     // "workbench.background": "#00000080" // only in code-transparent
-    "window.background": "#000000a0"
+    "window.background": "#00000080"
   },
   "workbench.colorTheme": "GitHub Dark Default",
   "workbench.editor.empty.hint": "hidden",

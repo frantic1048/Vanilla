@@ -3,6 +3,11 @@
 enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = false
 
+[workspace-to-monitor-force-assignment]
+1 = 'P2723QE'
+2 = 'S2721QS'
+3 = 'built-in'
+
 [mode.main.binding]
 alt-enter = 'exec-and-forget open -n /Applications/kitty.app'
 

@@ -75,3 +75,11 @@ echo "See https://manual.raycast.com/hotkey"
 
 # MEMO: once
 # ./macos_sysctl.sh
+
+# TODO: better place for these config
+
+# FIXME: not working on macOS 14.4.1 (Sonoma)
+# defaults write -g NSWindowShouldDragOnGesture -bool true
+
+# macOS debug menu
+# defaults write -g _NS_4445425547 -bool true

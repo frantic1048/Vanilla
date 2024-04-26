@@ -200,7 +200,7 @@ def uninstall [packages: list<string>] {
       $prefixes | each {|prefix|
         log info $"Unstowing ($package) at ($prefix)"
         provision_path $prefix
-        leog info $"stow --dir ($self_dir) --target ($prefix) -D ($package)"
+        log info $"stow --dir ($self_dir) --target ($prefix) -D ($package)"
         stow --dir $self_dir --target $prefix -D $package
       }
     }

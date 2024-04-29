@@ -90,7 +90,16 @@ fn g {|@args|
   if (==s $op 'f') { g c -n --fixup ':/'$@rest; return }
   if (==s $op 'ff') { g c -n --fixup $@rest; return }
   # Commit message
-  if (==s $op 'body') { g rev-list --max-count=1 --no-commit-header --format=%B HEAD $@rest; return }
+  if (==s $op 'body') {
+    var args
+    if (== (count $rest) 0) {
+      set args = ['HEAD']
+    } else {
+      set args = $rest
+    }
+    g rev-list --max-count=1 --no-commit-header --format=%B $@args;
+    return
+    }
 
   # ChecKout
   if (==s $op 'ck') { g checkout $@rest; return }

@@ -1,5 +1,6 @@
 # Linguist overrides
 /screenshots/** linguist-documentation
+*.Brewfile linguist-language=Ruby
 
 # Text filters
 /git/git/gitk filter=vanilla.gitk

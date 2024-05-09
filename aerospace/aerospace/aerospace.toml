@@ -73,3 +73,17 @@ i = 'resize height -50'
 o = 'resize width +50'
 enter = 'mode main'
 esc = 'mode main'
+
+# Window rules
+# https://nikitabobko.github.io/AeroSpace/guide#callbacks
+#
+# To get app-id:
+# - https://nikitabobko.github.io/AeroSpace/goodness#popular-apps-ids
+# - `aerospace list-apps`
+[[on-window-detected]]
+if.app-id = 'com.todoist.mac.Todoist'
+run = ['layout floating', 'move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.MobileSMS'
+run = ['move-node-to-workspace 3']

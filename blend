@@ -278,16 +278,18 @@ def "main stat" [] {
   }
 }
 
+# bench: hyperfine --warmup 3 'blend readme'
 def "main stat_markdown" [] {
   let stat_table = (stat)
 
-  $stat_table | sort-by -r profiles | update package {|row|
+  $stat_table | sort-by -r profiles | par-each -k { |row|
     let link_title = $row.package
     let link_url = (expand_package_dir $row.package)
 
-    $"[($link_title)]\(($link_url)\)"
-  } | update profiles {|row|
-    $row.profiles | each { $"`($in)`" } | str join ", "
+    {
+      package: $"[($link_title)]\(($link_url)\)",
+      profiles: ($row.profiles | par-each -k { $"`($in)`" } | str join ", ")
+    }
   } | to md --pretty
 }
 

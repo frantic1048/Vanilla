@@ -1,6 +1,10 @@
+# To check a file's attributes, use:
+# git check-attr -a path/to/file
+
 # Linguist overrides
 /screenshots/** linguist-documentation
-*.Brewfile linguist-language=Ruby
+/Brewfile* linguist-language=Ruby
+/*.json linguist-language=JSON
 
 # Text filters
 /git/git/gitk filter=vanilla.gitk

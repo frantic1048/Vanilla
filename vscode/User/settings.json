@@ -65,9 +65,9 @@
   "files.associations": {
     ".git-blame-ignore-revs": "ignore",
     ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
-    "Dangerfile": "ruby", // https://danger.systems/
     "Brewfile": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Brewfile.{app,desktop,fonts,util}": "ruby", // https://github.com/Homebrew/homebrew-bundle
+    "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
     "yabairc": "shellscript"
   },
@@ -180,5 +180,6 @@
     // GitLab's custom tag
     // @see https://docs.gitlab.com/ee/ci/yaml/yaml_optimization.html#configure-your-ide-to-support-reference-tags
     "!reference sequence"
-  ]
+  ],
+  "zenMode.hideLineNumbers": false
 }

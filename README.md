@@ -15,57 +15,203 @@ _i3_:
 
 ## Config packages
 
-| package                                         | profiles                                        |
-| ----------------------------------------------- | ----------------------------------------------- |
-| [alacritty](alacritty)                          | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [bin](bin/bin)                                  | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [elvish](elvish/elvish)                         | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [git](git/git)                                  | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [ncdu](ncdu/ncdu/config)                        | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [neofetch](neofetch/neofetch/config.conf)       | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [nushell](nushell/nushell)                      | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [pueue](pueue/pueue/pueue.yml)                  | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [sapling](sapling/sapling/sapling.conf)         | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [starship](starship/starship.toml)              | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [tealdeer](tealdeer/tealdeer/config.toml)       | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [vscode](vscode/User)                           | `macos-x86_64`, `macos-aarch64`, `linux-x86_64` |
-| [aerospace](aerospace/aerospace/aerospace.toml) | `macos-x86_64`, `macos-aarch64`                 |
-| [kitty](kitty/kitty)                            | `macos-x86_64`, `macos-aarch64`                 |
-| [proto](proto)                                  | `macos-x86_64`, `macos-aarch64`                 |
-| [sketchybar](sketchybar/sketchybar)             | `macos-x86_64`, `macos-aarch64`                 |
-| [skhd](skhd/skhd/skhdrc)                        | `macos-x86_64`, `macos-aarch64`                 |
-| [wezterm](wezterm)                              | `macos-x86_64`, `macos-aarch64`                 |
-| [yabai](yabai/yabai)                            | `macos-x86_64`, `macos-aarch64`                 |
-| [X](X)                                          | `linux-x86_64`                                  |
-| [alsa](alsa)                                    | `linux-x86_64`                                  |
-| [fcitx](fcitx/fcitx)                            | `linux-x86_64`                                  |
-| [fontconfig](fontconfig/fontconfig)             | `linux-x86_64`                                  |
-| [htop](htop/htop/htoprc)                        | `linux-x86_64`                                  |
-| [i3wm](i3wm/i3/config)                          | `linux-x86_64`                                  |
-| [makepkg](makepkg)                              | `linux-x86_64`                                  |
-| [mako](mako/mako/config)                        | `linux-x86_64`                                  |
-| [nano](nano/nano/nanorc)                        | `linux-x86_64`                                  |
-| [npm](npm)                                      | `linux-x86_64`                                  |
-| [pam_env](pam_env)                              | `linux-x86_64`                                  |
-| [picom](picom/picom/picom.conf)                 | `linux-x86_64`                                  |
-| [pipewire](pipewire/pipewire)                   | `linux-x86_64`                                  |
-| [pulseaudio](pulseaudio/pulse)                  | `linux-x86_64`                                  |
-| [rofi](rofi/rofi/config.rasi)                   | `linux-x86_64`                                  |
-| [sakura](sakura/sakura/sakura.conf)             | `linux-x86_64`                                  |
-| [sway](sway/sway/config)                        | `linux-x86_64`                                  |
-| [swayshot](swayshot/swayshot.sh)                | `linux-x86_64`                                  |
-| [sxiv](sxiv/sxiv/exec/image-info)               | `linux-x86_64`                                  |
-| [tint2](tint2/tint2/tint2rc)                    | `linux-x86_64`                                  |
-| [tmux](tmux)                                    | `linux-x86_64`                                  |
-| [waybar](waybar/waybar)                         | `linux-x86_64`                                  |
-| [atom](atom)                                    |                                                 |
-| [bash](bash)                                    |                                                 |
-| [color](color)                                  |                                                 |
-| [commitizen](commitizen)                        |                                                 |
-| [conky](conky)                                  |                                                 |
-| [krita](krita)                                  |                                                 |
-| [psd](psd)                                      |                                                 |
-| [stow](stow)                                    |                                                 |
+<table><thead><tr><th>pacakge</th><th colspan="3">profiles</th></tr></thead><tbody><tr>
+      <td><a href="aerospace/aerospace/aerospace.toml">aerospace</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="kitty/kitty">kitty</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="proto">proto</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="sketchybar/sketchybar">sketchybar</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="skhd/skhd/skhdrc">skhd</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="wezterm">wezterm</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="yabai/yabai">yabai</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="alacritty">alacritty</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="bin/bin">bin</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="elvish/elvish">elvish</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="git/git">git</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="ncdu/ncdu/config">ncdu</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="neofetch/neofetch/config.conf">neofetch</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="nushell/nushell">nushell</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="pueue/pueue/pueue.yml">pueue</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="sapling/sapling/sapling.conf">sapling</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="starship/starship.toml">starship</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="tealdeer/tealdeer/config.toml">tealdeer</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="vscode/User">vscode</a></td>
+      <td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td>
+      <tr>
+<tr>
+      <td><a href="X">X</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="alsa">alsa</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="fcitx/fcitx">fcitx</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="fontconfig/fontconfig">fontconfig</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="htop/htop/htoprc">htop</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="i3wm/i3/config">i3wm</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="makepkg">makepkg</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="mako/mako/config">mako</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="nano/nano/nanorc">nano</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="npm">npm</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="pam_env">pam_env</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="picom/picom/picom.conf">picom</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="pipewire/pipewire">pipewire</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="pulseaudio/pulse">pulseaudio</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="rofi/rofi/config.rasi">rofi</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="sakura/sakura/sakura.conf">sakura</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="sway/sway/config">sway</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="swayshot/swayshot.sh">swayshot</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="sxiv/sxiv/exec/image-info">sxiv</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="tint2/tint2/tint2rc">tint2</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="tmux">tmux</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="waybar/waybar">waybar</a></td>
+      <td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="atom">atom</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="bash">bash</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="color">color</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="commitizen">commitizen</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="conky">conky</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="krita">krita</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="psd">psd</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+<tr>
+      <td><a href="stow">stow</a></td>
+      <td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td>
+      <tr>
+</tbody></table>
 
 ## Usage
 

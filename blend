@@ -289,9 +289,7 @@ def "main stat_markdown" [] {
     let link_title = $row.package
     let link_url = (expand_package_dir $row.package)
 
-    $"<tr>
-      <td><a href=\"($link_url)\">($link_title)</a></td>
-      (
+    $"<tr><td><a href=\"($link_url)\">($link_title)</a></td>(
           $profile_names | par-each -k { |profile|
             if $profile in $row.profiles {
               $"<td><code>($profile)</code></td>"
@@ -299,9 +297,8 @@ def "main stat_markdown" [] {
               $"<td><code>($profile | str replace -ar '.' '&nbsp;')</code></td>"
             }
           } | str join ''
-      )
-      <tr>"
-  } | to text) ++ "</tbody></table>"
+      )<tr>"
+  } | str join '') ++ "</tbody></table>"
 }
 
 # Run blend self tests

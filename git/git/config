@@ -17,6 +17,7 @@
 	manyFiles = true
 [diff]
 	algorithm = histogram
+	colorMoved = default
 [commit]
 	gpgsign = false
 [merge]
@@ -70,8 +71,6 @@
 	clean = sed -e '/window.zoomLevel/d'
 	smudge = cat
 	required = true
-[delta]
-	theme = OneHalfDark
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
@@ -80,3 +79,9 @@
 [diff "lockb"]
 	textconv = bun
 	binary = true
+
+# external tools
+[delta]
+	theme = OneHalfDark
+	line-numbers = false
+	keep-plus-minus-markers = true

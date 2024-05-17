@@ -280,8 +280,9 @@ def "main stat" [] {
   }
 }
 
-# bench: hyperfine --warmup 3 'blend readme'
+# Used by README.md.nu
 def "main stat_markdown" [] {
+  # bench: hyperfine --warmup 3 'blend readme'
   let stat_table = (stat)
 
   '<table><thead><tr><th>pacakge</th><th colspan="3">profiles</th></tr></thead><tbody>' ++ (

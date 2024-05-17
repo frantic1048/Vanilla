@@ -24,6 +24,8 @@ at-env &os="darwin" {
     # CLI form Rancher Desktop
     (existing-dir ~/.rd/bin)
 
+    (existing-dir ~/.npm-global/bin)
+
     $@nixPaths
 
     # GnuPG for OS X

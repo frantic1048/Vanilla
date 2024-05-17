@@ -37,7 +37,8 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.cursorBlinking": "phase",
-  "editor.fontFamily": " JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",
+  // "editor.fontFamily": "Teranoptia",
+  "editor.fontFamily": "JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",
   "editor.fontLigatures": true,
   // Monaspace
   // "editor.fontLigatures": "'calt', 'liga', 'dlig', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08'",
@@ -181,5 +182,6 @@
     // @see https://docs.gitlab.com/ee/ci/yaml/yaml_optimization.html#configure-your-ide-to-support-reference-tags
     "!reference sequence"
   ],
-  "zenMode.hideLineNumbers": false
+  "zenMode.hideLineNumbers": false,
+  "zenMode.hideStatusBar": false
 }

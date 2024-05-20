@@ -35,12 +35,7 @@ brew bundle install
 # https://moonrepo.dev/docs/proto/install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 
-# Install Google Chrome
-curl -fsSL https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg -o /tmp/googlechrome.dmg
-hdiutil attach /tmp/googlechrome.dmg
-cp -R '/Volumes/Google Chrome/Google Chrome.app' /Applications/
-hdiutil detach '/Volumes/Google Chrome'
-rm -vf /tmp/googlechrome.dmg
+# TODO: proto install: node pnpm yarn
 
 # TODO: configure zsh PATH to include Homebrew binaries path
 

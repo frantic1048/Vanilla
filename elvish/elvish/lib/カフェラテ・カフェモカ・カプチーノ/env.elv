@@ -146,3 +146,5 @@ at-env &os="darwin" {
   } ['PATH' 'PROTO_HOME' 'SHELL']
 }
 
+# https://docs.grit.io/cli/quickstart#telemetry
+set-env GRIT_TELEMETRY_DISABLED true

@@ -1,5 +1,3 @@
-tap "homebrew/cask-fonts"
-
 cask "font-fantasque-sans-mono-noloopk"
 cask "font-fontawesome"
 cask "font-hack-nerd-font"

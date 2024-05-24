@@ -67,7 +67,7 @@
     ".git-blame-ignore-revs": "ignore",
     ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
     "Brewfile": "ruby", // https://github.com/Homebrew/homebrew-bundle
-    "Brewfile.{app,desktop,fonts,util}": "ruby", // https://github.com/Homebrew/homebrew-bundle
+    "Brewfile.{app,desktop,fonts,util,makedep}": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
     "yabairc": "shellscript"

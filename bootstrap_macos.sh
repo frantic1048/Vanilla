@@ -35,6 +35,10 @@ brew bundle install
 # https://moonrepo.dev/docs/proto/install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 
+# Install Rye
+# https://rye.astral.sh/
+curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
+
 # TODO: proto install: node pnpm yarn
 
 # TODO: configure zsh PATH to include Homebrew binaries path

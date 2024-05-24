@@ -1,10 +1,16 @@
 #!/usr/bin/env nu
 
+use std log
+
 export const git_files = [
   .gitignore
   .gitattributes
   .gitmodules
 ]
+
+export def get_package_base_dir [] -> string {
+  $env.FILE_PWD | path join "packages"
+}
 
 export def is_git_ignored [path: string] -> boolean {
   # FIXME: this method is not very efficient but works for now
@@ -12,17 +18,21 @@ export def is_git_ignored [path: string] -> boolean {
 }
 
 export def expand_package_dir [package_dir: string] {
-  let dir_contents = (ls $package_dir | where name not-in $git_files and not (is_git_ignored $it.name))
-  if ($dir_contents | length) == 1 {
-    let first_item = ($dir_contents | first)
-    if ($first_item.type == "dir") {
-      # MEMO: nushell `ls` is not the same as system's `ls`
-      # @see https://www.nushell.sh/commands/docs/ls.html
-      expand_package_dir $first_item.name
+  def expand_inner [dir] {
+    let dir_contents = (ls $dir | where name not-in $git_files and not (is_git_ignored $it.name))
+    if ($dir_contents | length) == 1 {
+      let first_item = ($dir_contents | first)
+      if ($first_item.type == "dir") {
+        # MEMO: nushell `ls` is not the same as system's `ls`
+        # @see https://www.nushell.sh/commands/docs/ls.html
+        expand_inner $first_item.name
+      } else {
+        $first_item.name
+      }
     } else {
-      $first_item.name
+      $dir
     }
-  } else {
-    $package_dir
   }
+
+  expand_inner (get_package_base_dir | path relative-to $env.FILE_PWD | path join $package_dir)
 }

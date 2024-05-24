@@ -1,15 +1,17 @@
 #!/usr/bin/env nu
 use std log
-use blend_util expand_package_dir
+use blend_util [expand_package_dir, get_package_base_dir]
 
 let self_dir = $env.FILE_PWD
+let package_base_dir = (get_package_base_dir)
 
-let not_package_name = [
+# using do {} to avoid affecting the PWD
+let not_package_name = do {[
   "darwin-system" # nix-darwin
   "root" # linux system config, not managed by stow
   "screenshots" # screenshots
   ...(
-    cd $self_dir;
+    cd $package_base_dir;
     ls
     | where type == dir
     | get name
@@ -18,9 +20,9 @@ let not_package_name = [
     | lines
     | each { path basename }
   )
-]
+]}
 
-let all_top_dirs: list<string> = (ls $self_dir
+let all_top_dirs: list<string> = (ls $package_base_dir
   | where type == dir
   | get name
   | path basename)
@@ -157,6 +159,13 @@ def assert_stow_profile_only_contains_known_items [profile: record<name: string,
   }
 }
 
+def clear_broken_symlink [file_path: string] {
+  if (file -b $file_path | str starts-with "broken symbolic link") {
+    log info $"Removing broken symlink: ($file_path)"
+    rm -v $file_path
+  }
+}
+
 def verify [] {
   log info "Verifying stow list..."
   $stow_profiles | each {|row|
@@ -202,8 +211,8 @@ def uninstall [packages: list<string>] {
       $prefixes | each {|prefix|
         log info $"Unstowing ($package) at ($prefix)"
         provision_path $prefix
-        log info $"stow --dir ($self_dir) --target ($prefix) -D ($package)"
-        stow --dir $self_dir --target $prefix -D $package
+        log info $"stow --dir ($package_base_dir) --target ($prefix) -D ($package)"
+        stow --dir $package_base_dir --target $prefix -D $package
       }
     }
   } else {
@@ -223,15 +232,17 @@ def install [packages?: list<string>] {
       $prefixes | each {|prefix|
         log info $"Stowing ($package) to ($prefix)"
         provision_path $prefix
-        log info $"stow --dir ($self_dir) --target ($prefix) -S ($package)"
-        stow --dir $self_dir --target $prefix -S $package
+        clear_broken_symlink ($prefix | path join $package)
+        log info $"stow --dir ($package_base_dir) --target ($prefix) -S ($package)"
+        stow --dir $package_base_dir --target $prefix -S $package
       }
     }
   } else {
     $profile.table | each {|row|
       log info $"Stowing ($row.package) to ($row.prefix)"
-      log info $"stow --dir ($self_dir) --target ($row.prefix) -S ($row.package)"
-      stow --dir $self_dir --target $row.prefix -S $row.package
+      clear_broken_symlink ($row.prefix | path join $row.package)
+      log info $"stow --dir ($package_base_dir) --target ($row.prefix) -S ($row.package)"
+      stow --dir $package_base_dir --target $row.prefix -S $row.package
     }
   }
 }

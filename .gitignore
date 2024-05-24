@@ -5,42 +5,5 @@
 # https://github.com/Homebrew/homebrew-bundle?tab=readme-ov-file#versions-and-lockfiles
 Brewfile.lock.json
 
-/darwin-system/result
-
 # npm
 node_modules
-
-#dolphin
-.directory
-!/.directory
-!/bin/bin/.directory
-
-# atom
-/atom
-!/atom/.atom/.apmrc
-!/atom/.atom/keymap.cson
-!/atom/.atom/styles.less
-
-# color
-/color/.local/*
-!/color/.local/share
-/color/.local/share/*
-!/color/.local/share/DisplayCAL
-/color/.local/share/DisplayCAL/*
-!/color/.local/share/DisplayCAL/storage
-/color/.local/share/DisplayCAL/storage/*
-!/color/.local/share/DisplayCAL/storage/*/
-/color/.local/share/DisplayCAL/storage/*/*
-!/color/.local/share/DisplayCAL/storage/*/*.icc
-
-# krita
-/krita/.local/*
-!/krita/.local/share
-/krita/.local/share/*
-!/krita/.local/share/krita
-
-# Proto
-/proto/*
-!/proto/.proto
-/proto/.proto/*
-!/proto/.proto/.prototools

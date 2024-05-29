@@ -1,4 +1,3 @@
-tap "oven-sh/bun"
 tap "hashicorp/tap"
 
 brew "actionlint"
@@ -38,7 +37,6 @@ brew "mtr"
 brew "ncdu"
 brew "neofetch"
 brew "nushell"
-brew "oven-sh/bun/bun"
 brew "pueue"
 brew "ripgrep"
 brew "scc"
@@ -54,6 +52,3 @@ brew "webp"
 brew "youtube-dl"
 cask "android-platform-tools"
 cask "git-credential-manager"
-
-# use proto instead
-# brew "n"

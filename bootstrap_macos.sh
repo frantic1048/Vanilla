@@ -34,6 +34,9 @@ brew bundle install
 # Install proto
 # https://moonrepo.dev/docs/proto/install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
+for tool in 'node' 'npm' 'pnpm' 'yarn' 'bun'; do
+  ~/.proto/bin/proto install $tool
+done
 
 # Install Rye
 # https://rye.astral.sh/

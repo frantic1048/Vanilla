@@ -32,6 +32,7 @@
   "debug.disassemblyView.showSourceCode": false,
   "diffEditor.maxComputationTime": 0,
   "diffEditor.wordWrap": "off",
+  "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
@@ -72,6 +73,7 @@
     "skhdrc": "shellscript",
     "yabairc": "shellscript"
   },
+  "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.enable": {
     "*": true,
     "jsonnet": true,

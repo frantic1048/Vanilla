@@ -1,0 +1,14 @@
+[settings]
+# Disable most of the core plugins
+# Only Ruby is supposed to be enabled
+# https://mise.jdx.dev/lang/bun.html
+disable_tools = [
+  'node',
+  'bun',
+  'deno',
+  'python',
+  'rust',
+  'java',
+  'go',
+  'erlang',
+]

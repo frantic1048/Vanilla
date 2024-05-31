@@ -19,6 +19,8 @@ at-env &os="darwin" {
   set paths = [
     ~/bin
 
+    (existing-dir ~/.local/share/mise/shims)
+
     (existing-dir ~/go/bin)
 
     # CLI form Rancher Desktop

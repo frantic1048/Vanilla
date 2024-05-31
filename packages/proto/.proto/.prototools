@@ -2,8 +2,9 @@
 bun = "1.1.10"
 node = "20.13.1"
 pnpm = "8.15.4"
-python = "3.12.3"
 yarn = "4.2.2"
+python = "3.12.3"
+rust = "1.78.0"
 
 [settings]
 auto-install = true

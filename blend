@@ -5,6 +5,12 @@ use blend_util [expand_package_dir, get_package_base_dir]
 let self_dir = $env.FILE_PWD
 let package_base_dir = (get_package_base_dir)
 
+# stowrc ignore args is not very easy to use, so we use this workaround
+let stow_ignore_args = [
+  '--ignore=\.DS_Store',
+  '--ignore=program\.home\.nix'
+]
+
 # using do {} to avoid affecting the PWD
 let not_package_name = do {[
   "darwin-system" # nix-darwin
@@ -175,11 +181,15 @@ def verify [] {
   log info "Stow list verified."
 }
 
-def provision_path [...paths: list<string>] {
+def provision_path [...paths: string] {
+  log info "Provisioning paths..."
+  log info $"Paths: ($paths)"
   $paths | each {|path|
-    if not ("dir" == ($path | path type)) {
+    if not ($path | path exists) {
       log info $"Creating path ($path)..."
       mkdir $path
+    } else if not ("dir" == ($path | path type)) {
+      log error $"Error: path ($path) exists but is not a directory."
     }
   }
 }
@@ -212,7 +222,7 @@ def uninstall [packages: list<string>] {
         log info $"Unstowing ($package) at ($prefix)"
         provision_path $prefix
         log info $"stow --dir ($package_base_dir) --target ($prefix) -D ($package)"
-        stow --dir $package_base_dir --target $prefix -D $package
+        stow ...$stow_ignore_args --dir $package_base_dir --target $prefix -D $package
       }
     }
   } else {
@@ -234,7 +244,7 @@ def install [packages?: list<string>] {
         provision_path $prefix
         clear_broken_symlink ($prefix | path join $package)
         log info $"stow --dir ($package_base_dir) --target ($prefix) -S ($package)"
-        stow --dir $package_base_dir --target $prefix -S $package
+        stow ...$stow_ignore_args --dir $package_base_dir --target $prefix -S $package
       }
     }
   } else {
@@ -242,7 +252,7 @@ def install [packages?: list<string>] {
       log info $"Stowing ($row.package) to ($row.prefix)"
       clear_broken_symlink ($row.prefix | path join $row.package)
       log info $"stow --dir ($package_base_dir) --target ($row.prefix) -S ($row.package)"
-      stow --dir $package_base_dir --target $row.prefix -S $row.package
+      stow ...$stow_ignore_args --dir $package_base_dir --target $row.prefix -S $row.package
     }
   }
 }
@@ -342,6 +352,10 @@ def "main s" [] {
       log error "Unsupported OS."
     }
   }
+}
+
+def "main provision_path" [...paths: string] {
+  provision_path ...$paths
 }
 
 def main [] {

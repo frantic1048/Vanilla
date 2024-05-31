@@ -90,7 +90,7 @@
   "gitlens.plusFeatures.enabled": false,
   "graphviz-interactive-preview.renderLockAdditionalTimeout": 5000,
   "javascript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.validate.enable": false,
+  "javascript.validate.enable": true,
   "jsonnet.languageServer.lint": true,
   "playwright.reuseBrowser": false,
   "problems.sortOrder": "position",
@@ -167,7 +167,7 @@
     "tab.activeBackground": "#00000050",
     "tab.border": "#00000000",
     "tab.inactiveBackground": "#00000010",
-    "terminal.background": "#0000",
+    // "terminal.background": "#0000", // elvish location menu needs this
     "titleBar.activeBackground": "#00000030",
     // "workbench.background": "#00000080" // only in code-transparent
     "window.background": "#00000080"

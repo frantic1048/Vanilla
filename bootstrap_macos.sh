@@ -10,6 +10,10 @@ self_path="$(command -v "$0")"
 self_dir="$(dirname "$self_path")"
 
 # FIXME: install Xcode Command Line Tools
+#
+# We are in a git repo, need git to clone the repo first.
+# So this step needs to be done manually before running this script
+#
 # xcode-select --install
 
 # Install Homebrew
@@ -31,18 +35,23 @@ brew analytics off
 # Install Homebrew packages
 brew bundle install
 
+# MEMO:
+# At this point, we have nushell and elvish.
+# We could move following steps to nushell or elvish scripts
+# with better error handling.
+
 # Install proto
 # https://moonrepo.dev/docs/proto/install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
-for tool in 'node' 'npm' 'pnpm' 'yarn' 'bun'; do
-  ~/.proto/bin/proto install $tool
-done
+
+# Temporary make proto available in the current shell
+export PATH=~/.proto/bin:$PATH
+# Generate shims based on config from ~/.proto/.prototools
+proto regen
 
 # Install Rye
 # https://rye.astral.sh/
 curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
-
-# TODO: proto install: node pnpm yarn
 
 # TODO: configure zsh PATH to include Homebrew binaries path
 

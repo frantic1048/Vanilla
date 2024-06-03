@@ -1,6 +1,6 @@
-# TODO: Renovate these versions
 bun = "1.1.10"
 node = "20.14.0"
+npm = "10.7.0"
 pnpm = "9.1.4"
 python = "3.12.3"
 rust = "1.78.0"

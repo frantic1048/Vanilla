@@ -40,6 +40,9 @@ brew bundle install
 # We could move following steps to nushell or elvish scripts
 # with better error handling.
 
+# Install dotfiles
+"$self_dir/blend"
+
 # Install proto
 # https://moonrepo.dev/docs/proto/install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
@@ -59,9 +62,6 @@ curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
 # https://sourceforge.net/p/gpgosx/docu/Download/
 
 # MEMO: VSCode settings sync
-
-# Install dotfiles
-"$self_dir/blend"
 
 # MEMO: Change default shell to elvish
 which elvish | sudo tee -a /etc/shells

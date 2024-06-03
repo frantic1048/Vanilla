@@ -7,11 +7,11 @@
 /*.json linguist-language=JSON
 
 # Text filters
-/git/git/gitk filter=vanilla.gitk
-/sway/sway/config filter=vanilla.sway
-/htop/htop/htoprc filter=vanilla.htop
-/npm/.npmrc filter=vanilla.npm
-/vscode/User/settings.json filter=vanilla.code
+/packages/git/git/gitk filter=vanilla.gitk
+/packages/sway/sway/config filter=vanilla.sway
+/packages/htop/htop/htoprc filter=vanilla.htop
+/packages/npm/.npmrc filter=vanilla.npm
+/packages/vscode/User/settings.json filter=vanilla.code
 
 # Binary stuff
 *.png filter=lfs diff=lfs merge=lfs -text

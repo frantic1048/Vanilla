@@ -21,8 +21,7 @@ self_dir="$(dirname "$self_path")"
 
 # Add necessary Homebrew environment variables
 UNAME_MACHINE="$(uname -m)"
-if [[ "${UNAME_MACHINE}" == "arm64" ]]
-then
+if [[ "${UNAME_MACHINE}" == "arm64" ]]; then
   # On ARM macOS
   eval "$(/opt/homebrew/bin/brew shellenv)"
 else

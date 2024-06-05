@@ -1,6 +1,5 @@
 #!/usr/bin/env nu
-use std log
-use blend_util [expand_package_dir, get_package_base_dir]
+use blend_util [expand_package_dir, get_package_base_dir, log]
 
 let self_dir = $env.FILE_PWD
 let package_base_dir = (get_package_base_dir)
@@ -135,6 +134,7 @@ def assert_stow_profile_exist [profile: string] {
     log error $"Error: profile ($profile) does not exist."
     exit 1
   }
+  log success -i $"Found profile: ($profile)"
 }
 
 def get_stow_profile [] -> table<name: string, table: table<package: string, prefix: string>> {
@@ -142,7 +142,7 @@ def get_stow_profile [] -> table<name: string, table: table<package: string, pre
   let os_name = $nu | get os-info.name
   let os_arch = $nu | get os-info.arch
   let profile_name = $"($os_name)-($os_arch)"
-  log info $"Expected profile: ($profile_name)"
+  log info -i $"Expected profile: ($profile_name)"
   assert_stow_profile_exist $profile_name
   $stow_profiles | where name == $profile_name | first
 }
@@ -168,18 +168,18 @@ def assert_stow_profile_only_contains_known_items [profile: record<name: string,
 
 def clear_broken_symlink [file_path: string] {
   if (file -b $file_path | str starts-with "broken symbolic link") {
-    log info $"Removing broken symlink: ($file_path)"
+    log warn -i $"Removing broken symlink: ($file_path)"
     rm -v $file_path
   }
 }
 
 def verify [] {
-  log info "Verifying stow list..."
+  log info "Starting stow list verification..."
   $stow_profiles | each {|row|
     log info $"Verifying stow list for ($row.name)..."
     assert_stow_profile_only_contains_known_items $row
   }
-  log info "Stow list verified."
+  log success "All stow lists are verified."
 }
 
 def provision_path [...paths: string] {
@@ -198,16 +198,13 @@ def provision_path [...paths: string] {
 def provision_essential_paths [] {
   log info "Provisioning essential paths..."
   provision_path $xdg_config_home_path
-  log info $"Provisioned essential paths."
+  log success $"Provisioned essential paths."
 }
 
 def init [] {
   provision_essential_paths
   log info $"All packages: ($all_packages)"
   verify
-  log info "Initializing stow..."
-  let profile = (get_stow_profile)
-  log info $"Found profile: ($profile.name)"
 }
 
 def uninstall [packages: list<string>] {
@@ -241,7 +238,7 @@ def install [packages?: list<string>] {
       }
       let prefixes = (get_prefixes_of_package $profile $package)
       $prefixes | each {|prefix|
-        log info $"Stowing ($package) to ($prefix)"
+        log info -i $"Stowing ($package) to ($prefix)"
         provision_path $prefix
         clear_broken_symlink ($prefix | path join $package)
         log info $"stow --dir ($package_base_dir) --target ($prefix) -S ($package)"
@@ -250,7 +247,7 @@ def install [packages?: list<string>] {
     }
   } else {
     $profile.table | each {|row|
-      log info $"Stowing ($row.package) to ($row.prefix)"
+      log info -i $"Stowing ($row.package) to ($row.prefix)"
       clear_broken_symlink ($row.prefix | path join $row.package)
       log info $"stow --dir ($package_base_dir) --target ($row.prefix) -S ($row.package)"
       stow ...$stow_ignore_args --dir $package_base_dir --target $row.prefix -S $row.package

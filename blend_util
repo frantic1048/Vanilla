@@ -1,6 +1,49 @@
 #!/usr/bin/env nu
 
-use std log
+# How to wrap an external command
+# https://github.com/nushell/nushell/issues/7758#issuecomment-2097184688
+# How to wrap an internal command with flags ???
+
+# Possible levels of logging:
+# - debug
+# - info
+# - warning
+# - error
+# - critical
+# - success
+# https://www.nushell.sh/book/stdout_stderr_exit_codes.html#echo-print-and-log-commands
+export def log [
+  level: string,
+  --important (-i),
+  message: string] {
+  # check usable ansi styles
+  # ansi -l
+  let color = match $level {
+    "debug" => "white_dimmed"
+    "info" => {
+      match $important {
+        true => "default"
+        _ => "default_dimmed"
+      }}
+    "warn" => {
+      match $important {
+        true => "light_yellow"
+        _ => "yellow"
+      }}
+    "error" => {
+      match $important {
+        true => "light_red"
+        _ => "red"
+      }}
+    "success" => {
+      match $important {
+        true => "light_green"
+        _ => "green"
+      }}
+    _ => "reset"
+  }
+  print $"(ansi $color)($message)(ansi reset)"
+}
 
 export const git_files = [
   .gitignore

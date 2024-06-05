@@ -17,8 +17,6 @@
   "[python]": {
     "editor.formatOnType": true
   },
-  "[ruby]": {},
-  "[shellscript]": {},
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -64,6 +62,12 @@
   "editor.tabSize": 2,
   "editor.wordWrap": "off",
   "eslint.lintTask.enable": true,
+  "eslint.runtime": "node", // make ESLint use current Node.js version instead of VSCode's
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
   "files.associations": {
     ".git-blame-ignore-revs": "ignore",
     ".prototools": "toml", // https://moonrepo.dev/docs/proto/config

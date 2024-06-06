@@ -41,6 +41,7 @@ let xdg_config_home_path = [$home_path ".config"] | path join
 def make_xdg_config_subpath [subpath: string] {
   [$xdg_config_home_path $subpath] | path join
 }
+let home_local_share_path = [$home_path ".local" "share"] | path join
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -118,6 +119,7 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["neofetch" $xdg_config_home_path]
   ["ncdu" $xdg_config_home_path]
   ["tealdeer" $xdg_config_home_path]
+  ["color" $home_local_share_path]
 ]
 
 let stow_profiles: table<name: string, table: table<package: string, prefix: string>> = [
@@ -283,10 +285,15 @@ def stat [] {
   $all_packages | each {|package|
     let profiles_of_package = ($stow_profiles | each {|profile|
       if $package in ($profile.table | get package) {
-        $profile.name
+        match $profile.name {
+          "linux-x86_64" => $"(ansi light_blue)($profile.name)(ansi reset)"
+          "macos-x86_64" => $"(ansi light_red_dimmed)($profile.name)(ansi reset)"
+          "macos-aarch64" => $"(ansi light_magenta)($profile.name)(ansi reset)"
+          _ => $profile.name
+        }
       }
     })
-    [[package profiles]; [$package $profiles_of_package]]
+    [[package profiles]; [$"(ansi light_green_bold)($package)(ansi reset)" $profiles_of_package]]
   } | reduce {|it, acc| $it ++ $acc }
 }
 

@@ -281,7 +281,17 @@ def "main init" [] {
   ()
 }
 
-def stat [] {
+def stat [
+  --no-color # do not use color
+] {
+  alias real_ansi = ansi
+  def ansi [arg: string] {
+    if $no_color {
+      ""
+    } else {
+      real_ansi $arg
+    }
+  }
   $all_packages | each {|package|
     let profiles_of_package = ($stow_profiles | each {|profile|
       if $package in ($profile.table | get package) {
@@ -308,8 +318,9 @@ def "main stat" [] {
 
 # Used by README.md.nu
 def "main stat_markdown" [] {
+  cd $self_dir
   # bench: hyperfine --warmup 3 'blend readme'
-  let stat_table = (stat)
+  let stat_table = (stat --no-color)
 
   '<table><thead><tr><th>pacakge</th><th colspan="3">profiles</th></tr></thead><tbody>' ++ (
     $stat_table | sort-by -r profiles | par-each -k { |row|

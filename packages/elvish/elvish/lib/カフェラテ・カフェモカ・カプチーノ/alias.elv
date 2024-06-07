@@ -148,6 +148,7 @@ fn g {|@args|
   if (==s $op 'P') { g push --force $@rest; return }
   if (==s $op 'pu') { g push -u origin (g cb); return }
   if (==s $op 'pl') { g pull $@rest; return }
+  if (==s $op 'pd') { g push --delete origin $@rest; return }
 
   if (==s $op 'mt') { e:git maintenance $@rest; return }
 

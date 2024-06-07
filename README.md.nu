@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 
-let content = $"# Vanilla
+let content = $"# 𝒱𝒶𝓃𝒾𝓁𝓁𝒶
 
 frantic1048's daily configs, scripts etc.
 

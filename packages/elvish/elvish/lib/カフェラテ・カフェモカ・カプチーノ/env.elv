@@ -130,9 +130,11 @@ at-env &os="linux" {
       gpgconf --launch gpg-agent > /dev/null
   }
 
-  if (not (has-env SSH_AUTH_SOCK)) {
-      set-env SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
-  }
+  # FIXME:
+  # GNOME Keyring's gcr-ssh-agent is setting this to an unusable value......
+  # https://bbs.archlinux.org/viewtopic.php?id=293602
+  # systemctl --user mask gcr-ssh-agent.socket
+  set-env SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
 
   if (not (has-env GPG_TTY)) {
       # Configure pinentry to use the correct TTY

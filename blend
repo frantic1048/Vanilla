@@ -107,6 +107,8 @@ let linux_stow_table: table<package: string, prefix: string> = [
   # app
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
+  ["proto" $home_path]
+  ["rye" $home_path]
   ["sapling" $xdg_config_home_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
   ["vscode" ([$xdg_config_home_path 'Code - OSS'] | path join)]
   ["htop" $xdg_config_home_path]

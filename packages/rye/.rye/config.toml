@@ -1,0 +1,6 @@
+[behavior]
+global-python = true
+use-uv = true
+
+[default]
+toolchain = "cpython@3.12"

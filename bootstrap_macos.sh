@@ -47,7 +47,7 @@ brew bundle install
 curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
 
 # Temporary make proto available in the current shell
-export PATH=~/.proto/bin:$PATH
+export PATH="$HOME/.proto/bin:$PATH"
 # Generate shims based on config from ~/.proto/.prototools
 proto regen
 

@@ -178,6 +178,7 @@
   },
   "workbench.colorTheme": "GitHub Dark Default",
   "workbench.editor.empty.hint": "hidden",
+  "workbench.iconTheme": "vscode-stardew-icon-theme",
   "workbench.layoutControl.enabled": false,
   "workbench.localHistory.enabled": true,
   "workbench.localHistory.maxFileEntries": 500,

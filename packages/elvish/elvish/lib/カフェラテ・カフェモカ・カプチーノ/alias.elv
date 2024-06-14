@@ -99,7 +99,7 @@ fn g {|@args|
     }
     g rev-list --max-count=1 --no-commit-header --format=%B $@args;
     return
-    }
+  }
 
   # ChecKout
   if (==s $op 'ck') { g checkout $@rest; return }

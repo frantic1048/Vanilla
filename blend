@@ -363,11 +363,10 @@ def "main readme" [] {
 def "main s" [] {
   do {
     cd $self_dir
-    if ("macos" == ($nu | get os-info.name)) {
-      ./upgrade_macos.nu
-    } else {
-      # TODO: add upgrade script for Arch
-      log error "Unsupported OS."
+    match $nu.os-info.name {
+      "macos" => { ./upgrade_macos.nu }
+      "linux" => { ./upgrade_archlinux.nu }
+            _ => { log error $"Unsupported OS: ($nu.os-info.name)" }
     }
   }
 }

@@ -242,7 +242,7 @@ fn nano {|@args| e:nano -w $@args }
 
 fn bat {|@args| e:bat --theme="TwoDark" $@args }
 
-fn neofetch {|@args| e:neofetch --shell_version off $@args }
+fn neofetch {|@args| e:fastfetch $@args }
 
 fn prpr {|@args| e:proxychains $@args }
 fn prprme { e:proxychains elvish }

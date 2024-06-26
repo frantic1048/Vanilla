@@ -1,3 +1,6 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 command_timeout = 10000
+
+[git_branch]
+style = 'bold bright-green'

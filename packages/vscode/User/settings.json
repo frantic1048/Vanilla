@@ -65,6 +65,7 @@
   "eslint.runtime": "node", // make ESLint use current Node.js version instead of VSCode's
   "eslint.workingDirectories": [
     {
+      // https://github.com/microsoft/vscode-eslint/issues/1101
       "mode": "auto"
     }
   ],

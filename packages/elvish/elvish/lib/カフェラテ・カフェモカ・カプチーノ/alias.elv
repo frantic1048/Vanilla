@@ -174,6 +174,11 @@ fn g {|@args|
   if (==s $op 'rbc') { g rebase --continue; return }
   if (==s $op 'rbs') { g rebase --skip; return }
 
+  # am, apply patches from git format-patch
+  if (==s $op 'ama') { g am --abort $@rest; return }
+  if (==s $op 'amc') { g am --continue $@rest; return }
+  if (==s $op 'ams') { g am --skip $@rest; return }
+
   if (==s $op 'rp') { g rev-parse --show-toplevel; return }
 
   # ReSet

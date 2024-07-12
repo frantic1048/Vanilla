@@ -27,6 +27,10 @@
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "[typst]": {
+    "editor.defaultFormatter": "myriad-dreamin.tinymist"
+  },
+  "tinymist.formatterMode": "typstyle",
   "debug.disassemblyView.showSourceCode": false,
   "diffEditor.maxComputationTime": 0,
   "diffEditor.wordWrap": "off",
@@ -58,7 +62,7 @@
   "editor.renderLineHighlight": "gutter",
   "editor.renderWhitespace": "none",
   "editor.semanticHighlighting.enabled": true,
-  "editor.showFoldingControls": "never",
+  "editor.showFoldingControls": "mouseover",
   "editor.tabSize": 2,
   "editor.wordWrap": "off",
   "eslint.lintTask.enable": true,
@@ -76,7 +80,9 @@
     "Brewfile.{app,desktop,fonts,util,makedep}": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
-    "yabairc": "shellscript"
+    "yabairc": "shellscript",
+    "*.bu": "yaml", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
+    "*.ign": "json" // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
   },
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.enable": {

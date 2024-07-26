@@ -3,4 +3,13 @@ global-python = true
 use-uv = true
 
 [default]
+# latest: https://www.python.org/downloads/release/python-3124/
 toolchain = "cpython@3.12"
+
+# MEMO: For node-gyp, use 3.10.14
+#
+# > ValueError: invalid mode: 'rU' while trying to load binding.gyp
+#
+# - https://stackoverflow.com/questions/74715990/node-gyp-err-invalid-mode-ru-while-trying-to-load-binding-gyp
+# - https://docs.python.org/3/whatsnew/3.11.html#porting-to-python-3-11
+# toolchain = "cpython@3.10.14"

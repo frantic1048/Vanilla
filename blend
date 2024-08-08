@@ -3,6 +3,15 @@ use blend_util [expand_package_dir, get_package_base_dir, log]
 
 let self_dir = $env.FILE_PWD
 let package_base_dir = (get_package_base_dir)
+def self_dir_do [it: closure] {
+  cd $self_dir
+  do $it
+}
+def on_os_do [os: list<string>, it: closure] {
+  if $nu.os-info.name in $os {
+    do $it
+  }
+}
 
 # stowrc ignore args is not very easy to use, so we use this workaround
 let stow_ignore_args = [
@@ -362,15 +371,51 @@ def "main readme" [] {
   }
 }
 
-# Upgrade system packages
+# Upgrade packages, tools, and dotfiles
 def "main s" [] {
-  do {
-    cd $self_dir
-    match $nu.os-info.name {
-      "macos" => { ./upgrade_macos.nu }
-      "linux" => { ./upgrade_archlinux.nu }
-            _ => { log error $"Unsupported OS: ($nu.os-info.name)" }
+  if $nu.os-info.name not-in ['macos' 'linux'] {
+    log error $"Unsupported OS: ($nu.os-info.name)"
+  }
+  main s homebrew
+  main s pacman
+  main s proto
+  main s rye
+  main install
+}
+
+def "main s homebrew" [] {
+  self_dir_do {
+    on_os_do ['macos'] {
+      brew bundle install
     }
+  }
+}
+
+def "main s pacman" [] {
+  self_dir_do {
+    on_os_do ['linux'] {
+      paru -Sy archlinux-keyring archlinuxcn-keyring
+      paru -Syuw
+      paru -Syu
+      paru -Rns (paru -Qdtq)
+    }
+  }
+}
+
+def "main s proto" [] {
+  self_dir_do {
+    proto clean --yes --days 60
+    proto upgrade
+    do {
+      cd ([$self_dir 'packages' 'proto' '.proto'] | path join)
+      proto outdated --update
+    }
+  }
+}
+
+def "main s rye" [] {
+  self_dir_do {
+    rye self update
   }
 }
 

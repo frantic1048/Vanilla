@@ -6,6 +6,7 @@ do {
   cd $self_dir
   brew bundle install
   proto upgrade
+  proto clean --yes --days 60
   rye self update
   ./blend install
 }

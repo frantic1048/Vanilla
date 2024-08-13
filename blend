@@ -1,5 +1,5 @@
 #!/usr/bin/env nu
-use blend_util [expand_package_dir, get_package_base_dir, log]
+use blend_util [expand_package_dir, get_package_base_dir, log, print_heading]
 
 let self_dir = $env.FILE_PWD
 let package_base_dir = (get_package_base_dir)
@@ -373,6 +373,7 @@ def "main readme" [] {
 
 # Upgrade packages, tools, and dotfiles
 def "main s" [] {
+  print_heading note "Starting system upgrade..."
   if $nu.os-info.name not-in ['macos' 'linux'] {
     log error $"Unsupported OS: ($nu.os-info.name)"
   }
@@ -380,12 +381,17 @@ def "main s" [] {
   main s pacman
   main s proto
   main s rye
+
+  print_heading info Dotfiles
   main install
+
+  print_heading note "System upgrade completed."
 }
 
 def "main s homebrew" [] {
   self_dir_do {
     on_os_do ['macos'] {
+      print_heading info Homebrew
       brew bundle install
     }
   }
@@ -394,6 +400,7 @@ def "main s homebrew" [] {
 def "main s pacman" [] {
   self_dir_do {
     on_os_do ['linux'] {
+      print_heading info Pacman
       paru -Sy archlinux-keyring archlinuxcn-keyring
       paru -Syuw
       paru -Syu
@@ -404,6 +411,7 @@ def "main s pacman" [] {
 
 def "main s proto" [] {
   self_dir_do {
+    print_heading info Proto
     proto clean --yes --days 60
     proto upgrade
     do {
@@ -415,6 +423,7 @@ def "main s proto" [] {
 
 def "main s rye" [] {
   self_dir_do {
+    print_heading info Rye
     rye self update
   }
 }

@@ -1,4 +1,5 @@
 tap "hashicorp/tap"
+tap "vectordotdev/brew"
 
 brew "actionlint"
 brew "bat"
@@ -62,3 +63,6 @@ brew "ykman"
 brew "youtube-dl"
 cask "android-platform-tools"
 cask "git-credential-manager"
+brew "vector"
+brew "ntopng"
+brew "ast-grep"

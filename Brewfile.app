@@ -1,6 +1,5 @@
 tap "wez/wezterm"
 
-brew "sapling"
 cask "alacritty"
 cask "google-chrome"
 cask "karabiner-elements"

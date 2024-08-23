@@ -79,6 +79,7 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["mise" $xdg_config_home_path]
   ["vscode" ([$macos_application_support_path 'Code'] | path join)]
   ["vscode" ([$macos_application_support_path 'code-oss-dev'] | path join)] # local dev build
+  ["vscode" ([$macos_application_support_path 'Cursor'] | path join)] # https://www.cursor.com/
   ["fastfetch" $xdg_config_home_path]
   ["ncdu" $xdg_config_home_path]
   ["tealdeer" $macos_application_support_path]

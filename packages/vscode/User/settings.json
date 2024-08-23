@@ -24,13 +24,12 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.stickyScroll.defaultModel": "foldingProviderModel"
   },
-  "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "[typst]": {
     "editor.defaultFormatter": "myriad-dreamin.tinymist"
   },
-  "tinymist.formatterMode": "typstyle",
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "debug.disassemblyView.showSourceCode": false,
   "diffEditor.maxComputationTime": 0,
   "diffEditor.wordWrap": "off",
@@ -60,10 +59,11 @@
   "editor.mouseWheelZoom": true,
   "editor.multiCursorModifier": "ctrlCmd",
   "editor.renderLineHighlight": "gutter",
-  "editor.renderWhitespace": "none",
+  "editor.renderWhitespace": "all",
   "editor.semanticHighlighting.enabled": true,
   "editor.showFoldingControls": "mouseover",
   "editor.tabSize": 2,
+  "editor.unicodeHighlight.invisibleCharacters": true,
   "editor.wordWrap": "off",
   "eslint.lintTask.enable": true,
   "eslint.runtime": "node", // make ESLint use current Node.js version instead of VSCode's
@@ -74,15 +74,15 @@
     }
   ],
   "files.associations": {
+    "*.bu": "yaml", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
+    "*.ign": "json", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
     ".git-blame-ignore-revs": "ignore",
     ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
     "Brewfile": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Brewfile.{app,desktop,fonts,util,makedep}": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
-    "yabairc": "shellscript",
-    "*.bu": "yaml", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
-    "*.ign": "json" // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
+    "yabairc": "shellscript"
   },
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.enable": {
@@ -113,6 +113,7 @@
   ],
   "tailscale.ssh.defaultUsername": "root",
   "terminal.integrated.stickyScroll.enabled": true,
+  "tinymist.formatterMode": "typstyle",
   "todohighlight.keywords": [
     {
       "backgroundColor": "#e85854",

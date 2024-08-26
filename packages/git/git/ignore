@@ -1,11 +1,23 @@
-# global gitignore
+# Global gitignore
 
-# dolphin
+###################
+# OS-specific files
+###################
+
+# Dolphin (file manager, Linux)
 .directory
+
 # macOS
 .DS_Store
-# windows
-Thumbs.db
 
-# node
+# Windows
+Thumbs.db
+[Dd]esktop.ini
+
+
+###################
+# Development tools
+###################
+
+# Node.js
 node_modules

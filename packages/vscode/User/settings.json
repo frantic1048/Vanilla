@@ -49,7 +49,7 @@
   // "editor.fontLigatures": "'calt', 'liga', 'dlig', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08'",
   "editor.fontSize": 13,
   "editor.formatOnSave": true,
-  "editor.formatOnType": true,
+  "editor.formatOnType": false,
   "editor.guides.bracketPairs": true,
   "editor.guides.bracketPairsHorizontal": true,
   "editor.guides.highlightActiveIndentation": "always",
@@ -87,6 +87,8 @@
     "skhdrc": "shellscript",
     "yabairc": "shellscript"
   },
+  "git.autorefresh": true,
+  "git.autoRepositoryDetection": true,
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.enable": {
     "*": true,
@@ -141,6 +143,7 @@
   ],
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.experimental.useVsCodeWatcher": false, // https://github.com/microsoft/vscode/issues/222098#issuecomment-2258368096
   "typescript.tsserver.maxTsServerMemory": 10240,
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.validate.enable": true,

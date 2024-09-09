@@ -66,3 +66,8 @@ cask "git-credential-manager"
 brew "vector"
 brew "ntopng"
 brew "ast-grep"
+brew "gnu-time"
+brew "docker-slim"
+
+# https://github.com/crate-ci/typos
+brew "typos-cli"

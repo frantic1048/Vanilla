@@ -13,7 +13,7 @@ fn e {|@args| e:eza $@args }
 fn ee {|@args| e:eza -l $@args }
 fn l {|@args| e:ls --color $@args }
 fn p {|@args| e:paru $@args }
-fn p-rm-orphan { e:pacman -Rns (e:pacman -Qtdq) }
+fn p-rm-orphan { e:paru -Rns (e:paru -Qtdq) }
 fn pping {|@args| e:prettyping $@args }
 fn atom {|@args| e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
 fn code {|@args| e:code $@args & }
@@ -178,6 +178,8 @@ fn g {|@args|
   if (==s $op 'ama') { g am --abort $@rest; return }
   if (==s $op 'amc') { g am --continue $@rest; return }
   if (==s $op 'ams') { g am --skip $@rest; return }
+
+  if (==s $op 'summary') { g shortlog -sne $@rest; return }
 
   if (==s $op 'rp') { g rev-parse --show-toplevel; return }
 

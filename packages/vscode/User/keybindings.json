@@ -1,13 +1,6 @@
 // Place your key bindings in this file to overwrite the defaults
 [
-  {
-    "key": "ctrl+e",
-    "command": "-workbench.action.quickOpenNavigateNextInFilePicker"
-  },
-  {
-    "key": "ctrl+e",
-    "command": "eslint.executeAutofix"
-  },
+  // Editor actions
   {
     "key": "ctrl+.",
     "command": "editor.action.quickFix",
@@ -15,15 +8,13 @@
   },
   {
     "key": "ctrl+,",
-    "command": "-workbench.action.openGlobalSettings"
-  },
-  {
-    "key": "ctrl+,",
-    "command": "-workbench.action.openSettings"
-  },
-  {
-    "key": "ctrl+,",
     "command": "editor.action.formatDocument"
+  },
+
+  // Panels and sidebars
+  {
+    "key": "ctrl+e",
+    "command": "-workbench.action.quickOpenNavigateNextInFilePicker"
   },
   {
     "key": "shift+cmd+g",
@@ -62,6 +53,8 @@
     "key": "cmd+shift+\\",
     "command": "workbench.action.toggleAuxiliaryBar"
   },
+
+  // Editor selection
   {
     "key": "cmd+y",
     "command": "editor.action.smartSelect.expand",
@@ -71,5 +64,39 @@
     "key": "cmd+u",
     "command": "editor.action.smartSelect.shrink",
     "when": "editorTextFocus"
+  },
+  // Editor split
+  {
+    "key": "cmd+k left",
+    "command": "workbench.action.splitEditorLeft"
+  },
+  {
+    "key": "cmd+k right",
+    "command": "workbench.action.splitEditorRight"
+  },
+  {
+    "key": "cmd+k up",
+    "command": "workbench.action.splitEditorUp"
+  },
+  {
+    "key": "cmd+k down",
+    "command": "workbench.action.splitEditorDown"
+  },
+
+  // Disable Cursor's conflicting keybindings
+  {
+    "key": "shift+cmd+k",
+    "command": "-aipopup.action.modal.generate",
+    "when": "editorFocus && !composerBarIsVisible && !composerControlPanelIsVisible"
+  },
+  {
+    "key": "cmd+k",
+    "command": "-aipopup.action.modal.generate",
+    "when": "editorFocus && !composerBarIsVisible && !composerControlPanelIsVisible"
+  },
+  {
+    "key": "cmd+k",
+    "command": "-composer.startComposerPrompt",
+    "when": "composerIsEnabled"
   }
 ]

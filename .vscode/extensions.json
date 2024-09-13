@@ -1,0 +1,53 @@
+{
+  "recommendations": [
+    // search
+    "ast-grep.ast-grep-vscode",
+
+    // lint and format
+    "dbaeumer.vscode-eslint",
+    "dprint.dprint",
+    "esbenp.prettier-vscode",
+    "foxundermoon.shell-format",
+    "timonwong.shellcheck",
+
+    // git
+    "eamodio.gitlens",
+    "waderyan.gitblame",
+
+    // language
+    "elves.elvish",
+    "github.vscode-github-actions",
+    "gitlab.gitlab-workflow",
+    "grafana.vscode-jsonnet",
+    "graphql.vscode-graphql",
+    "hashicorp.terraform",
+    "jnoortheen.nix-ide",
+    "ms-vscode.vscode-typescript-next",
+    "myriad-dreamin.tinymist",
+    "redhat.vscode-xml",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+    "rust-lang.rust-analyzer",
+    "thenuprojectcontributors.vscode-nushell-lang",
+    "unifiedjs.vscode-mdx",
+    "tintinweb.graphviz-interactive-preview",
+    "yoavbls.pretty-ts-errors",
+
+    // utils
+    "streetsidesoftware.code-spell-checker",
+    "tailscale.vscode-tailscale",
+    "nicoespeon.abracadabra",
+    "wayou.vscode-todo-highlight",
+    "naumovs.color-highlight",
+    "ms-playwright.playwright",
+
+    // theme
+    "emily-curry.base16-tomorrow-dark-vscode",
+    "github.github-vscode-theme",
+    "klyap.vscode-stardew-icon-theme",
+    "teabyii.ayu",
+
+    // keybindings
+    "ms-vscode.atom-keybindings"
+  ]
+}

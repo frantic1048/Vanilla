@@ -7,7 +7,6 @@ brew "butane"
 brew "vultr/vultr-cli/vultr-cli"
 brew "s3cmd"
 brew "coreutils"
-brew "curl"
 brew "dash"
 brew "difftastic"
 brew "elvish"
@@ -68,6 +67,12 @@ brew "ntopng"
 brew "ast-grep"
 brew "gnu-time"
 brew "docker-slim"
+
+brew "curl"
+brew "wget"
+
+# JSON viewer
+brew "jless"
 
 # https://github.com/crate-ci/typos
 brew "typos-cli"

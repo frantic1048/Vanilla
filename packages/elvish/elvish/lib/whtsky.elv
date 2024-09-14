@@ -298,6 +298,24 @@ SUITE 'some' {
     }
 }
 
+fn every {|list targetOrTestFn|
+    var testFn~ = $nop~
+
+    if (==s (kind-of $targetOrTestFn) 'fn') {
+        set testFn~ = $targetOrTestFn
+    } else {
+        set testFn~ = {|value| eq $value $targetOrTestFn }
+    }
+
+    for item $list {
+        if (not (testFn $item)) {
+            put $false
+            return
+        }
+    }
+    put $true
+}
+
 fn hasKey {|map searhKey|
     != (findIndex [(keys $map)] $searhKey) -1
 }

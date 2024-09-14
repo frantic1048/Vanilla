@@ -1,10 +1,27 @@
 #!/usr/bin/env elvish
 
 use kokkoro
+use whtsky
+use str
 
 var at-env~ = $kokkoro:at-env~
 var hosts = $kokkoro:hosts
 var desktops = $kokkoro:desktops
+
+fn is_xrandr_display_connected {|@displays|
+    var connected_displays = (make-map [(each {|display|
+        put [ $display $false ]
+    } $displays)])
+
+    each {|connected_display|
+        var matched_display = [(whtsky:find $displays {|display| str:contains $connected_display $display })]
+        if (== (count $matched_display) 1) {
+            set connected_displays[$matched_display[0]] = $true
+        }
+    } [(xrandr | rg '\bconnected')]
+
+    whtsky:every $displays {|display| put $connected_displays[$display] }
+}
 
 at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
     # left
@@ -27,21 +44,40 @@ at-env &host=$hosts[fantastic-rabbithouse] &desktop=$desktops[sway] {
 }
 
 at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
+    echo "setting dpi to 144"
     xrandr --dpi 144
-    xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
-    xrandr --output DisplayPort-1 --mode 2560x1440 --rate 60
-    xrandr --output DisplayPort-0 --left-of DisplayPort-1
-    xrandr --output DisplayPort-0 --primary
 
-    xrandr --output HDMI-A-0 --mode 1920x1080 --rate 60
-    xrandr --output HDMI-A-0 --above DisplayPort-1
+    if (is_xrandr_display_connected "DisplayPort-0") {
+        echo "DisplayPort-0: setting mode and wallpaper"
+        xrandr --output DisplayPort-0 --primary
+        xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
+        dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
+        nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    }
 
-    dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
-    dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
-    #setwallpaper -m fill {~}'/Pictures/bg/yande.re 432070.png'
-    nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
-    nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
-    nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    if (is_xrandr_display_connected "DisplayPort-1") {
+        echo "DisplayPort-1: setting mode and wallpaper"
+        xrandr --output DisplayPort-1 --mode 2560x1440 --rate 60
+        dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
+        nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    }
+
+    if (is_xrandr_display_connected "HDMI-A-0") {
+        echo "HDMI-A-0: setting mode and wallpaper"
+        xrandr --output HDMI-A-0 --mode 1920x1080 --rate 60
+        nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    }
+
+    # MEMO: Cannot break multiple `and` arguments into multiple lines...
+    if (is_xrandr_display_connected "DisplayPort-0" "DisplayPort-1") {
+        echo "DisplayPort-0 and DisplayPort-1: setting position"
+        xrandr --output DisplayPort-0 --left-of DisplayPort-1
+    }
+
+    if (is_xrandr_display_connected "DisplayPort-1" "HDMI-A-0") {
+        echo "DisplayPort-1 and HDMI-A-0: setting position"
+        xrandr --output HDMI-A-0 --above DisplayPort-1
+    }
 }
 
 at-env &host=$hosts[amausaan] &desktop=$desktops[sway] {

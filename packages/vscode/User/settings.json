@@ -85,7 +85,10 @@
     "Brewfile.{app,desktop,fonts,util,makedep}": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
-    "yabairc": "shellscript"
+    "yabairc": "shellscript",
+
+    "*.sarif": "json", // https://sarif.info/
+    "*.sast": "json" // https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
   },
   "git.autorefresh": true,
   "git.autoRepositoryDetection": true,

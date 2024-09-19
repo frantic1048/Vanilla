@@ -74,7 +74,7 @@ export def get_package_base_dir [] -> string {
 
 export def is_git_ignored [path: string] -> boolean {
   # FIXME: this method is not very efficient but works for now
-  git check-ignore $path | str length | $in > 0
+  do { git check-ignore $path} | complete | get exit_code | $in == 0
 }
 
 export def expand_package_dir [package_dir: string] {

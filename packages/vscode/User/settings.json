@@ -20,6 +20,9 @@
   "[python]": {
     "editor.formatOnType": true
   },
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -79,16 +82,15 @@
   "files.associations": {
     "*.bu": "yaml", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
     "*.ign": "json", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
+    "*.sarif": "json", // https://sarif.info/
+    "*.sast": "json", // https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
     ".git-blame-ignore-revs": "ignore",
     ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
     "Brewfile": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Brewfile.{app,desktop,fonts,util,makedep}": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
-    "yabairc": "shellscript",
-
-    "*.sarif": "json", // https://sarif.info/
-    "*.sast": "json" // https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
+    "yabairc": "shellscript"
   },
   "git.autorefresh": true,
   "git.autoRepositoryDetection": true,

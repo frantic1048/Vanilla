@@ -1,10 +1,10 @@
-bun = "1.1.27"
-node = "22.8.0"
+bun = "1.1.28"
+node = "22.9.0"
 npm = "10.8.3"
 pnpm = "9.10.0"
 proto = "0.40.1"
 rust = "1.81.0"
-yarn = "4.4.1"
+yarn = "4.5.0"
 
 [tools.node]
 bundled-npm = true

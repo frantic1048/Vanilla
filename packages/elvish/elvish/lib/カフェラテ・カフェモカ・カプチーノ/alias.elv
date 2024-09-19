@@ -6,7 +6,7 @@ use path
 fn attw {|@args|
   npx --package=@arethetypeswrong/cli attw $@args
 }
-fn b {|@args| e:bat --theme="TwoDark" $@args }
+fn b {|@args| e:bat $@args }
 fn c { e:clear }
 fn ip {|@args| e:ip -c $@args }
 fn e {|@args| e:eza $@args }

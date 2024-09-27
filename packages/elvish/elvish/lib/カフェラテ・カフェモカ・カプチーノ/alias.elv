@@ -205,6 +205,10 @@ fn g {|@args|
   if (==s $op 'to') { g tr $g--ol --single-worktree $@rest; return }
   if (==s $op 'too') { g tr $g--ol --all $@rest; return }
 
+  # Log plain
+  # https://git-scm.com/docs/git-log#:~:text=no%2Dabbrev.-,format%3A%3Cformat%2Dstring%3E,-The%20format%3A%3Cformat
+  if (==s $op 'lp') { e:git log --format='%Cgreencommit %H%Creset%n%B' $@rest; return }
+
   if (==s $op 'wt') { g worktree $@rest; return }
 
   e:git $@args

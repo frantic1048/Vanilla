@@ -53,6 +53,8 @@ at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
         xrandr --output DisplayPort-0 --mode 2560x1440 --rate 144
         dispwin -d 1 -I {~}'/.local/share/DisplayCAL/storage/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX/27GL850 #1 2022-10-05 01-20 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
         nitrogen --head=0 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    } else {
+        xrandr --output DisplayPort-0 --off
     }
 
     if (is_xrandr_display_connected "DisplayPort-1") {
@@ -60,12 +62,16 @@ at-env &host=$hosts[amausaan] &desktop=$desktops[i3] {
         xrandr --output DisplayPort-1 --mode 2560x1440 --rate 60
         dispwin -d 2 -I {~}'/.local/share/DisplayCAL/storage/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX/SW270C #2 2022-10-05 02-21 160cdm² D6500 2.2 F-S XYZLUT+MTX.icc'
         nitrogen --head=1 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    } else {
+        xrandr --output DisplayPort-1 --off
     }
 
     if (is_xrandr_display_connected "HDMI-A-0") {
         echo "HDMI-A-0: setting mode and wallpaper"
         xrandr --output HDMI-A-0 --mode 1920x1080 --rate 60
         nitrogen --head=2 --set-zoom-fill {~}'/Pictures/bg/photo/_DSC3936.jpg'
+    } else {
+        xrandr --output HDMI-A-0 --off
     }
 
     # MEMO: Cannot break multiple `and` arguments into multiple lines...

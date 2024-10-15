@@ -120,6 +120,7 @@ fn g {|@args|
   if (==s $op 'cpc') { g cherry-pick --continue $@rest; return }
   if (==s $op 'cpa') { g cherry-pick --abort $@rest; return }
 
+  if (==s $op 'dt') { e:git -c diff.external=difft diff $@rest; return }
   # Diff HEAD
   if (==s $op 'dh') { g diff HEAD $@rest; return }
   if (==s $op 'dhc') { g diff HEAD --cached $@rest; return }

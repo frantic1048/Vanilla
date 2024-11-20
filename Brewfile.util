@@ -28,6 +28,7 @@ brew "graphviz"
 brew "harfbuzz"
 brew "hashicorp/tap/terraform"
 brew "helix"
+brew "neovim"
 brew "htop"
 brew "hyperfine"
 brew "imagemagick"
@@ -76,3 +77,7 @@ brew "jless"
 
 # https://github.com/crate-ci/typos
 brew "typos-cli"
+
+# virtual machine
+# https://tart.run
+brew "cirruslabs/cli/tart"

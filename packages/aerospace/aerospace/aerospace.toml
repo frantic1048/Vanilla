@@ -90,7 +90,7 @@ run = ['move-node-to-workspace 3']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.Music'
-run = ['layout floating', 'move-node-to-workspace 3']
+run = ['move-node-to-workspace 3']
 
 [[on-window-detected]]
 if.app-id = 'com.apple.AppStore'
@@ -99,3 +99,7 @@ run = ['layout floating', 'move-node-to-workspace 3']
 [[on-window-detected]]
 if.app-id = 'io.zsa.keymapp'
 run = ['layout floating']
+
+[[on-window-detected]]
+if.window-title-regex-substring = '^Playwright Inspector$'
+run = ['move-node-to-workspace 3']

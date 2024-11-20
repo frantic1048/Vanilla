@@ -14,3 +14,6 @@ cask "visual-studio-code"
 cask "wezterm"
 cask "zed"
 cask "android-file-transfer"
+
+# virtual machine
+cask "utm"

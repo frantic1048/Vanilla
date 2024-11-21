@@ -21,7 +21,6 @@ brew "gawk"
 brew "gh"
 brew "git-delta"
 brew "git-lfs"
-brew "git"
 brew "glab"
 brew "go-jsonnet"
 brew "graphviz"
@@ -37,7 +36,6 @@ brew "jq"
 brew "ldns"
 brew "libqalculate"
 brew "librsvg"
-brew "make"
 brew "marksman"
 brew "mise"
 brew "mtr"
@@ -69,6 +67,7 @@ brew "ast-grep"
 brew "gnu-time"
 brew "docker-slim"
 
+brew "git"
 brew "curl"
 brew "wget"
 
@@ -84,3 +83,11 @@ brew "cirruslabs/cli/tart"
 
 # terminal multiplexer
 brew "tmux"
+
+# macOS has very old versions of these tools
+# builtin rsync@2.6.9, Nov 2006
+brew "rsync"
+# builtin bash@3.2.57, Nov 2014
+brew "bash"
+# builtin make@3.81, Apr 2006
+brew "make"

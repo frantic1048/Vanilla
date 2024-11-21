@@ -85,7 +85,10 @@ echo "See https://manual.raycast.com/hotkey"
 # FIXME: not working on macOS 14.4.1 (Sonoma)
 # defaults write -g NSWindowShouldDragOnGesture -bool true
 
-# TODO: chmod +i shell rc files to prevent external modification
+# MEMO: Prevent any external modification for shell rc files
+chflags uchg ~/.config/elvish/rc.elv
+# TODO: lock these files when we have custom zsh/bash configs
+# chflags uchg ~/.zshrc ~/.zshenv ~/.bashrc ~/.profile
 
 # MEMO: macOS debug menu
 # defaults write -g _NS_4445425547 -bool true

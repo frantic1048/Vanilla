@@ -10,10 +10,6 @@ use カフェラテ・カフェモカ・カプチーノ/env
 var alias = (use-mod カフェラテ・カフェモカ・カプチーノ/alias)
 keys $alias | each {|f| edit:add-var $f $alias[$f] }
 
-# MEMO: emmmmm, not working because add-vars needs a map, not namespace
-# edit:add-vars (use-mod カフェラテ・カフェモカ・カプチーノ/alias)
-
-
 use カフェラテ・カフェモカ・カプチーノ/prompt
 
 # FIXME: not working in elvish 0.15.0 yet

@@ -17,3 +17,5 @@ cask "android-file-transfer"
 
 # virtual machine
 cask "utm"
+
+cask "slack"

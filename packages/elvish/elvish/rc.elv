@@ -23,12 +23,13 @@ if (has-external starship) {
     eval (starship init elvish)
 }
 
+# feeling bad about this　ಠ_ಠ
 # https://elv.sh/ref/readline-binding.html
 # https://github.com/elves/elvish/blob/master/pkg/mods/readline-binding/readline-binding.elv
-use readline-binding
-{
-    var bindsym = {|k f| set edit:insert:binding[$k] = $f }
-    # Alt+l for location mode is not working on macOS...
-    # bind Ctrl-Y to location mode
-    $bindsym Ctrl-Y $edit:location:start~
-}
+# use readline-binding
+# {
+#     var bindsym = {|k f| set edit:insert:binding[$k] = $f }
+#     # Alt+l for location mode is not working on macOS...
+#     # bind Ctrl-Y to location mode
+#     $bindsym Ctrl-Y $edit:location:start~
+# }

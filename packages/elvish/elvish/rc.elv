@@ -22,3 +22,6 @@ use カフェラテ・カフェモカ・カプチーノ/completion
 if (has-external starship) {
     eval (starship init elvish)
 }
+
+# https://elv.sh/ref/readline-binding.html
+use readline-binding

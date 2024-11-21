@@ -74,12 +74,6 @@ git credential-manager configure
 # TODO: Pointer size: very large
 # System Preferences -> Accessibility -> Display -> Pointer
 
-# MEMO: start essential service
-# prepare for yabai and skhd
-# https://github.com/koekeishiya/yabai/wiki/Disabling-System-Integrity-Protection
-# yabai --start-service
-# skhd --start-service
-
 echo "To configure Raycast"
 echo "See https://manual.raycast.com/hotkey"
 

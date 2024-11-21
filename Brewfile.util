@@ -81,3 +81,6 @@ brew "typos-cli"
 # virtual machine
 # https://tart.run
 brew "cirruslabs/cli/tart"
+
+# terminal multiplexer
+brew "tmux"

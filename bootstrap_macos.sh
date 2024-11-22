@@ -40,7 +40,7 @@ brew bundle install
 # with better error handling.
 
 # Install dotfiles
-"$self_dir/blend"
+"$self_dir/blend" install
 
 # Install proto
 # https://moonrepo.dev/docs/proto/install

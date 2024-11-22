@@ -1,15 +1,26 @@
 tap "hashicorp/tap"
 tap "vectordotdev/brew"
 
+brew "elvish"
+brew "nushell"
+brew "dash"
+
+# macOS has very old versions of these tools
+# builtin rsync@2.6.9, Nov 2006
+brew "rsync"
+# builtin bash@3.2.57, Nov 2014
+brew "bash"
+# builtin make@3.81, Apr 2006
+brew "make"
+
+
 brew "actionlint"
 brew "bat"
 brew "butane"
 brew "vultr/vultr-cli/vultr-cli"
 brew "s3cmd"
 brew "coreutils"
-brew "dash"
 brew "difftastic"
-brew "elvish"
 brew "eza"
 brew "fastfetch"
 brew "fd"
@@ -19,8 +30,6 @@ brew "freetype"
 brew "fzf"
 brew "gawk"
 brew "gh"
-brew "git-delta"
-brew "git-lfs"
 brew "glab"
 brew "go-jsonnet"
 brew "graphviz"
@@ -40,7 +49,6 @@ brew "marksman"
 brew "mise"
 brew "mtr"
 brew "ncdu"
-brew "nushell"
 brew "onefetch"
 brew "pueue"
 brew "ripgrep"
@@ -60,22 +68,23 @@ brew "webp"
 brew "ykman"
 brew "youtube-dl"
 cask "android-platform-tools"
-cask "git-credential-manager"
 brew "vector"
 brew "ntopng"
 brew "ast-grep"
 brew "gnu-time"
 brew "docker-slim"
 
+# git and friends
 brew "git"
+brew "git-lfs"
+cask "git-credential-manager"
+brew "git-delta"
+
 brew "curl"
 brew "wget"
 
 # JSON viewer
 brew "jless"
-
-# https://github.com/crate-ci/typos
-brew "typos-cli"
 
 # virtual machine
 # https://tart.run
@@ -83,11 +92,3 @@ brew "cirruslabs/cli/tart"
 
 # terminal multiplexer
 brew "tmux"
-
-# macOS has very old versions of these tools
-# builtin rsync@2.6.9, Nov 2006
-brew "rsync"
-# builtin bash@3.2.57, Nov 2014
-brew "bash"
-# builtin make@3.81, Apr 2006
-brew "make"

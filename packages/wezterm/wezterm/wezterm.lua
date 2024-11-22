@@ -34,6 +34,6 @@ return {
 
     font = wezterm.font 'JetBrains Mono',
     window_background_opacity = 0.64,
-    enable_tab_bar = false,
+--    enable_tab_bar = false,
     hide_tab_bar_if_only_one_tab = true
 }

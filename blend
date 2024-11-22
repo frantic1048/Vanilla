@@ -269,6 +269,7 @@ def install [packages?: list<string>] {
   } else {
     $profile.table | each {|row|
       log info -i $"Stowing ($row.package) to ($row.prefix)"
+      provision_path $row.prefix
       clear_broken_symlink ($row.prefix | path join $row.package)
       log info $"stow --dir ($package_base_dir) --target ($row.prefix) -S ($row.package)"
       stow ...$stow_ignore_args --dir $package_base_dir --target $row.prefix -S $row.package

@@ -9,6 +9,9 @@
 #
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
+# https://bbs.archlinux.org/viewtopic.php?id=293509
+exec_always env XDG_MENU_PREFIX=plasma- kbuildsycoca6 &
+
 # dynamic wallpaper
 #set $wallpaper_args --landscape -i 300
 #exec_always ~/bin/fffwallpaper.sh $wallpaper_args &

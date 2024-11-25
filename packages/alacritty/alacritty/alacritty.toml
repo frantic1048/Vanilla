@@ -1,4 +1,4 @@
-[shell]
+[terminal.shell]
 program = "/usr/bin/env"
 args = ["elvish"]
 
@@ -24,3 +24,5 @@ style = "Italic"
 [font.normal]
 family = "Jetbrains Mono"
 style = "Regular"
+
+[terminal]

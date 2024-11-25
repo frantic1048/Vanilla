@@ -75,7 +75,7 @@ brew "gnu-time"
 brew "docker-slim"
 
 # git and friends
-brew "git"
+# brew "git"
 brew "git-lfs"
 cask "git-credential-manager"
 brew "git-delta"

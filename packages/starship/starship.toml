@@ -4,3 +4,73 @@ command_timeout = 10000
 
 [git_branch]
 style = 'bold bright-green'
+
+# Nerd Fonts
+# https://www.nerdfonts.com/cheat-sheet
+# MEMO: trailing space is required
+[bun]
+symbol = "\ue76f "
+
+[c]
+symbol = "\ue771 "
+
+[cmake]
+symbol = "\ue794 "
+
+[docker_context]
+symbol = "\ue7b0 "
+
+[deno]
+symbol = "\ue7c0 "
+detect_files = [
+  'deno.json',
+  'deno.jsonc',
+  'deno.lock',
+  'mod.ts',
+  'mod.js',
+  'deps.ts',
+  'deps.js',
+  '.dvmrc',
+]
+
+[dotnet]
+symbol = "\U000f0aae "
+
+[elm]
+symbol = "\ue7ce "
+
+[golang]
+symbol = "\ue724 "
+
+[guix_shell]
+symbol = "\uf325 "
+
+[lua]
+symbol = "\ue826 "
+
+[nim]
+symbol = "\ue841 "
+
+[nix_shell]
+symbol = "\ue843 "
+
+[nodejs]
+symbol = "\ued0d "
+
+[ocaml]
+symbol = "\ue84e "
+
+[python]
+symbol = "\ue73c "
+
+[ruby]
+symbol = "\ue739 "
+
+[rust]
+symbol = "\uf323 "
+
+[terraform]
+symbol = "\ue8bd "
+
+[typst]
+symbol = "\uf37f "

@@ -21,7 +21,7 @@ at-env &os="darwin" {
 
     (existing-dir ~/.local/share/mise/shims)
 
-    (existing-dir ~/go/bin)
+    (existing-dir ~/.go/bin)
 
     # CLI form Rancher Desktop
     (existing-dir ~/.rd/bin)
@@ -51,8 +51,8 @@ at-env &os="darwin" {
 
 # Go
 at-env &os="darwin" {
-  set-env GOPATH {~}/go
-  set-env GOBIN {~}/go/bin
+  set-env GOPATH {~}/.go
+  set-env GOBIN {~}/.go/bin
 }
 
 # Nix
@@ -70,7 +70,7 @@ at-env &os="linux" {
     {~}/bin
     {~}/.local/bin
     {~}/.nix-profile/bin
-    {~}/go/bin
+    {~}/.go/bin
     {~}/.gem/ruby/2.2.0/bin
     /usr/bin/vendor_perl
     $@paths
@@ -101,8 +101,6 @@ set paths = [{~}/.cargo/bin $@paths]
 
 if (has-external nvim) {
   set-env VISUAL nvim
-} else if (has-external hx) {
-  set-env VISUAL hx
 } else {
   set-env VISUAL nano
 }

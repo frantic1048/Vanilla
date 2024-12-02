@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Ensure Homebrew environment variables are set
+# So we can use elvish to generate other environment variables
+UNAME_MACHINE="$(uname -m)"
+if [ "${UNAME_MACHINE}" = "arm64" ]; then
+  # On ARM macOS
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+  # On Intel macOS
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+"$SCRIPT_DIR"/shellenv.elv

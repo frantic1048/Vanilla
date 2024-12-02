@@ -5,6 +5,11 @@ command_timeout = 10000
 [git_branch]
 style = 'bold bright-green'
 
+[shell]
+disabled = false
+elvish_indicator = "~"
+format = '[$indicator]($style)'
+
 # Nerd Fonts
 # https://www.nerdfonts.com/cheat-sheet
 # MEMO: trailing space is required

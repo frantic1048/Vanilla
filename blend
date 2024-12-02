@@ -56,6 +56,8 @@ let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
   # shell and friends
   ["elvish" $xdg_config_home_path]
+  ["zsh" $home_path]
+  ["bash" $home_path]
   ["nushell" $macos_application_support_path]
   ["starship" $xdg_config_home_path]
   ["pueue" $macos_application_support_path]
@@ -90,8 +92,10 @@ let macos_stow_table: table<package: string, prefix: string> = [
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
   # shell and friends
-  ["nushell" $xdg_config_home_path]
   ["elvish" $xdg_config_home_path]
+  ["zsh" $home_path]
+  ["bash" $home_path]
+  ["nushell" $xdg_config_home_path]
   ["starship" $xdg_config_home_path]
   ["pueue" $xdg_config_home_path]
   ["neovim" $xdg_config_home_path]

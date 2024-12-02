@@ -31,11 +31,13 @@ _i3_:
 <tr><td><a href="packages/starship/starship.toml">starship</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/elvish/elvish">elvish</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/sapling/sapling/sapling.conf">sapling</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
+<tr><td><a href="packages/bash">bash</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/nushell/nushell">nushell</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/tealdeer/tealdeer/config.toml">tealdeer</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/pueue/pueue/pueue.yml">pueue</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/bat/bat/config">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/ncdu/ncdu/config">ncdu</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
+<tr><td><a href="packages/zsh">zsh</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/neovim/nvim">neovim</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/vscode/User">vscode</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/git/git">git</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
@@ -68,7 +70,6 @@ _i3_:
 <tr><td><a href="packages/psd">psd</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
 <tr><td><a href="packages/krita">krita</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
 <tr><td><a href="packages/stow">stow</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/bash">bash</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
 </tbody></table>
 
 ## Usage

@@ -85,6 +85,7 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["ncdu" $xdg_config_home_path]
   ["tealdeer" $macos_application_support_path]
   ["bat" $xdg_config_home_path]
+  ["gpg" $home_path]
 ]
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
@@ -132,6 +133,7 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["npm" $home_path]
   ["makepkg" $home_path]
   ["bat" $xdg_config_home_path]
+  ["gpg" $home_path]
 
   # TODO: remove this package on Linux
   ["neofetch" $xdg_config_home_path]

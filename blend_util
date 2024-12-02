@@ -51,10 +51,10 @@ export def print_heading [
 ] {
   match $variant {
     "note" => {
-      print $"(ansi bg_green)(ansi attr_bold)  ($title)  (ansi reset)(ansi green)(char nf_left_segment)(ansi reset)"
+      print $"(ansi bg_green)(ansi --escape { fg: '#ffffff' })(ansi attr_bold)  ($title)  (ansi reset)(ansi green)(char nf_left_segment)(ansi reset)"
     }
     "info" => {
-      print $"(ansi bg_light_blue)(ansi attr_bold)  ⬝($title)   (ansi reset)(ansi light_blue)(char nf_left_segment)(ansi reset)"
+      print $"(ansi bg_light_blue)(ansi --escape { fg: '#ffffff' })(ansi attr_bold)  ⬝($title)   (ansi reset)(ansi light_blue)(char nf_left_segment)(ansi reset)"
     }
     _ => {
       print $"($title)"

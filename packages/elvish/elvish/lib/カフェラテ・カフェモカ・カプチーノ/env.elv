@@ -99,7 +99,9 @@ set-env RUSTUP_HOME {~}/.rustup
 set-env CARGO_HOME {~}/.cargo
 set paths = [{~}/.cargo/bin $@paths]
 
-if (has-external hx) {
+if (has-external nvim) {
+  set-env VISUAL nvim
+} else if (has-external hx) {
   set-env VISUAL hx
 } else {
   set-env VISUAL nano

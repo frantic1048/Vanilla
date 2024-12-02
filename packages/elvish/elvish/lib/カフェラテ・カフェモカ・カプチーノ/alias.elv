@@ -287,3 +287,8 @@ fn renewip {
   e:networksetup -setbootp Ethernet
   e:networksetup -setdhcp Ethernet
 }
+
+fn kitty-reload {
+  # https://sw.kovidgoyal.net/kitty/conf/#kitty-conf
+  e:killall -SIGUSR1 kitty
+}

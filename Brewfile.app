@@ -19,3 +19,6 @@ cask "android-file-transfer"
 cask "utm"
 
 cask "slack"
+
+# media player
+cask "vlc"

@@ -36,3 +36,13 @@
 !/proto/.proto
 /proto/.proto/*
 !/proto/.proto/.prototools
+
+!/proto/.proto/tools
+/proto/.proto/tools/*
+!/proto/.proto/tools/node
+/proto/.proto/tools/node/*
+!/proto/.proto/tools/node/globals
+/proto/.proto/tools/node/globals/*
+!/proto/.proto/tools/node/globals/bin
+/proto/.proto/tools/node/globals/bin/*
+!/proto/.proto/tools/node/globals/bin/.gitkeep

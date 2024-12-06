@@ -83,6 +83,7 @@ set-env PROTO_HOME {~}/.proto
 set paths = [
   $E:PROTO_HOME/shims
   $E:PROTO_HOME/bin
+  $E:PROTO_HOME/tools/node/globals/bin
   $@paths
 ]
 

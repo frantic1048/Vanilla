@@ -55,12 +55,8 @@ proto regen
 # https://rye.astral.sh/
 curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
 
-# TODO: configure zsh PATH to include Homebrew binaries path
-
 # TODO: install gpg(GnuPG for OS X)
 # https://sourceforge.net/p/gpgosx/docu/Download/
-
-# MEMO: VSCode settings sync
 
 # MEMO: Change default shell to elvish
 which elvish | sudo tee -a /etc/shells
@@ -76,19 +72,10 @@ git credential-manager configure
 
 echo "To configure Raycast"
 echo "See https://manual.raycast.com/hotkey"
+echo "To disable Spotlight indexing for all volumes, run:"
+echo "sudo mdutil -a -i off"
 
-# MEMO: once
-# ./macos_sysctl.sh
+# MEMO: Prevent any external program from messing with these files
+chflags uimmutable ~/.config/elvish/rc.elv ~/.zshrc ~/.zshenv ~/.bashrc ~/.profile
 
-# TODO: better place for these config
-
-# FIXME: not working on macOS 14.4.1 (Sonoma)
-# defaults write -g NSWindowShouldDragOnGesture -bool true
-
-# MEMO: Prevent any external modification for shell rc files
-chflags uchg ~/.config/elvish/rc.elv
-# TODO: lock these files when we have custom zsh/bash configs
-# chflags uchg ~/.zshrc ~/.zshenv ~/.bashrc ~/.profile
-
-# MEMO: macOS debug menu
-# defaults write -g _NS_4445425547 -bool true
+"$self_dir/macos_config.sh"

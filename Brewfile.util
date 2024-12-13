@@ -91,3 +91,8 @@ brew "cirruslabs/cli/tart"
 
 # terminal multiplexer
 brew "tmux"
+
+# kubernetes and friends
+brew "kubectl"
+brew "Azure/kubelogin/kubelogin"
+brew "kubectx"

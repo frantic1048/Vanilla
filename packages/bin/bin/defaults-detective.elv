@@ -30,20 +30,35 @@ echo (styled 'Discovering domains' bold blue)
 
 # Domains that are not useful for system configuration
 var maskedDomains = [
-  'ContextStoreAgent'
-  'com.apple.xpc.activity2'
-  'com.apple.routined'
+  com.apple.biomesyncd
+  com.apple.CallHistorySyncHelper
+  com.apple.cseventlistener
+  com.apple.DuetExpertCenter.AppPredictionExpert
+  com.apple.FaceTime
+  com.apple.HIToolbox
+  com.apple.knowledge-agent
+  com.apple.madrid
+  com.apple.mmcs
+  com.apple.photolibraryd
+  com.apple.photos.shareddefaults
+  com.apple.proactive.PersonalizationPortrait
+  com.apple.routined
+  com.apple.spaces
+  com.apple.spotlightknowledge
+  com.apple.tipsd
+  com.apple.xpc.activity2
+  ContextStoreAgent
 ]
 
 var domains = []
-each {|domain|
+peach {|domain|
   if (and ?(e:defaults read $domain >/dev/null 2>&1) (not (has-value $maskedDomains $domain))) {
     echo '->' (styled $domain bold green)
     set domains = (conj $domains $domain)
   }
 } [(str:split ', ' (e:defaults domains))]
 
-each {|domain|
+peach {|domain|
   touch $tmpdir/$domain{.old, ''}
   e:defaults read $domain > $tmpdir/$domain
   # e:defaults export $domain - > $tmpdir/$domain

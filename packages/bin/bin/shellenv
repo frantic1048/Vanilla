@@ -2,13 +2,24 @@
 
 # Ensure Homebrew environment variables are set
 # So we can use elvish to generate other environment variables
+UNAME_SYSTEM="$(uname -s)"
 UNAME_MACHINE="$(uname -m)"
-if [ "${UNAME_MACHINE}" = "arm64" ]; then
-  # On ARM macOS
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-else
-  # On Intel macOS
-  eval "$(/usr/local/bin/brew shellenv)"
+
+# on macOS:
+# many essential binaries(e.g. `elvish`) are installed by brew
+# so we need to update PATH to contain brew's bin path
+#
+# on Arch Linux:
+# essential binaries are installed by pacman
+# we don't need to update PATH here
+if [ "${UNAME_SYSTEM}" = "Darwin" ]; then
+  if [ "${UNAME_MACHINE}" = "arm64" ]; then
+    # On ARM macOS
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  else
+    # On Intel macOS
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
 fi
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)

@@ -22,3 +22,5 @@ cask "slack"
 
 # media player
 cask "vlc"
+
+cask "inkscape"

@@ -96,3 +96,5 @@ brew "tmux"
 brew "kubectl"
 brew "Azure/kubelogin/kubelogin"
 brew "kubectx"
+
+cask "ngrok"

@@ -44,7 +44,7 @@ brew bundle install
 
 # Install proto
 # https://moonrepo.dev/docs/proto/install
-curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
+curl -fsSL 'https://moonrepo.dev/install/proto.sh' | bash -s -- --yes --no-profile
 
 # Temporary make proto available in the current shell
 export PATH="$HOME/.proto/bin:$PATH"
@@ -53,7 +53,7 @@ proto regen
 
 # Install Rye
 # https://rye.astral.sh/
-curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
+curl -sSf 'https://rye.astral.sh/get' | RYE_INSTALL_OPTION='--yes' bash
 
 # TODO: install gpg(GnuPG for OS X)
 # https://sourceforge.net/p/gpgosx/docu/Download/

@@ -14,6 +14,8 @@
  *
  */
 
+const process = require("node:process");
+
 const read = (...argv) =>
   require('fs').readFileSync(...argv).toString()
 
@@ -48,7 +50,7 @@ if (process.argv.length !== 4) {
  * @param  {[type]} s [description]
  * @return {[type]}   [description]
  */
-function ffescape (s) {
+function _ffescape (s) {
   const specialChar = /'|\\| /g
   return s.replace(specialChar, '\\$&')
 }

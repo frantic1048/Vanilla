@@ -348,7 +348,7 @@ def "main stat_markdown" [] {
   # bench: hyperfine --warmup 3 'blend readme'
   let stat_table = (stat --no-color)
 
-  '<table><thead><tr><th>pacakge</th><th colspan="3">profiles</th></tr></thead><tbody>' ++ (
+  '<table><thead><tr><th>package</th><th colspan="3">profiles</th></tr></thead><tbody>' ++ (
     $stat_table | sort-by -r profiles | par-each -k { |row|
     let link_title = $row.package
     let link_url = (expand_package_dir $row.package)

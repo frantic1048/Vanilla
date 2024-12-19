@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 
-const net = require("net");
-const { exec } = require("child_process");
+const net = require("node:net");
+const { exec } = require("node:child_process");
+const process = require("node:process");
 
 const host = "localhost";
 const port = 6600;
 
-const prompt = "> ";
+const _prompt = "> ";
 
 const debuginfo = (info) => process.stderr.write(`--- ${info}\n`);
 
@@ -32,7 +33,7 @@ client.on("data", (data) => {
     const state = statePattern.exec(data)[1];
     debuginfo(`state: ${state}`);
     if (state === "play") {
-      // TODO: chcek profile before setting
+      // TODO: check profile before setting
       // MEMO: pactl list short cards
       exec(
         "pactl set-card-profile alsa_card.usb-TEAC_Corporation_UD-505-00 off"

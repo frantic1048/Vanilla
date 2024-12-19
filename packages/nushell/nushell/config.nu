@@ -260,7 +260,7 @@ $env.config = {
 
                     # MEMO:
                     # 1. use control+n to open directory history menu
-                    # 2. using background task to recieve new PWD and calculate new score for directory history
+                    # 2. using background task to receive new PWD and calculate new score for directory history
                     # 3. retrieve directory history from background task
                     #
                     # TODO: how to communicate with background task?

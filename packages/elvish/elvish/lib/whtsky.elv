@@ -316,8 +316,8 @@ fn every {|list targetOrTestFn|
     put $true
 }
 
-fn hasKey {|map searhKey|
-    != (findIndex [(keys $map)] $searhKey) -1
+fn hasKey {|map searchKey|
+    != (findIndex [(keys $map)] $searchKey) -1
 }
 SUITE 'hasKey' {
     IT '[&a &b] has b' {

@@ -19,7 +19,7 @@ _macOS_:
 
 ## Config packages
 
-<table><thead><tr><th>pacakge</th><th colspan="3">profiles</th></tr></thead><tbody>
+<table><thead><tr><th>package</th><th colspan="3">profiles</th></tr></thead><tbody>
 <tr><td><a href="packages/sketchybar/sketchybar">sketchybar</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/mise/mise/config.toml">mise</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
 <tr><td><a href="packages/wezterm">wezterm</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>

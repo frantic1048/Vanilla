@@ -24,7 +24,7 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -34,7 +34,7 @@
     "editor.defaultFormatter": "myriad-dreamin.tinymist"
   },
   "[yaml]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "debug.disassemblyView.showSourceCode": false,
   "diffEditor.maxComputationTime": 0,
@@ -56,7 +56,6 @@
   "editor.guides.bracketPairs": true,
   "editor.guides.bracketPairsHorizontal": true,
   "editor.guides.highlightActiveIndentation": "always",
-  "editor.inlayHints.enabled": "off",
   "editor.inlineSuggest.enabled": true,
   "editor.lineNumbers": "on",
   "editor.linkedEditing": true,
@@ -209,5 +208,8 @@
     "!reference sequence"
   ],
   "zenMode.hideLineNumbers": false,
-  "zenMode.hideStatusBar": false
+  "zenMode.hideStatusBar": false,
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

@@ -98,3 +98,5 @@ brew "Azure/kubelogin/kubelogin"
 brew "kubectx"
 
 cask "ngrok"
+
+brew "optipng"

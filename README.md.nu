@@ -15,6 +15,10 @@ _i3_:
 
 ![amausaan]\(screenshots/amausaan_2022-04-05-232523.png)
 
+_macOS_:
+
+![macos_screenshot]\(screenshots/macbook_2024-12-19.png)
+
 ## Config packages
 
 (./blend stat_markdown)

@@ -68,11 +68,11 @@ export const git_files = [
   .gitmodules
 ]
 
-export def get_package_base_dir [] -> string {
+export def get_package_base_dir []: nothing -> string {
   $env.FILE_PWD | path join "packages"
 }
 
-export def is_git_ignored [path: string] -> boolean {
+export def is_git_ignored [path: string]: nothing -> bool {
   # FIXME: this method is not very efficient but works for now
   do { git check-ignore $path} | complete | get exit_code | $in == 0
 }

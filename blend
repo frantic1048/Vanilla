@@ -164,7 +164,7 @@ def assert_stow_profile_exist [profile: string] {
   log success -i $"Found profile: ($profile)"
 }
 
-def get_stow_profile [] -> table<name: string, table: table<package: string, prefix: string>> {
+def get_stow_profile []: nothing -> record<name: string, table: table<package: string, prefix: string>> {
   log info "Getting stow profile..."
   let os_name = $nu | get os-info.name
   let os_arch = $nu | get os-info.arch
@@ -177,7 +177,7 @@ def get_stow_profile [] -> table<name: string, table: table<package: string, pre
 def get_prefixes_of_package [
   profile: record<name: string, table: table<package: string, prefix: string>>,
   package: string
-] -> list<string> {
+]: nothing -> list<string> {
   $profile.table | where package == $package | get prefix
 }
 

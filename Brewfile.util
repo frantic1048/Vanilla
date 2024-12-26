@@ -71,7 +71,10 @@ brew "vector"
 brew "ntopng"
 brew "ast-grep"
 brew "gnu-time"
+
+
 brew "docker-slim"
+brew "tilt"
 
 # git and friends
 # brew "git"

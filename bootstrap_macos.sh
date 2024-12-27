@@ -75,8 +75,11 @@ echo "See https://manual.raycast.com/hotkey"
 echo "To disable Spotlight indexing for all volumes, run:"
 echo "sudo mdutil -a -i off"
 
+# https://stackoverflow.com/questions/15769615/remove-last-login-message-for-new-tabs-in-terminal
+touch ~/.hushlogin
+
 # MEMO: Prevent any external program from messing with these files
-chflags uimmutable ~/.config/elvish/rc.elv ~/.zshrc ~/.zshenv ~/.bashrc ~/.profile
+chflags uimmutable ~/.config/elvish/rc.elv ~/.zshrc ~/.zshenv ~/.bashrc ~/.profile ~/.hushlogin
 # `chflags nouimmutable <file>` for temporary editing
 
 "$self_dir/macos_config.sh"

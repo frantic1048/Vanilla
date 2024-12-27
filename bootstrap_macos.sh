@@ -77,5 +77,6 @@ echo "sudo mdutil -a -i off"
 
 # MEMO: Prevent any external program from messing with these files
 chflags uimmutable ~/.config/elvish/rc.elv ~/.zshrc ~/.zshenv ~/.bashrc ~/.profile
+# `chflags nouimmutable <file>` for temporary editing
 
 "$self_dir/macos_config.sh"

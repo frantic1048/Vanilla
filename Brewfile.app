@@ -1,18 +1,21 @@
 tap "wez/wezterm"
 
-cask "alacritty"
 cask "google-chrome"
 cask "karabiner-elements"
 cask "keepassxc"
 cask "keycastr"
 cask "keymapp"
-cask "kitty"
 cask "rancher"
 cask "raycast"
 cask "sublime-merge"
 cask "visual-studio-code"
-cask "wezterm"
 cask "android-file-transfer"
+
+# terminal emulators
+cask "alacritty"
+cask "kitty"
+cask "wezterm"
+cask "ghostty"
 
 # virtual machine
 cask "utm"

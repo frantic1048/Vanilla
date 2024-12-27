@@ -29,3 +29,13 @@ if (has-external starship) {
 #     # bind Ctrl-Y to location mode
 #     $bindsym Ctrl-Y $edit:location:start~
 # }
+
+# https://github.com/ghostty-org/ghostty/blob/main/src/shell-integration/README.md#elvish
+if (has-env GHOSTTY_RESOURCES_DIR) {
+    use kokkoro
+    var at-env~ = $kokkoro:at-env~
+
+    at-env &os="darwin" {
+        eval (slurp <$E:GHOSTTY_RESOURCES_DIR/shell-integration/elvish/lib/ghostty-integration.elv)
+    }
+}

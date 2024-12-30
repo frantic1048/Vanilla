@@ -18,3 +18,16 @@ macos-titlebar-style = "hidden"
 
 # ghostty +list-themes
 theme = Tomorrow Night Bright
+
+keybind = clear
+
+# macos
+# zellij already has copy_to_clipboard
+# keybind = cmd+c=copy_to_clipboard
+keybind = cmd+v=paste_from_clipboard
+keybind = cmd+d=close_window
+keybind = cmd+q=quit
+
+# FIXME: cmd+. eaten by ghostty (°_°)
+# even after keybind=clear
+# https://github.com/ghostty-org/ghostty/discussions/2881

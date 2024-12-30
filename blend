@@ -68,6 +68,8 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["kitty" $xdg_config_home_path]
   ["wezterm" $xdg_config_home_path]
   ["ghostty" $xdg_config_home_path]
+  ["zellij-macos" $xdg_config_home_path]
+  ["tmux" $home_path]
 
   # desktop
   ["aerospace" $xdg_config_home_path]

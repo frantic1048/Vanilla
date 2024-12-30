@@ -9,7 +9,7 @@ enable-normalization-opposite-orientation-for-nested-containers = false
 3 = 'built-in'
 
 [mode.main.binding]
-alt-enter = 'exec-and-forget open -n /Applications/kitty.app'
+alt-enter = 'exec-and-forget /Applications/kitty.app/Contents/MacOS/kitty --single-instance ~'
 
 alt-n = 'focus left'
 alt-e = 'focus down'

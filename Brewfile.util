@@ -13,7 +13,6 @@ brew "bash"
 # builtin make@3.81, Apr 2006
 brew "make"
 
-
 brew "actionlint"
 brew "bat"
 brew "butane"

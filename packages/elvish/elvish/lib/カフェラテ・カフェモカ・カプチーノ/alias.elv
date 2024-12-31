@@ -220,7 +220,7 @@ fn gcm {|@args|
 }
 
 fn cz {|@args|
-  e:pnpm exec cz $@args
+  e:npx cz $@args
 }
 
 fn br {

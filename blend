@@ -64,7 +64,7 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["neovim" $xdg_config_home_path]
 
   # terminal
-  ["alacritty" $xdg_config_home_path]
+  ["alacritty-macos" $xdg_config_home_path]
   ["kitty" $xdg_config_home_path]
   ["wezterm" $xdg_config_home_path]
   ["ghostty" $xdg_config_home_path]

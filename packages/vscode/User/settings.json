@@ -34,7 +34,7 @@
     "editor.defaultFormatter": "myriad-dreamin.tinymist"
   },
   "[yaml]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "debug.disassemblyView.showSourceCode": false,
   "diffEditor.maxComputationTime": 0,

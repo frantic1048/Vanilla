@@ -1,9 +1,9 @@
 tap "hashicorp/tap"
 tap "vectordotdev/brew"
 
+# shell
 brew "elvish"
 brew "nushell"
-brew "dash"
 
 # macOS has very old versions of these tools
 # builtin rsync@2.6.9, Nov 2006
@@ -15,9 +15,6 @@ brew "make"
 
 brew "actionlint"
 brew "bat"
-brew "butane"
-brew "vultr/vultr-cli/vultr-cli"
-brew "s3cmd"
 brew "coreutils"
 brew "difftastic"
 brew "eza"
@@ -33,7 +30,6 @@ brew "glab"
 brew "go-jsonnet"
 brew "graphviz"
 brew "harfbuzz"
-brew "hashicorp/tap/terraform"
 brew "neovim"
 brew "htop"
 brew "hyperfine"
@@ -66,14 +62,10 @@ brew "webp"
 brew "ykman"
 brew "youtube-dl"
 cask "android-platform-tools"
-brew "vector"
 brew "ntopng"
 brew "ast-grep"
 brew "gnu-time"
-
-
-brew "docker-slim"
-brew "tilt"
+brew "optipng"
 
 # git and friends
 # brew "git"
@@ -95,11 +87,15 @@ brew "cirruslabs/cli/tart"
 brew "tmux"
 brew "zellij"
 
-# kubernetes and friends
+# docker and friends
+brew "docker-slim"
+brew "tilt"
+brew "vector"
+brew "hashicorp/tap/terraform"
+brew "butane"
+brew "vultr/vultr-cli/vultr-cli"
+brew "s3cmd"
 brew "kubectl"
 brew "Azure/kubelogin/kubelogin"
 brew "kubectx"
-
 cask "ngrok"
-
-brew "optipng"

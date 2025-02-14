@@ -1,6 +1,8 @@
 tap "wez/wezterm"
 
 cask "google-chrome"
+cask "firefox@developer-edition"
+
 cask "karabiner-elements"
 cask "keepassxc"
 cask "keycastr"
@@ -9,7 +11,6 @@ cask "rancher"
 cask "raycast"
 cask "sublime-merge"
 cask "visual-studio-code"
-cask "android-file-transfer"
 
 # terminal emulators
 cask "alacritty"

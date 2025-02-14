@@ -130,7 +130,6 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["bin" $home_path]
   ["git" $xdg_config_home_path]
   ["proto" $home_path]
-  ["rye" $home_path]
   ["sapling" $xdg_config_home_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
   ["vscode" ([$xdg_config_home_path 'Code - OSS'] | path join)]
   ["htop" $xdg_config_home_path]
@@ -396,7 +395,6 @@ def "main s" [] {
   main s homebrew
   main s pacman
   main s proto
-  main s rye
 
   print_heading info Dotfiles
   main install
@@ -434,13 +432,6 @@ def "main s proto" [] {
       cd ([$self_dir 'packages' 'proto' '.proto'] | path join)
       proto outdated --yes --update
     }
-  }
-}
-
-def "main s rye" [] {
-  self_dir_do {
-    print_heading info Rye
-    rye self update
   }
 }
 

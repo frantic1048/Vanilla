@@ -11,7 +11,6 @@ each {|env_name|
   'PATH'
   'PROTO_HOME'
   'RUSTUP_HOME'
-  'RYE_HOME'
   'CARGO_HOME'
   'NIX_SSL_CERT_FILE'
   'NIX_PROFILES'

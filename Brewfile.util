@@ -99,3 +99,10 @@ brew "kubectl"
 brew "Azure/kubelogin/kubelogin"
 brew "kubectx"
 cask "ngrok"
+brew "cloudflared"
+brew "caddy"
+
+# resource monitoring
+brew "btop"
+
+brew "ipcalc"

@@ -87,14 +87,6 @@ set paths = [
   $@paths
 ]
 
-# Rye
-# https://rye.astral.sh/guide/installation/
-set-env RYE_HOME {~}/.rye
-set paths = [
-  $E:RYE_HOME/shims
-  $@paths
-]
-
 # Rust
 set-env RUSTUP_HOME {~}/.rustup
 set-env CARGO_HOME {~}/.cargo

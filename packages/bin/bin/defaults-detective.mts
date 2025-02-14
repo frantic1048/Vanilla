@@ -16,28 +16,33 @@ const styleRed = chalk.rgb(232, 46, 90);
 /**
  * Domains(paths) that are not useful for system configuration
  */
-const maskedDomains: (string | RegExp | [domain: string, path: string])[] = [
-  /^\d+$/,
-  "com.apple.biomesyncd",
-  "com.apple.CallHistorySyncHelper",
-  "com.apple.cseventlistener",
-  "com.apple.DuetExpertCenter.AppPredictionExpert",
-  "com.apple.FaceTime",
-  "com.apple.HIToolbox",
-  ["com.apple.iChat", "LastIMDNotificationPostedDate"],
-  "com.apple.knowledge-agent",
-  "com.apple.madrid",
-  "com.apple.mmcs",
-  "com.apple.photolibraryd",
-  "com.apple.photos.shareddefaults",
-  "com.apple.proactive.PersonalizationPortrait",
-  "com.apple.routined",
-  "com.apple.spaces",
-  "com.apple.spotlightknowledge",
-  "com.apple.tipsd",
-  "com.apple.xpc.activity2",
-  "ContextStoreAgent",
-];
+const maskedDomains:
+  (string | RegExp | [domain: string, path: string | RegExp])[] = [
+    /^\d+$/,
+    "com.apple.biomesyncd",
+    "com.apple.CallHistorySyncHelper",
+    "com.apple.cseventlistener",
+    "com.apple.DuetExpertCenter.AppPredictionExpert",
+    "com.apple.FaceTime",
+    "com.apple.HIToolbox",
+    ["com.apple.iChat", "LastIMDNotificationPostedDate"],
+    ["com.apple.screencapture", /^last-selection/],
+    ["com.apple.icloud.searchpartyuseragent", "OwnedDeviceLastPublishDate"],
+    "com.apple.CloudSubscriptionFeatures.cache",
+    ["com.apple.translationd", "LastOfflineAssetCatalogUpdate"],
+    "com.apple.knowledge-agent",
+    "com.apple.madrid",
+    "com.apple.mmcs",
+    "com.apple.photolibraryd",
+    "com.apple.photos.shareddefaults",
+    "com.apple.proactive.PersonalizationPortrait",
+    "com.apple.routined",
+    "com.apple.spaces",
+    "com.apple.spotlightknowledge",
+    "com.apple.tipsd",
+    "com.apple.xpc.activity2",
+    "ContextStoreAgent",
+  ];
 
 log(chalk.bold("=> Discovering domains...\n"));
 const allDomains = [];
@@ -125,9 +130,15 @@ while (true) {
                 const prefix = `\n${styleBlueHeading(` ${domain} `)} `;
                 const pathString = path.join(".");
                 if (
-                  maskedDomains.some((m) =>
-                    Array.isArray(m) && m[0] === domain && m[1] === pathString
-                  )
+                  maskedDomains.some((m) => {
+                    if (Array.isArray(m) && m[0] === domain) {
+                      const [, path] = m;
+                      return typeof path === "string"
+                        ? path === pathString
+                        : path.test(pathString);
+                    }
+                    return false;
+                  })
                 ) {
                   return;
                 } else if (kind === "N") {

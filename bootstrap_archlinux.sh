@@ -28,10 +28,6 @@ export PATH="$HOME/.proto/bin:$PATH"
 # Generate shims based on config from ~/.proto/.prototools
 proto regen
 
-# Install Rye
-# https://rye.astral.sh/
-curl -sSf https://rye.astral.sh/get | RYE_INSTALL_OPTION="--yes" bash
-
 # MEMO: VSCode settings sync
 
 # MEMO: Change default shell to elvish

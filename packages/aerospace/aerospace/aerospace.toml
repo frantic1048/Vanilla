@@ -4,8 +4,11 @@ enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = false
 
 [workspace-to-monitor-force-assignment]
-1 = 'P2723QE'
-2 = 'S2721QS'
+# FIXME: not work with multiple monitors in same name
+# 1 = 'DELL P2723QE (2)'
+# 2 = 'DELL P2723QE (1)'
+1 = 1
+2 = 3
 3 = 'built-in'
 
 [mode.main.binding]

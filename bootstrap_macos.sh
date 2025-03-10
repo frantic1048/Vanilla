@@ -29,6 +29,10 @@ else
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
+if [[ "${UNAME_MACHINE}" == "arm64" ]]; then
+  softwareupdate --install-rosetta --agree-to-license
+fi
+
 brew analytics off
 
 # Install Homebrew packages

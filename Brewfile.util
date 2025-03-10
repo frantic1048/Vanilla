@@ -106,3 +106,8 @@ brew "caddy"
 brew "btop"
 
 brew "ipcalc"
+
+# TLS certificate for local development
+# https://github.com/FiloSottile/mkcert
+brew "mkcert"
+brew "nss"

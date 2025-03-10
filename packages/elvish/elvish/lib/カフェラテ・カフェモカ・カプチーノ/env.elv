@@ -26,7 +26,9 @@ at-env &os="darwin" {
     # CLI form Rancher Desktop
     (existing-dir ~/.rd/bin)
 
-    (existing-dir ~/.npm-global/bin)
+    # npm prefix
+    (existing-dir ~/.npm-global/bin) # legacy
+    (existing-dir ~/.local/share/npm/bin) # current
 
     $@nixPaths
 

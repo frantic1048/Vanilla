@@ -10,7 +10,7 @@
     path = config.user.work
 [core]
 	fsmonitor = true
-	pager = delta
+	pager = "if command -v delta &>/dev/null; then delta; else less; fi"
 	precomposeunicode = true
 	quotepath = false
 [feature]

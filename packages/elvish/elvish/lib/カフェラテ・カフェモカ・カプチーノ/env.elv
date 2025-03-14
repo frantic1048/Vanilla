@@ -89,6 +89,9 @@ set paths = [
   $@paths
 ]
 
+# Node.js
+set-env NODE_OPTIONS $E:NODE_OPTIONS' --max-old-space-size=8192'
+
 # Rust
 set-env RUSTUP_HOME {~}/.rustup
 set-env CARGO_HOME {~}/.cargo

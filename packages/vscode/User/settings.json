@@ -75,6 +75,7 @@
   "editor.wordWrap": "off",
   "eslint.lintTask.enable": true,
   "eslint.runtime": "node", // make ESLint use current Node.js version instead of VSCode's
+  "eslint.execArgv": ["--max-old-space-size=8192"],
   "eslint.workingDirectories": [
     {
       // https://github.com/microsoft/vscode-eslint/issues/1101
@@ -212,5 +213,6 @@
     "!reference sequence"
   ],
   "zenMode.hideLineNumbers": false,
-  "zenMode.hideStatusBar": false
+  "zenMode.hideStatusBar": false,
+  "cursor.cpp.disabledLanguages": ["plaintext"]
 }

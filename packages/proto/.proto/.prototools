@@ -1,14 +1,14 @@
-bun = "1.2.4"
-deno = "2.2.3"
+bun = "1.2.7"
+deno = "2.2.6"
 go = "1.24.1"
-node = "23.9.0"
+node = "23.10.0"
 npm = "11.2.0"
-pnpm = "10.6.2"
-proto = "0.47.3"
+pnpm = "10.7.0"
+proto = "0.47.8"
 python = "3.13.2"
-rust = "1.85.0"
-uv = "0.6.5"
-yarn = "4.7.0"
+rust = "1.85.1"
+uv = "0.6.11"
+yarn = "4.8.1"
 
 [tools.node]
 bundled-npm = true

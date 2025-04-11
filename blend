@@ -406,6 +406,7 @@ def "main s homebrew" [] {
   self_dir_do {
     on_os_do ['macos'] {
       print_heading info Homebrew
+      brew update
       brew bundle install
     }
   }

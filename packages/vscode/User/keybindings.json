@@ -98,5 +98,9 @@
     "key": "cmd+k",
     "command": "-composer.startComposerPrompt",
     "when": "composerIsEnabled"
+  },
+  {
+    "key": "cmd+i",
+    "command": "composerMode.agent"
   }
 ]

@@ -292,3 +292,5 @@ fn kitty-reload {
   # https://sw.kovidgoyal.net/kitty/conf/#kitty-conf
   e:killall -SIGUSR1 kitty
 }
+
+fn less-watch-file {|@args| e:less -R +F $@args }

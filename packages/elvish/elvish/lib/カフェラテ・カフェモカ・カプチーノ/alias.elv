@@ -11,6 +11,7 @@ fn c { e:clear }
 fn ip {|@args| e:ip -c $@args }
 fn e {|@args| e:eza $@args }
 fn ee {|@args| e:eza -l $@args }
+fn tree {|@args| e:eza -T $@args }
 fn l {|@args| e:ls --color $@args }
 fn p {|@args| e:paru $@args }
 fn p-rm-orphan { e:paru -Rns (e:paru -Qtdq) }

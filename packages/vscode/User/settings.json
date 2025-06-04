@@ -6,7 +6,10 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
   },
   "[json]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
@@ -27,11 +30,17 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
   },
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.stickyScroll.defaultModel": "foldingProviderModel"
+    "editor.stickyScroll.defaultModel": "foldingProviderModel",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
   },
   "[typst]": {
     "editor.defaultFormatter": "myriad-dreamin.tinymist"
@@ -44,9 +53,6 @@
   "diffEditor.wordWrap": "off",
   "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
   "editor.cursorBlinking": "phase",
   // "editor.fontFamily": "Teranoptia",
   "editor.fontFamily": "JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",
@@ -75,13 +81,14 @@
   "editor.wordWrap": "off",
   "eslint.lintTask.enable": true,
   "eslint.runtime": "node", // make ESLint use current Node.js version instead of VSCode's
-  "eslint.execArgv": ["--max-old-space-size=8192"],
-  "eslint.workingDirectories": [
-    {
-      // https://github.com/microsoft/vscode-eslint/issues/1101
-      "mode": "auto"
-    }
-  ],
+  "eslint.execArgv": ["--max-old-space-size=16384"],
+  // "eslint.workingDirectories": [
+  //
+  //   {
+  //     // https://github.com/microsoft/vscode-eslint/issues/1101
+  //     "mode": "auto"
+  //   }
+  // ],
   "files.associations": {
     "*.bu": "yaml", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
     "*.ign": "json", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
@@ -214,5 +221,8 @@
   ],
   "zenMode.hideLineNumbers": false,
   "zenMode.hideStatusBar": false,
-  "cursor.cpp.disabledLanguages": ["plaintext"]
+  "cursor.cpp.disabledLanguages": ["plaintext"],
+  "semanticdiff.defaultDiffViewer": true,
+  "semanticdiff.closeOriginalTab": true,
+  "eslint.useFlatConfig": true
 }

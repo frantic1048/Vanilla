@@ -407,7 +407,7 @@ def "main s homebrew" [] {
     on_os_do ['macos'] {
       print_heading info Homebrew
       brew update
-      brew bundle install
+      brew bundle install --upgrade
     }
   }
 }

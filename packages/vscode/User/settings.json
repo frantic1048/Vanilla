@@ -156,6 +156,7 @@
       "text": "WARN:"
     }
   ],
+  "typescript.experimental.useTsgo": false,
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.tsserver.experimental.enableProjectDiagnostics": false,

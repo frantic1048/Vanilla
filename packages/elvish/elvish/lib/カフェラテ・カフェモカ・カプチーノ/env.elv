@@ -42,6 +42,9 @@ at-env &os="darwin" {
     # https://superuser.com/questions/1696372/wish-based-tools-git-gui-gitk-showing-broken-black-ui-on-macos-monterey
     (existing-dir /usr/local/opt/tcl-tk/bin)
 
+    # general local bin
+    (existing-dir ~/.local/bin)
+
     # homebrew(x86_64), and other binaries
     (existing-dir /usr/local/bin)
     # homebrew(apple silicon)
@@ -158,3 +161,6 @@ at-env &os="darwin" {
 
 # https://docs.grit.io/cli/quickstart#telemetry
 set-env GRIT_TELEMETRY_DISABLED true
+
+# Load local envs
+use ./env.local

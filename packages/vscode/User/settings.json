@@ -6,10 +6,10 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit"
-    }
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
@@ -30,17 +30,17 @@
     "editor.defaultFormatter": "foxundermoon.shell-format"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit"
-    }
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.stickyScroll.defaultModel": "foldingProviderModel",
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit"
-    }
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.stickyScroll.defaultModel": "foldingProviderModel"
   },
   "[typst]": {
     "editor.defaultFormatter": "myriad-dreamin.tinymist"
@@ -48,15 +48,18 @@
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "cursor.cpp.disabledLanguages": ["plaintext"],
   "debug.disassemblyView.showSourceCode": false,
   "diffEditor.maxComputationTime": 0,
   "diffEditor.wordWrap": "off",
   "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.cursorBlinking": "phase",
-  // "editor.fontFamily": "Teranoptia",
   "editor.fontFamily": "JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",
-  "editor.fontLigatures": true,
+  // "editor.fontLigatures": true,
+  // JetBrains Mono
+  // https://github.com/JetBrains/JetBrainsMono/wiki/OpenType-features
+  "editor.fontLigatures": "'calt', 'zero', 'ss02', 'cv14'",
   // Monaspace
   // "editor.fontLigatures": "'calt', 'liga', 'dlig', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'ss07', 'ss08'",
   "editor.fontSize": 13,
@@ -79,9 +82,10 @@
   "editor.tabSize": 2,
   "editor.unicodeHighlight.invisibleCharacters": true,
   "editor.wordWrap": "off",
+  "eslint.execArgv": ["--max-old-space-size=16384"],
   "eslint.lintTask.enable": true,
   "eslint.runtime": "node", // make ESLint use current Node.js version instead of VSCode's
-  "eslint.execArgv": ["--max-old-space-size=16384"],
+  "eslint.useFlatConfig": true,
   // "eslint.workingDirectories": [
   //
   //   {
@@ -90,20 +94,20 @@
   //   }
   // ],
   "files.associations": {
+    ".git-blame-ignore-revs": "ignore",
+    ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
     "*.bu": "yaml", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
     "*.ign": "json", // https://docs.fedoraproject.org/en-US/fedora-coreos/producing-ign/
     "*.sarif": "json", // https://sarif.info/
     "*.sast": "json", // https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
-    ".git-blame-ignore-revs": "ignore",
-    ".prototools": "toml", // https://moonrepo.dev/docs/proto/config
     "Brewfile": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Brewfile.{app,desktop,fonts,util,makedep}": "ruby", // https://github.com/Homebrew/homebrew-bundle
     "Dangerfile": "ruby", // https://danger.systems/
     "skhdrc": "shellscript",
     "yabairc": "shellscript"
   },
-  "git.autoRepositoryDetection": true,
   "git.autorefresh": true,
+  "git.autoRepositoryDetection": true,
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.enable": {
     "*": true,
@@ -117,6 +121,7 @@
     "typescriptreact": true,
     "yaml": true
   },
+  "github.copilot.nextEditSuggestions.enabled": true,
   "gitlens.advanced.blame.customArguments": [],
   "gitlens.plusFeatures.enabled": false,
   "graphviz-interactive-preview.renderLockAdditionalTimeout": 5000,
@@ -126,6 +131,8 @@
   "playwright.reuseBrowser": false,
   "problems.sortOrder": "position",
   "redhat.telemetry.enabled": false,
+  "semanticdiff.closeOriginalTab": true,
+  "semanticdiff.defaultDiffViewer": true,
   "settingsSync.ignoredExtensions": [
     // VSCode builtin
     "oderwat.indent-rainbow",
@@ -173,7 +180,9 @@
     "breadcrumb.background": "#00000000",
     "breadcrumbPicker.background": "#000000a0",
     "button.background": "#00000040",
+    "button.foreground": "#eee",
     "button.hoverBackground": "#00000080",
+    "button.secondaryForeground": "#eee",
     "editor.background": "#00000030",
     "editor.lineHighlightBackground": "#707effa0",
     "editorCursor.foreground": "#80c1ff",
@@ -188,6 +197,7 @@
     "editorStickyScroll.border": "#6331b340",
     "editorWarning.background": "#ebcb1745",
     "editorWarning.foreground": "#f9c311db",
+    "extensionButton.prominentForeground": "#eee",
     "input.background": "#000000a0",
     "input.border": "#51abff",
     "list.activeSelectionBackground": "#000000aa",
@@ -207,9 +217,9 @@
     // "workbench.background": "#00000080" // only in code-transparent
     "window.background": "#00000080"
   },
-  "workbench.colorTheme": "GitHub Dark Default",
+  "workbench.colorTheme": "Catppuccin Frappé",
   "workbench.editor.empty.hint": "hidden",
-  "workbench.iconTheme": "vscode-stardew-icon-theme",
+  "workbench.iconTheme": "vscode-stardew-icon-theme-autumn",
   "workbench.layoutControl.enabled": false,
   "workbench.localHistory.enabled": true,
   "workbench.localHistory.maxFileEntries": 500,
@@ -221,9 +231,5 @@
     "!reference sequence"
   ],
   "zenMode.hideLineNumbers": false,
-  "zenMode.hideStatusBar": false,
-  "cursor.cpp.disabledLanguages": ["plaintext"],
-  "semanticdiff.defaultDiffViewer": true,
-  "semanticdiff.closeOriginalTab": true,
-  "eslint.useFlatConfig": true
+  "zenMode.hideStatusBar": false
 }

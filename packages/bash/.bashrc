@@ -1,3 +1,4 @@
-# shellcheck shell=bash
-# non-login interactive shells
+# shellcheck shell=dash
+
+eval "$(~/bin/shellenv)"
 eval "$(starship init bash)"

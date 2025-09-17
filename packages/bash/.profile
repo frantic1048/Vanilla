@@ -1,2 +1,3 @@
-# shellcheck shell=bash
-eval "$(~/bin/shellenv)"
+# shellcheck shell=dash
+
+[ -r ~/.bashrc ] && . ~/.bashrc

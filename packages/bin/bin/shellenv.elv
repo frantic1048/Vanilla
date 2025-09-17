@@ -2,6 +2,8 @@
 
 # Generate essential environment variables for zsh and bash
 
+use カフェラテ・カフェモカ・カプチーノ/env
+
 each {|env_name|
   if (has-env $env_name) {
     # WARN: add escape for '

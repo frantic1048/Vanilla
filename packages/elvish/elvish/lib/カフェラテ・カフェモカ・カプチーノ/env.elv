@@ -5,7 +5,6 @@ use kokkoro
 var existing-dir~ = $kokkoro:existing-dir~
 var at-env~ = $kokkoro:at-env~
 
-
 # PATH
 at-env &os="darwin" {
   # MacOS
@@ -91,6 +90,10 @@ set paths = [
   $E:PROTO_HOME/tools/node/globals/bin
   $@paths
 ]
+
+# pnpm
+set-env PNPM_HOME {~}/.local/share/pnpm
+set paths = [$E:PNPM_HOME $@paths]
 
 # Node.js
 set-env NODE_OPTIONS $E:NODE_OPTIONS' --max-old-space-size=8192'

@@ -1,6 +1,8 @@
 #!/usr/bin/env elvish
 
-script_name=(path-base (src)[name])
+use path
+
+var script_name = (path:base (src)[name])
 
 if (== (count $args) 0) {
     echo Usage:
@@ -10,16 +12,16 @@ if (== (count $args) 0) {
     exit
 }
 
-put $@args | peach [image]{
+put $@args | peach {|image|
     if (!=s $image '') {
         echo converting $image
-        convert $image \
-            -resize '2160x2160>' \
-            -quality 95 \
-            -define webp:method=6 \
-            -define webp:auto-filter=true \
-            -define webp:thread-level=1 \
-            -define webp:pass=10 \
+        magick $image ^
+            -resize '2160x2160>' ^
+            -quality 95 ^
+            -define webp:method=6 ^
+            -define webp:auto-filter=true ^
+            -define webp:thread-level=1 ^
+            -define webp:pass=10 ^
             $image'.webp'
     }
 }

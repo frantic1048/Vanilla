@@ -27,5 +27,3 @@ cask "slack"
 cask "vlc"
 
 cask "inkscape"
-
-cask "deeper"

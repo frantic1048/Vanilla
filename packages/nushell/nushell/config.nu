@@ -821,6 +821,5 @@ alias nu-p = p
 alias nu-n = n
 
 use ~/.cache/starship/init.nu
-
-# git aliases(not working)
-# use g.nu
+use ./modules/dhd.nu
+use ./modules/alias.nu *

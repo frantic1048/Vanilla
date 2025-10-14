@@ -91,8 +91,8 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["tealdeer" $macos_application_support_path]
   ["bat" $xdg_config_home_path]
   ["gpg" $home_path]
-  ["claude" $xdg_config_home_path]
 ]
+
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
   # shell and friends
@@ -149,7 +149,6 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["ncdu" $xdg_config_home_path]
   ["tealdeer" $xdg_config_home_path]
   ["color" $home_local_share_path]
-  ["claude" $xdg_config_home_path]
 ]
 
 let stow_profiles: table<name: string, table: table<package: string, prefix: string>> = [

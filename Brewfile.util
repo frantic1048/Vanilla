@@ -113,3 +113,6 @@ brew "ipcalc"
 # https://github.com/FiloSottile/mkcert
 brew "mkcert"
 brew "nss"
+
+# image metadata
+brew "exiv2"

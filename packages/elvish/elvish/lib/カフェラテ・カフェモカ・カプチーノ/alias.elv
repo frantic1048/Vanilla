@@ -17,7 +17,11 @@ fn p {|@args| e:paru $@args }
 fn p-rm-orphan { e:paru -Rns (e:paru -Qtdq) }
 fn pping {|@args| e:prettyping $@args }
 fn atom {|@args| e:env PYTHON=python2 atom --enable-transparent-visuals --disable-gpu $@args & }
-fn code {|@args| e:code $@args & }
+fn code {|@args|
+  # workaround for macOS 26
+  # https://github.com/microsoft/vscode/pull/267724#issuecomment-3316457267
+  env CHROME_HEADLESS=1 code $@args &
+}
 fn aria {|@args| e:aria2c --conf-path={~}/bkped/aria2c.conf }
 fn s {|@args| e:systemctl $@args }
 fn f {|@args| e:fd $@args }
@@ -86,6 +90,7 @@ fn g {|@args|
 
   # Commit
   if (==s $op 'c') { g commit $@rest; return }
+  if (==s $op 'cn') { g c -n commit $@rest; return }
   if (==s $op 'cnm') { g c -n -m $@rest; return }
   if (==s $op 'cnmw') { g a .; g c -n --allow-empty -m '[skip ci] wip'; return }
   if (==s $op 'f') { g c -n --fixup ':/'$@rest; return }

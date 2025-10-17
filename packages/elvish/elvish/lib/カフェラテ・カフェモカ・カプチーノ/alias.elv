@@ -90,8 +90,9 @@ fn g {|@args|
 
   # Commit
   if (==s $op 'c') { g commit $@rest; return }
-  if (==s $op 'cn') { g c -n commit $@rest; return }
-  if (==s $op 'cnm') { g c -n -m $@rest; return }
+  if (==s $op 'cn') { g commit -n $@rest; return }
+  if (==s $op 'cm') { g commit -m $@rest; return }
+  if (==s $op 'cnm') { g commit -n -m $@rest; return }
   if (==s $op 'cnmw') { g a .; g c -n --allow-empty -m '[skip ci] wip'; return }
   if (==s $op 'f') { g c -n --fixup ':/'$@rest; return }
   if (==s $op 'ff') { g c -n --fixup $@rest; return }

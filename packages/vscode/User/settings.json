@@ -151,6 +151,7 @@
   ],
   "tailscale.ssh.defaultUsername": "root",
   "terminal.integrated.stickyScroll.enabled": true,
+  "terminal.integrated.fontFamily": "JetBrainsMono NF",
   "tinymist.formatterMode": "typstyle",
   "todohighlight.keywords": [
     {

@@ -1,5 +1,5 @@
 use str
-
+use path
 use kokkoro
 
 var existing-dir~ = $kokkoro:existing-dir~
@@ -166,4 +166,10 @@ at-env &os="darwin" {
 set-env GRIT_TELEMETRY_DISABLED true
 
 # Load local envs
-use ./env.local
+if (src)[is-file] {
+  var local_env_file = (path:join (path:dir (src)[name]) 'env.local.elv')
+  if (not (path:is-regular $local_env_file)) {
+     cp $local_env_file'.example' $local_env_file
+  }
+  use ./env.local
+}

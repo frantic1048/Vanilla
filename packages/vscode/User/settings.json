@@ -1,4 +1,7 @@
 {
+  "evenBetterToml.schema.associations": {
+    "vector.toml": "https://www.schemastore.org/vector.json"
+  },
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -118,7 +121,7 @@
   },
   "git.autorefresh": true,
   "git.autoRepositoryDetection": true,
-  "git.blame.editorDecoration.enabled": false,
+  "git.blame.editorDecoration.enabled": true,
   "github.copilot.editor.enableAutoCompletions": true,
   "github.copilot.enable": {
     "*": true,
@@ -134,6 +137,10 @@
   },
   "github.copilot.nextEditSuggestions.enabled": true,
   "gitlens.advanced.blame.customArguments": [],
+  "gitlens.codeLens.enabled": false,
+  "gitlens.currentLine.enabled": false,
+  "gitlens.currentLine.scrollable": false,
+  "gitlens.hovers.currentLine.over": "line",
   "gitlens.plusFeatures.enabled": false,
   "graphviz-interactive-preview.renderLockAdditionalTimeout": 5000,
   "javascript.preferences.importModuleSpecifier": "non-relative",
@@ -150,8 +157,8 @@
     "leodevbro.blockman"
   ],
   "tailscale.ssh.defaultUsername": "root",
-  "terminal.integrated.stickyScroll.enabled": true,
   "terminal.integrated.fontFamily": "JetBrainsMono NF",
+  "terminal.integrated.stickyScroll.enabled": true,
   "tinymist.formatterMode": "typstyle",
   "todohighlight.keywords": [
     {
@@ -184,8 +191,9 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.validate.enable": true,
   "update.mode": "start",
-  "window.commandCenter": false,
   "window.menuBarVisibility": "hidden",
+  "window.titleBarStyle": "native",
+  "window.customTitleBarVisibility": "never",
   "workbench.activityBar.location": "hidden",
   "workbench.colorCustomizations": {
     "activityBar.background": "#0000006a",
@@ -233,7 +241,6 @@
   "workbench.colorTheme": "Catppuccin Frappé",
   "workbench.editor.empty.hint": "hidden",
   "workbench.iconTheme": "vscode-stardew-icon-theme-autumn",
-  "workbench.layoutControl.enabled": false,
   "workbench.localHistory.enabled": true,
   "workbench.localHistory.maxFileEntries": 500,
   "workbench.localHistory.maxFileSize": 512,
@@ -244,5 +251,9 @@
     "!reference sequence"
   ],
   "zenMode.hideLineNumbers": false,
-  "zenMode.hideStatusBar": false
+  "zenMode.hideStatusBar": false,
+  "workbench.experimental.share.enabled": true,
+  "window.commandCenter": false,
+  "workbench.layoutControl.enabled": false,
+  "chat.commandCenter.enabled": false
 }

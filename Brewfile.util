@@ -116,3 +116,7 @@ brew "nss"
 
 # image metadata
 brew "exiv2"
+
+# https://kanidm.github.io/kanidm/stable/installing_client_tools.html
+tap "kanidm/kanidm"
+brew "kanidm"

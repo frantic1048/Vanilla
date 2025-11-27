@@ -16,7 +16,7 @@ const ref_format = [
 export def --wrapped g [...rest: string] {
   if ($rest | length) == 0 {
     g b | tail -n5
-    git status -u
+    git status -s
   } else {
     git ...$rest
   }

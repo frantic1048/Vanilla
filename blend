@@ -43,18 +43,21 @@ let all_top_dirs: list<string> = (ls $package_base_dir
 
 let all_packages: list<string> = ($all_top_dirs | where $it not-in $not_package_name)
 
-let home_path = $nu.home-path
-let macos_application_support_path = [$home_path "Library" "Application Support"] | path join
-let macos_preferences_path = [$home_path "Library" "Preferences"] | path join
-let xdg_config_home_path = [$home_path ".config"] | path join
-def make_xdg_config_subpath [subpath: string] {
+let home_path: string = $nu.home-path
+let macos_application_support_path: string = [$home_path "Library" "Application Support"] | path join
+def make_macos_application_support_subpath [subpath: string]: nothing -> string {
+  [$macos_application_support_path $subpath] | path join
+}
+let macos_preferences_path: string = [$home_path "Library" "Preferences"] | path join
+let xdg_config_home_path: string = [$home_path ".config"] | path join
+def make_xdg_config_home_subpath [subpath: string]: nothing -> string {
   [$xdg_config_home_path $subpath] | path join
 }
-let home_local_share_path = [$home_path ".local" "share"] | path join
+let home_local_share_path: string = [$home_path ".local" "share"] | path join
 
 let macos_stow_table: table<package: string, prefix: string> = [
   [package prefix];
-  # shell and friends
+  # shells and friends
   ["elvish" $xdg_config_home_path]
   ["zsh" $home_path]
   ["bash" $home_path]
@@ -83,9 +86,9 @@ let macos_stow_table: table<package: string, prefix: string> = [
   ["sapling" $macos_preferences_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
   ["proto" $home_path]
   ["mise" $xdg_config_home_path]
-  ["vscode" ([$macos_application_support_path 'Code'] | path join)]
-  ["vscode" ([$macos_application_support_path 'code-oss-dev'] | path join)] # local dev build
-  ["vscode" ([$macos_application_support_path 'Cursor'] | path join)] # https://www.cursor.com/
+  ["vscode" (make_macos_application_support_subpath 'Code')]
+  ["vscode" (make_macos_application_support_subpath 'code-oss-dev')] # local dev build
+  ["vscode" (make_macos_application_support_subpath 'Cursor')] # https://www.cursor.com/
   ["fastfetch" $xdg_config_home_path]
   ["ncdu" $xdg_config_home_path]
   ["tealdeer" $macos_application_support_path]
@@ -95,7 +98,7 @@ let macos_stow_table: table<package: string, prefix: string> = [
 
 let linux_stow_table: table<package: string, prefix: string> = [
   [package prefix];
-  # shell and friends
+  # shells and friends
   ["elvish" $xdg_config_home_path]
   ["zsh" $home_path]
   ["bash" $home_path]
@@ -132,8 +135,8 @@ let linux_stow_table: table<package: string, prefix: string> = [
   ["git" $xdg_config_home_path]
   ["proto" $home_path]
   ["sapling" $xdg_config_home_path] # https://sapling-scm.com/docs/introduction/getting-started#setting-your-identity
-  ["vscode" ([$xdg_config_home_path 'Code'] | path join)]
-  ["vscode" ([$xdg_config_home_path 'Code - OSS'] | path join)]
+  ["vscode" (make_xdg_config_home_subpath 'Code')]
+  ["vscode" (make_xdg_config_home_subpath 'Code - OSS')]
   ["htop" $xdg_config_home_path]
   ["nano" $xdg_config_home_path]
   ["sxiv" $xdg_config_home_path]
@@ -398,6 +401,9 @@ def "main s" [] {
   main s pacman
   main s proto
 
+  print_heading info Claude
+  claude update
+
   print_heading info Dotfiles
   main install
 
@@ -431,7 +437,6 @@ def "main s proto" [] {
     print_heading info Proto
     proto clean --yes --days 60
     proto upgrade --yes
-    claude update
     do {
       cd ([$self_dir 'packages' 'proto' '.proto'] | path join)
       proto outdated --yes --update

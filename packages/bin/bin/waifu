@@ -5,7 +5,8 @@
 # depends:
 #   - waifu2x-converter-cpp
 
-WAIFU2X='waifu2x-converter-cpp'
+#WAIFU2X='waifu2x-converter-cpp'
+WAIFU2X='waifu2x-ncnn-vulkan'
 
 if [[ $# -eq 0 ]]; then
     cat << EOF
@@ -61,16 +62,16 @@ CONFIG=""
 POSTFIX="_waifu"
 
 if [[ -n "$SCALE" ]]; then
-    CONFIG+=" --scale-ratio $SCALE"
+    CONFIG+=" -s $SCALE"
     POSTFIX+="_s$SCALE"
 else
     # defaults to 2x scale
-    CONFIG+=" --scale-ratio 2"
+    CONFIG+=" -s 2"
     POSTFIX+="_s2"
 fi
 
 if [[ -n "$NOISE" ]]; then
-    CONFIG+=" --noise-level $NOISE"
+    CONFIG+=" -n $NOISE"
     POSTFIX+="_n$NOISE"
 else
     POSTFIX+="_n0"

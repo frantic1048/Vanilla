@@ -440,6 +440,7 @@ def "main s proto" [] {
     do {
       cd ([$self_dir 'packages' 'proto' '.proto'] | path join)
       proto outdated --yes --update
+      proto install --yes
     }
   }
 }

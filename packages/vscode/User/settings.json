@@ -45,7 +45,7 @@
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit"
     },
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "denoland.vscode-deno"
   },
   "[typescriptreact]": {
     "editor.codeActionsOnSave": {
@@ -204,6 +204,7 @@
     "button.hoverBackground": "#00000080",
     "button.secondaryForeground": "#eee",
     "editor.background": "#00000030",
+    // "editor.background": "linear-gradient(to bottom, #1e5799 0%,#2989d8 50%,#207cca 51%,#7db9e8 100%)",
     "editor.lineHighlightBackground": "#707effa0",
     "editor.lineHighlightBorder": "#c4c6d3a0",
     "editorCursor.foreground": "#80c1ff",
@@ -255,5 +256,6 @@
   "workbench.experimental.share.enabled": true,
   "window.commandCenter": false,
   "workbench.layoutControl.enabled": false,
-  "chat.commandCenter.enabled": false
+  "chat.commandCenter.enabled": false,
+  "claudeCode.preferredLocation": "panel"
 }

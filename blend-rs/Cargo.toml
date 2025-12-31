@@ -1,0 +1,19 @@
+[package]
+name = "blend"
+version = "0.1.0"
+edition = "2024"
+authors = ["kafuuchino"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+walkdir = "2"
+globset = "0.4"
+colored = "2"
+dirs = "6"
+
+# TODO: fancy log
+# https://docs.rs/tracing-subscriber/latest/tracing_subscriber/
+# https://docs.rs/crate/tracing/latest
+
+[dev-dependencies]
+tempfile = "3"

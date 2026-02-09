@@ -43,7 +43,7 @@ let all_top_dirs: list<string> = (ls $package_base_dir
 
 let all_packages: list<string> = ($all_top_dirs | where $it not-in $not_package_name)
 
-let home_path: string = $nu.home-path
+let home_path: string = $nu.home-dir
 let macos_application_support_path: string = [$home_path "Library" "Application Support"] | path join
 def make_macos_application_support_subpath [subpath: string]: nothing -> string {
   [$macos_application_support_path $subpath] | path join

@@ -1,0 +1,246 @@
+exec "sh -c 'sleep 2;fcitx -r &'"
+#exec "sh -c 'sleep 2;nm-applet &'"
+exec_always "mako &"
+
+# dpms off/on is not working well
+# https://github.com/swaywm/wlroots/issues/2325
+#    timeout 180 'swaymsg "output * dpms off"' \
+#    timeout 15 'if pgrep -x swaylock; then swaymsg "output * dpms off"; fi' \
+#    resume 'swaymsg "output * dpms on"' \
+
+# exec swayidle -w \
+#    timeout 300 'if pgrep -xv swaylock; then ~/bin/ffflockscreen.elv; fi' \
+#    before-sleep '~/bin/ffflockscreen.elv' &
+
+# host specific configuration
+exec_always "~/bin/fffconfhost.elv"
+
+# FIXME: does not work well under sway
+# exec "sh -c 'sleep 2;rsibreak &'"
+
+hide_edge_borders smart
+smart_borders on
+default_border pixel 2
+default_floating_border none
+gaps inner 0
+
+# Tip: use `swaymsg -t get_tree` to retrieve window info
+#for_window [app_id="Alacritty"] border pixel 0
+#for_window [class="code-oss"] border pixel 0
+
+for_window [class="Conky"] border pixel 0
+for_window [class="trayer"] border pixel 0
+for_window [class="dota2"] border none
+for_window [class="Inkscape"] floating disable
+# float virtualbox window except manager window
+for_window [class="VirtualBox" title="^(?!(Oracle VM VirtualBox Manager|Oracle VM VirtualBox 管理器)$)" ] floating enable
+for_window [class="Sxiv"] floating enable
+for_window [class="starbound"] floating enable
+for_window [class="Pencil"] floating enable
+for_window [class="kruler"] floating enable
+for_window [class="kruler"] border none
+
+for_window [title="Copying — Dolphin"] floating enable
+for_window [title="File Already Exists — Dolphin"] floating enable
+
+no_focus [class="Conky"]
+#floating_minimum_size 120 x 20
+
+set $mod Mod4
+
+# Font for window titles. Will also be used by the bar unless a different font
+# is used in the bar {} block below.
+# This font is widely installed, provides lots of unicode glyphs, right-to-left
+# text rendering and scalability on retina/hidpi displays (thanks to pango).
+#font pango:Fira Code Medium 9
+#font pango:Montaga Regular 10
+#font pango:Almendra Regular 0
+font pango:Noto Sans CJK SC Bold 8
+# Before i3 v4.8, we used to recommend this one as the default:
+# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+# The font above is very space-efficient, that is, it looks good, sharp and
+# clear in small sizes. However, its unicode glyph coverage is limited, the old
+# X core fonts rendering does not support right-to-left and this being a bitmap
+# font, it doesn’t scale on retina/hidpi displays.
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+# screenshot
+bindsym $mod+backslash exec swayshot region
+bindsym $mod+Shift+backslash exec swayshot window
+bindsym $mod+Control+backslash exec env GRIM_DEFAULT_DIR=/home/chino/Pictures/screenshots grim -t jpeg
+
+# start a terminal
+#bindsym $mod+Return exec i3-sensible-terminal
+#bindsym $mod+Return exec sakura
+
+# WINIT_UNIX_BACKEND=x11 for fcitx
+# clear XDG_CURRENT_DESKTOP thus xdg-open will not call kfmclient(kde stuff)
+#bindsym $mod+Return exec env LANG=en_US.UTF-8 WINIT_UNIX_BACKEND=x11 XDG_CURRENT_DESKTOP= alacritty
+bindsym $mod+Return exec env LANG=en_US.UTF-8 alacritty
+
+# kill focused window
+bindsym $mod+x kill
+
+# start dmenu (a program launcher)
+# alt+space
+#bindsym Mod1+space exec --no-startup-id qdbus org.kde.krunner /App display
+#bindsym Mod1+space exec --no-startup-id j4-dmenu-desktop --dmenu='env BEMENU_BACKEND=wayland bemenu -m all -i --nb "#333333" --nf "#1976E4" --fn "Noto Sans Bold 12"' --term='alacritty'
+#bindsym Mod1+space exec --no-startup-id wofi -S drun -Im -w 2 -W 640
+bindsym Mod1+space exec --no-startup-id rofi -show drun
+# There also is the (new) i3-dmenu-desktop which only displays applications
+# shipping a .desktop file. It is a wrapper around dmenu, so you need that
+# installed.
+# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+
+bindsym XF86AudioPlay exec playerctl -p cantata play-pause
+bindsym XF86AudioNext exec playerctl -p cantata next
+bindsym XF86AudioPrev exec playerctl -p cantata previous
+
+# change focus
+bindsym $mod+n focus left
+bindsym $mod+e focus down
+bindsym $mod+i focus up
+bindsym $mod+o focus right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+
+# move focused window
+bindsym $mod+Shift+n move left
+bindsym $mod+Shift+e move down
+bindsym $mod+Shift+i move up
+bindsym $mod+Shift+o move right
+
+# alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+
+# split in horizontal orientation
+bindsym $mod+c split h
+
+# split in vertical orientation
+bindsym $mod+v split v
+
+# enter fullscreen mode for the focused container
+bindsym $mod+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym $mod+s layout stacking
+bindsym $mod+t layout tabbed
+bindsym $mod+p layout toggle split
+
+# toggle tiling / floating
+bindsym $mod+Shift+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym $mod+z focus mode_toggle
+
+# focus the parent container
+bindsym $mod+q focus parent
+
+# focus the child container
+bindsym $mod+a focus child
+
+
+# MEMO: get key syms: xmodmap -pke
+bindsym $mod+l focus output left
+bindsym $mod+u focus output down
+bindsym $mod+y focus output up
+bindsym $mod+semicolon focus output right
+
+# switch to workspace
+bindsym $mod+1 workspace 1
+bindsym $mod+2 workspace 2
+bindsym $mod+3 workspace 3
+bindsym $mod+4 workspace 4
+bindsym $mod+5 workspace 5
+bindsym $mod+6 workspace 6
+bindsym $mod+7 workspace 7
+bindsym $mod+8 workspace 8
+bindsym $mod+9 workspace 9
+bindsym $mod+0 workspace 10
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace 1
+bindsym $mod+Shift+2 move container to workspace 2
+bindsym $mod+Shift+3 move container to workspace 3
+bindsym $mod+Shift+4 move container to workspace 4
+bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+6 move container to workspace 6
+bindsym $mod+Shift+7 move container to workspace 7
+bindsym $mod+Shift+8 move container to workspace 8
+bindsym $mod+Shift+9 move container to workspace 9
+bindsym $mod+Shift+0 move container to workspace 10
+
+# reload the configuration file
+bindsym $mod+Shift+c reload
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+r restart
+# lock screen
+bindsym $mod+Shift+z exec ~/bin/ffflockscreen.elv
+bindsym $mod+j exec --no-startup-id wl-paste | qrencode -t PNG -o - | display
+# exit i3 (logs you out of your X session)
+#bindsym $mod+Shift+x exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+#bindsym $mod+Shift+x exec "swaymsg exit"
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym n resize shrink width 10 px or 10 ppt
+        bindsym e resize grow height 10 px or 10 ppt
+        bindsym i resize shrink height 10 px or 10 ppt
+        bindsym o resize grow width 10 px or 10 ppt
+
+        # same bindings, but for the arrow keys
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+
+bindsym $mod+r mode "resize"
+
+# class                 border    backgr.   text      indicator   child_border
+client.focused          #756ba880 #756ba880 #ffffffff #2e9ef4a0   #756ba880
+client.focused_inactive #000000d0 #000000d0 #ffffffff #484e50a0   #000000c0
+client.unfocused        #000000c0 #000000c0 #888888ff #292d2eb0   #000000c0
+client.urgent           #900000a0 #900000a0 #ffffffff #900000a0   #900000a0
+client.placeholder      #000000c0 #000000c0 #ffffffff #000000c0   #000000c0
+
+bar {
+    swaybar_command waybar
+}
+
+# mouses
+input type:pointer {
+    accel_profile flat
+    pointer_accel 1
+}
+
+
+input type:touchpad {
+    tap enabled
+}
+
+#input 1133:50490:Logitech_USB_Receiver_System_Control pointer_accel 1
+#input 1133:16507:Logitech_MX_Vertical pointer_accel 1
+
+
+# monitors
+# go fffconfhost.elv to config these stuff

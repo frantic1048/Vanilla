@@ -19,63 +19,61 @@ _macOS_:
 
 ## Config packages
 
+Configs are defined as Nickel DSL orders in `orders/` and deployed via `blend-rs`.
+
 <table><thead><tr><th>package</th><th colspan="3">profiles</th></tr></thead><tbody>
-<tr><td><a href="packages/aerospace/aerospace/aerospace.toml">aerospace</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/alacritty-macos/alacritty/alacritty.toml">alacritty-macos</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/fastfetch/fastfetch/config.jsonc">fastfetch</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/kitty/kitty">kitty</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/mise/mise/config.toml">mise</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/sketchybar/sketchybar">sketchybar</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/skhd/skhd/skhdrc">skhd</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/wezterm">wezterm</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/yabai/yabai">yabai</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/zellij-macos/zellij/config.kdl">zellij-macos</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/bash">bash</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/bat/bat/config">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/bin/bin">bin</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/elvish/elvish">elvish</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/ghostty/ghostty/config">ghostty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/git/git">git</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/gpg">gpg</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/ncdu/ncdu/config">ncdu</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/neovim/nvim">neovim</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/nushell/nushell">nushell</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/proto">proto</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/pueue/pueue/pueue.yml">pueue</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/sapling/sapling/sapling.conf">sapling</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/starship/starship.toml">starship</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/tealdeer/tealdeer/config.toml">tealdeer</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/tmux">tmux</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/vscode/User">vscode</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/zsh">zsh</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td><tr>
-<tr><td><a href="packages/X">X</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/alacritty">alacritty</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/alsa">alsa</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/color/DisplayCAL/storage">color</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/fcitx/fcitx">fcitx</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/fontconfig/fontconfig">fontconfig</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/htop/htop/htoprc">htop</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/i3wm/i3/config">i3wm</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/makepkg">makepkg</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/mako/mako/config">mako</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/nano/nano/nanorc">nano</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/neofetch/neofetch/config.conf">neofetch</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/npm">npm</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/pam_env">pam_env</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/picom/picom/picom.conf">picom</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/pipewire/pipewire">pipewire</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/pulseaudio/pulse">pulseaudio</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/rofi/rofi/config.rasi">rofi</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/sakura/sakura/sakura.conf">sakura</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/sway/sway/config">sway</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/swayshot/swayshot.sh">swayshot</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/sxiv/sxiv/exec/image-info">sxiv</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/tint2/tint2/tint2rc">tint2</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/waybar/waybar">waybar</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/atom">atom</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/krita">krita</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/psd">psd</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
-<tr><td><a href="packages/stow">stow</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><tr>
+<tr><td><a href="orders/bash">bash</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/bat">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/bin">bin</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/elvish">elvish</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/ghostty">ghostty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/git">git</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/gpg">gpg</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/kitty">kitty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/ncdu">ncdu</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/neovim">neovim</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/nushell">nushell</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/proto">proto</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/pueue">pueue</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/sapling">sapling</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/starship">starship</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/tealdeer">tealdeer</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/tmux">tmux</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/zsh">zsh</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/aerospace">aerospace</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/alacritty-macos">alacritty-macos</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/fastfetch">fastfetch</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/mise">mise</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/sketchybar">sketchybar</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/skhd">skhd</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/vscode">vscode</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/wezterm">wezterm</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/yabai">yabai</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/zellij-macos">zellij-macos</a></td><td><code>&nbsp;...</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/X">X</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/alacritty">alacritty</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/alsa">alsa</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/color">color</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/fcitx">fcitx</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/fontconfig">fontconfig</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/htop">htop</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/i3wm">i3wm</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/makepkg">makepkg</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/mako">mako</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/nano">nano</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/neofetch">neofetch</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/npm">npm</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/pam_env">pam_env</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/picom">picom</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/pipewire">pipewire</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/pulseaudio">pulseaudio</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/rofi">rofi</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/sakura">sakura</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/sway">sway</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/swayshot">swayshot</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/sxiv">sxiv</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/tint2">tint2</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
+<tr><td><a href="orders/waybar">waybar</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;...</code></td><td><code>&nbsp;...</code></td></tr>
 </tbody></table>
 
 ## Usage
@@ -105,8 +103,7 @@ cd Vanilla
 Require following dependencies in `PATH`:
 
 1. `git`: https://git-scm.com/
-2. `stow`: https://www.gnu.org/software/stow/
-3. `nu`: https://www.nushell.sh/
+2. `nu`: https://www.nushell.sh/
 
 ```sh
 ./blend install [package1] [package2] ...

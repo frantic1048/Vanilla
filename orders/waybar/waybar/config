@@ -1,0 +1,64 @@
+{
+    "layer": "top",
+    "position": "bottom",
+    "output": "!HEADLESS-1",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": [],
+    "__BAD_APPLE__modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
+    "modules-right": ["mpd", "temperature", "battery", "clock", "tray"],
+    "custom/mpris": {
+        "format": "\uf025   {}",
+        "exec": "~/bin/fffplaying.elv"
+    },
+    "custom/fan": {
+        "format": "\uf72e   {}",
+        "exec": "~/bin/fffrpm.elv"
+    },
+    "sway/window": {
+        "max-length": 50
+    },
+    "temperature": {
+        "format": "\uf7e4   {temperatureC}°C",
+        "thermal-zone": 7,
+        "interval": 2,
+        "hwmon-path": "/sys/devices/platform/coretemp.0/hwmon/hwmon4/temp1_input",
+        "critical-threshold": 80
+    },
+    "cpu": {
+        "format": "\uf787   {usage}%",
+    },
+    "memory": {
+        "format": "\uf818   {used:0.1f}/{avail:0.1f}GiB",
+    },
+    "clock": {
+        "format": "\uf073   {:%a, %d. %b  %H:%M}"
+    },
+    "tray": {
+        "icon-size": 18,
+        "spacing": 5
+    },
+    "mpd": {
+        "format": "\uf001   {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})   {stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}",
+        "format-disconnected": "\uf001   Disconnected",
+        "format-stopped": "\uf001   {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped",
+        "interval": 2,
+        "consume-icons": {
+            "on": " "
+        },
+        "random-icons": {
+            "on": " "
+        },
+        "repeat-icons": {
+            "on": " "
+        },
+        "single-icons": {
+            "on": "1 "
+        },
+        "state-icons": {
+            "paused": "",
+            "playing": ""
+        },
+        "tooltip-format": "MPD (connected)",
+        "tooltip-format-disconnected": "MPD (disconnected)"
+    }
+}

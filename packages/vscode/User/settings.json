@@ -67,7 +67,7 @@
   "editor.accessibilitySupport": "off",
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.cursorBlinking": "phase",
-  "editor.fontFamily": "JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",
+  "editor.fontFamily": "JetBrainsMono Nerd Font Mono, JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",
   // "editor.fontLigatures": true,
   // JetBrains Mono
   // https://github.com/JetBrains/JetBrainsMono/wiki/OpenType-features

@@ -1,0 +1,19 @@
+# minimal config to work with AeroSpace
+
+yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
+sudo yabai --load-sa
+
+defaults write .GlobalPreferences com.apple.mouse.scaling -1
+
+# set mouse interaction modifier key (default: fn)
+yabai -m config mouse_modifier cmd
+
+# set modifier + left-click drag to move window (default: move)
+yabai -m config mouse_action1 move
+
+# set modifier + right-click drag to resize window (default: resize)
+yabai -m config mouse_action2 resize
+
+# rules
+# https://github.com/koekeishiya/yabai/wiki/Commands#querying-information
+yabai -m rule --add app=".*" manage=off

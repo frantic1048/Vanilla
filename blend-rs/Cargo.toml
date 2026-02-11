@@ -1,0 +1,38 @@
+[package]
+name = "blend"
+version = "0.2.0"
+edition = "2024"
+authors = ["kafuuchino"]
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+walkdir = "2"
+globset = "0.4"
+colored = "2"
+dirs = "6"
+
+# Nickel DSL
+nickel-lang = "2"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+indexmap = { version = "2", features = ["serde"] }
+
+# Diff
+similar = "2"
+regex = "1"
+
+# System info
+hostname = "0.4"
+
+# Parallelism
+rayon = "1"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+[dev-dependencies]
+tempfile = "3"

@@ -1,5 +1,7 @@
 #!/usr/bin/env nu
 
+let blend_rs = [$env.FILE_PWD "blend-rs" "target" "release" "blend"] | path join
+
 let content = $"# 𝒱𝒶𝓃𝒾𝓁𝓁𝒶
 
 frantic1048's daily configs, scripts etc.
@@ -21,7 +23,9 @@ _macOS_:
 
 ## Config packages
 
-(./blend stat_markdown)
+Configs are defined as Nickel DSL orders in `orders/` and deployed via `blend-rs`.
+
+(run-external $blend_rs "table" | str trim)
 
 ## Usage
 
@@ -50,8 +54,7 @@ cd Vanilla
 Require following dependencies in `PATH`:
 
 1. `git`: https://git-scm.com/
-2. `stow`: https://www.gnu.org/software/stow/
-3. `nu`: https://www.nushell.sh/
+2. `nu`: https://www.nushell.sh/
 
 ```sh
 ./blend install [package1] [package2] ...

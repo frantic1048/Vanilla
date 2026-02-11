@@ -1,0 +1,12 @@
+# arch linux
+include "/usr/share/nano/*.nanorc"
+# macos
+include "~/repo/misc/nanorc/*.nanorc"
+
+unset breaklonglines
+set tabsize 4
+set tabstospaces
+set nohelp
+set quickblank
+set regexp
+set smarthome

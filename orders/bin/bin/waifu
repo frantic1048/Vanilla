@@ -1,0 +1,89 @@
+#!/bin/bash
+
+# waifu2x helper script
+
+# depends:
+#   - waifu2x-converter-cpp
+
+#WAIFU2X='waifu2x-converter-cpp'
+WAIFU2X='waifu2x-ncnn-vulkan'
+
+if [[ $# -eq 0 ]]; then
+    cat << EOF
+
+Usage: waifu [OPTIONS] FILE1 [FILE2 ...]
+
+Options:
+    -d          dry run, just print out the commands to exec.
+    -n<1|2>     noise reduction level
+    -s<NUM>     scale ratio; default: -s2
+    --          terminate options list
+
+EOF
+    $WAIFU2X --version
+    $WAIFU2X --list-processor
+    exit 0
+fi
+
+DRYRUN=''
+SCALE=''
+NOISE=''
+
+while [[ $# -gt 0 ]]; do
+    opt="$1"
+
+    case $opt in
+        --) # terminate options list
+            shift
+            break
+        ;;
+        -d) # dry run
+            DRYRUN="yes"
+        ;;
+        -s*) # scale ratio
+            SCALE=${opt:2}
+        ;;
+        -n*) # noise reduction level
+            NOISE=${opt:2}
+        ;;
+        *) # no more options
+            break
+        ;;
+    esac
+    shift
+done
+
+if [[ $# -eq 0 ]]; then
+    echo no input file was specified, exiting.
+    exit 1
+fi
+
+CONFIG=""
+POSTFIX="_waifu"
+
+if [[ -n "$SCALE" ]]; then
+    CONFIG+=" -s $SCALE"
+    POSTFIX+="_s$SCALE"
+else
+    # defaults to 2x scale
+    CONFIG+=" -s 2"
+    POSTFIX+="_s2"
+fi
+
+if [[ -n "$NOISE" ]]; then
+    CONFIG+=" -n $NOISE"
+    POSTFIX+="_n$NOISE"
+else
+    POSTFIX+="_n0"
+fi
+
+for f in "$@"; do
+    BASENAME=$(basename -- "$f")
+    EXT="${BASENAME##*.}"
+    NAME="${BASENAME%.*}"
+    if [[ -n "$DRYRUN" ]]; then
+        echo $WAIFU2X $CONFIG -i "$f" -o "$NAME$POSTFIX.$EXT"
+    else
+        $WAIFU2X $CONFIG -i "$f" -o "$NAME$POSTFIX.$EXT"
+    fi
+done

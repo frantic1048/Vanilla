@@ -1,0 +1,33 @@
+# https://ghostty.org/docs/config
+# The configuration can be reloaded at runtime by pressing
+#   ctrl+shift+, (Linux)
+#   cmd+shift+, (macOS)
+# Print config
+#   ghostty +show-config
+
+# ghostty +list-fonts
+font-family = "JetBrainsMono Nerd Font Mono"
+font-thicken = true
+
+background-opacity = 0.55
+
+# tab bar is also hidden when setting "hidden"
+# tab bar is not compatible with AeroSpace currently
+# https://ghostty.org/docs/help/macos-tiling-wms
+macos-titlebar-style = "hidden"
+
+# ghostty +list-themes
+theme = Tomorrow Night Bright
+
+keybind = clear
+
+# macos
+# zellij already has copy_to_clipboard
+# keybind = cmd+c=copy_to_clipboard
+keybind = cmd+v=paste_from_clipboard
+keybind = cmd+d=close_window
+keybind = cmd+q=quit
+
+# FIXME: cmd+. eaten by ghostty (°_°)
+# even after keybind=clear
+# https://github.com/ghostty-org/ghostty/discussions/2881

@@ -1,0 +1,24 @@
+# Global gitignore
+
+###################
+# OS-specific files
+###################
+
+# Dolphin (file manager, Linux)
+.directory
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+[Dd]esktop.ini
+
+
+###################
+# Development tools
+###################
+
+# Node.js
+node_modules
+**/.claude/settings.local.json

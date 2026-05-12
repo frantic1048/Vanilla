@@ -1,0 +1,52 @@
+# https://git-scm.com/docs/git-config#FILES
+# Order:
+#  ~/.config/git/config (this file, host-independent user settings, managed by this repo)
+#  ~/.gitconfig (host-specific user settings: maintenance, credential..., not managed by this repo)
+[user]
+	name = Jiahao Guo
+	email = im@pyonpyon.today
+	signingkey = 22D8A46B2CDA6605A1C0CFD1E060B3E215CE49BB
+[includeIf "gitdir:~/work/"]
+    path = config.user.work
+[core]
+	fsmonitor = true
+	pager = "if command -v delta &>/dev/null; then delta; else less; fi"
+	precomposeunicode = true
+	quotepath = false
+[feature]
+	manyFiles = true
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[commit]
+	gpgsign = false
+[merge]
+	ff = only
+	conflictStyle = zdiff3
+[push]
+	default = simple
+	autoSetupRemote = false
+[fetch]
+	writeCommitGraph = true
+[pull]
+	ff = only
+[rebase]
+	autoSquash = true
+	instructionFormat = "%aN\t%s"
+[http]
+	postBuffer = 1048576000
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[diff "lockb"]
+	textconv = bun
+	binary = true
+
+# external tools
+[delta]
+	theme = OneHalfDark
+	line-numbers = false
+	keep-plus-minus-markers = true

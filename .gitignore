@@ -7,3 +7,17 @@ Brewfile.lock.json
 
 # npm
 node_modules
+
+*.log
+
+# local modules
+*.local.elv
+
+# local overlay directories for blend
+*.local/
+
+
+/.claude/
+
+# local superpowers docs
+/docs/superpowers/

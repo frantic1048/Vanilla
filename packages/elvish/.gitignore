@@ -1,9 +1,0 @@
-# elvish
-/*
-!.gitignore
-!/elvish
-/elvish/*
-!/elvish/rc.elv
-!/elvish/lib
-
-*.local.elv

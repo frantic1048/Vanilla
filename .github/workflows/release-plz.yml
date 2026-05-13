@@ -8,6 +8,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "release-plz.toml"
+      - "git-cliff.toml"
       - ".github/workflows/release-plz.yml"
   workflow_dispatch:
 

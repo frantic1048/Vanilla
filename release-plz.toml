@@ -1,4 +1,6 @@
 [workspace]
+# release-plz's inline [changelog] config does not expose git-cliff include_paths.
+changelog_config = "git-cliff.toml"
 dependencies_update = false
 git_only = true
 git_release_enable = false

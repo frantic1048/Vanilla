@@ -11,4 +11,4 @@ repo_url = "https://github.com/frantic1048/Vanilla"
 
 [[package]]
 name = "blend"
-changelog_path = "CHANGELOG.md"
+changelog_path = "blend/CHANGELOG.md"

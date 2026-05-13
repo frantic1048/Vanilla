@@ -1,0 +1,7 @@
+[workspace]
+members = ["blend"]
+resolver = "3"
+
+[profile.dist]
+inherits = "release"
+lto = "thin"

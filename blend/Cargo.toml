@@ -44,8 +44,3 @@ anyhow = "1"
 [dev-dependencies]
 tempfile = "3"
 rexpect = "0.6"
-
-# The profile that 'dist' will build with
-[profile.dist]
-inherits = "release"
-lto = "thin"

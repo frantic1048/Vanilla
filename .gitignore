@@ -16,6 +16,9 @@ node_modules
 # local overlay directories for blend
 *.local/
 
+# Rust workspace build output
+/target/
+
 
 /.claude/
 

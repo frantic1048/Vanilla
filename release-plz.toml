@@ -8,6 +8,7 @@ pr_name = "chore(blend): release {{ version }}"
 publish = false
 release_always = false
 repo_url = "https://github.com/frantic1048/Vanilla"
+semver_check = false
 
 [[package]]
 name = "blend"

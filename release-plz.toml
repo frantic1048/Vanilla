@@ -1,0 +1,14 @@
+[workspace]
+dependencies_update = false
+git_only = true
+git_release_enable = false
+git_tag_name = "blend-v{{ version }}"
+pr_branch_prefix = "release-plz/"
+pr_name = "chore(blend): release {{ version }}"
+publish = false
+release_always = false
+repo_url = "https://github.com/frantic1048/Vanilla"
+
+[[package]]
+name = "blend"
+changelog_path = "CHANGELOG.md"

@@ -3,6 +3,7 @@ name = "blend"
 version = "0.2.0"
 edition = "2024"
 authors = ["kafuuchino"]
+repository = "https://github.com/frantic1048/Vanilla"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
@@ -43,3 +44,8 @@ anyhow = "1"
 [dev-dependencies]
 tempfile = "3"
 rexpect = "0.6"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

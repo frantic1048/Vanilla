@@ -1,0 +1,16 @@
+[workspace]
+members = ["cargo:blend"]
+
+[dist]
+cargo-dist-version = "0.31.0"
+ci = "github"
+installers = ["shell"]
+targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu"]
+install-path = "CARGO_HOME"
+hosting = "github"
+install-updater = false
+source-tarball = false
+checksum = "sha256"
+github-attestations = true
+tag-namespace = "blend-v"
+github-build-setup = "../dist-build-setup.yml"

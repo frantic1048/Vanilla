@@ -33,7 +33,7 @@ jobs:
           manifest_path: Cargo.toml
           config: release-plz.toml
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN || secrets.GITHUB_TOKEN }}
 
   release-plz-pr:
     name: Release-plz PR
@@ -59,4 +59,4 @@ jobs:
           manifest_path: Cargo.toml
           config: release-plz.toml
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN || secrets.GITHUB_TOKEN }}

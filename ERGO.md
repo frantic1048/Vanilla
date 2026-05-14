@@ -32,7 +32,7 @@ removed or moved to the top-level `justfile`.
 | 1 | **Bootstrap used to call `blend install`** | Resolved | `bootstrap.sh` builds `bin/blend` before deploying configs |
 | 2 | **Chicken-and-egg: Rust needed to build blend** | Resolved | `bootstrap.sh` installs proto/Rust before `just bootstrap`, so fresh clones do not depend on the dangling `bin/blend` symlink |
 | 3 | **No pre-built binary** | Medium | No release artifacts, no `cargo install blend`. Every fresh machine requires a full Rust compile (~minutes) |
-| 4 | **blend not on PATH initially** | Medium | Binary is at `Vanilla/blend/target/release/blend` (symlinked to `Vanilla/bin/blend`). User's shell PATH isn't configured until blend syncs the shell configs |
+| 4 | **blend not on PATH initially** | Medium | Binary is at `Vanilla/target/release/blend` (symlinked to `Vanilla/bin/blend`). User's shell PATH isn't configured until blend syncs the shell configs |
 | 5 | **Blend dir discovery is explicit** | Resolved | `--blend-dir` points at the managed root; `context.rs` derives `orders/` from it and errors when discovery fails |
 | 6 | **No first-run guidance** | Low | Running `blend` on a clean machine shows status table with all "pending" — no hint about what to do next |
 

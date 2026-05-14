@@ -8,7 +8,7 @@ Vanilla is a cross-platform dotfiles manager. The core tool is **blend** (Rust +
 
 - `blend/` — Rust source for the blend CLI
 - `orders/` — Nickel-based order definitions (`.ncl` files), the active config format
-- `bin/` — Personal scripts deployed to `$PATH`; also where `blend` is symlinked from `blend/target/release/blend`
+- `bin/` — Personal scripts deployed to `$PATH`; also where `blend` is symlinked from `target/release/blend`
 - `legacy/` — Orphaned entries from the stow era kept for reference (`atom`, `krita`, `psd`, `root`); not managed by blend
 - `screenshots/` — README screenshots
 - `Brewfile*` — Homebrew dependency manifests
@@ -39,7 +39,7 @@ just fmt-check     # rustfmt --check
 just clippy        # cargo clippy -- -D warnings
 just deploy        # blend sync
 ```
-Run `cargo build --release` directly inside `blend/` if you want to skip the `bin/blend` symlink step.
+Run `cargo build --release` directly inside `blend/` if you want to skip the `bin/blend` symlink step; Cargo still writes to the workspace-level `target/` directory.
 
 **CLI commands:**
 - `sync [orders...]` / `s [orders...]` — Bidirectional sync with per-key interactive Source/Target choices for `from_config` entries (`--force-source-to-target`, `--force-target-to-source`, `--no-rewrite`)

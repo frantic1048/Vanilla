@@ -1,6 +1,6 @@
 #!/usr/bin/env nu
 
-let blend_bin = [$env.FILE_PWD "blend" "target" "release" "blend"] | path join
+let blend_bin = [$env.FILE_PWD "target" "release" "blend"] | path join
 
 let content = $"# 𝒱𝒶𝓃𝒾𝓁𝓁𝒶
 

@@ -7,12 +7,12 @@ build: build-blend
 # Build blend and symlink into bin/
 build-blend:
     cd blend && cargo build --release
-    ln -sf ../blend/target/release/blend bin/blend
+    ln -sf ../target/release/blend bin/blend
 
 # Build blend in debug mode (for development)
 build-debug:
     cd blend && cargo build
-    ln -sf ../blend/target/debug/blend bin/blend-debug
+    ln -sf ../target/debug/blend bin/blend-debug
 
 # Validate all orders
 check:

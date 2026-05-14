@@ -42,7 +42,8 @@ pub fn cmd_table(ctx: &Context) -> anyhow::Result<()> {
             if matches[i] {
                 print!("<td><code>{label}</code></td>");
             } else {
-                print!("<td><code>&nbsp;...</code></td>");
+                let placeholder = blank_profile_label(label);
+                print!("<td><code>{placeholder}</code></td>");
             }
         }
         print!("</tr>");
@@ -50,4 +51,8 @@ pub fn cmd_table(ctx: &Context) -> anyhow::Result<()> {
     println!("\n</tbody></table>");
 
     Ok(())
+}
+
+fn blank_profile_label(label: &str) -> String {
+    "&nbsp;".repeat(label.chars().count())
 }

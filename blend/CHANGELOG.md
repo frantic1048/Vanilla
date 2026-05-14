@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.1...blend-v0.2.2) - 2026-05-14
+
+### Added
+- refine table layout
+
+### Fixed
+- *(blend)* fallback to config when no ./oroder dir exist
+
+### Other
+- fix initial changelog and refine changelog generation
+
 ## [0.2.1](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.0...blend-v0.2.1) - 2026-05-13
 
 ### Other

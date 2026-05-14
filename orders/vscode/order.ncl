@@ -1,8 +1,15 @@
 # VSCode settings configuration
+let metadata = import "../metadata.ncl" in
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {
-    prefix = ["~/Library/Application Support/Code/User/"],
+    prefix =
+      metadata.os
+      |> match {
+        "darwin" => ["~/Library/Application Support/Code/User/"],
+        "linux" => ["~/.config/Code/User/"],
+        _ => []
+      },
     files = [
       {
         name = "settings.json",
@@ -400,6 +407,6 @@ let { Order, .. } = import "../order.contract.ncl" in
         ]
       }
     ],
-    when = { os = ["darwin"] },
+    when = { os = ["linux", "darwin"] },
   },
 } | Order

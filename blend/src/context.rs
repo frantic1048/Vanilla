@@ -1,6 +1,7 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use anyhow::{Result, bail};
+use anyhow::{Context as AnyhowContext, Result, bail};
+use serde::Deserialize;
 
 use crate::cli::{Cli, Commands};
 use crate::metadata::Metadata;
@@ -26,9 +27,13 @@ impl Context {
         let blend_dir = cli.blend_dir.clone().map(Ok).unwrap_or_else(|| {
             if matches!(cli.command, Some(Commands::Init)) {
                 find_blend_dir_from_current_dir()
+                    .or_else(|_| {
+                        find_blend_dir_from_config(&home_dir)?
+                            .ok_or_else(|| anyhow::anyhow!("No blend config found."))
+                    })
                     .or_else(|_| std::env::current_dir().map_err(Into::into))
             } else {
-                find_blend_dir()
+                find_blend_dir(&home_dir)
             }
         })?;
         let orders_dir = blend_dir.join("orders");
@@ -63,7 +68,12 @@ impl Context {
     }
 }
 
-fn find_blend_dir() -> Result<PathBuf> {
+#[derive(Deserialize)]
+struct BlendConfig {
+    blend_dir: PathBuf,
+}
+
+fn find_blend_dir(home_dir: &Path) -> Result<PathBuf> {
     // Find a blend directory relative to current directory or executable.
     let exe_dir = std::env::current_exe()
         .ok()
@@ -80,7 +90,25 @@ fn find_blend_dir() -> Result<PathBuf> {
         }
     }
 
+    if let Some(configured) = find_blend_dir_from_config(home_dir)? {
+        return Ok(configured);
+    }
+
     bail!("Could not find blend directory. Run from a blend checkout or pass --blend-dir <PATH>.")
+}
+
+fn find_blend_dir_from_config(home_dir: &Path) -> Result<Option<PathBuf>> {
+    let path = home_dir.join(".config/blend/config.toml");
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let raw = std::fs::read_to_string(&path)
+        .with_context(|| format!("Failed to read {}", path.display()))?;
+    let config: BlendConfig =
+        toml::from_str(&raw).with_context(|| format!("Failed to parse {}", path.display()))?;
+
+    Ok(Some(config.blend_dir))
 }
 
 fn find_blend_dir_from_current_dir() -> Result<PathBuf> {

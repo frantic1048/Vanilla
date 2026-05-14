@@ -1436,6 +1436,29 @@ fn test_init_uses_cwd_when_blend_dir_is_absent() {
 }
 
 #[test]
+fn test_commands_use_configured_blend_dir_outside_checkout() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    let outside = TempDir::new().unwrap();
+
+    let init_output = run_blend_in_cwd(home.path(), blend_dir.path(), &["init"]);
+    assert!(
+        init_output.status.success(),
+        "blend init should bootstrap an empty cwd\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&init_output.stdout),
+        String::from_utf8_lossy(&init_output.stderr),
+    );
+
+    let view_output = run_blend_in_cwd(home.path(), outside.path(), &["view"]);
+    assert!(
+        view_output.status.success(),
+        "blend view should use ~/.config/blend/config.toml outside a checkout\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&view_output.stdout),
+        String::from_utf8_lossy(&view_output.stderr),
+    );
+}
+
+#[test]
 fn test_s_alias_runs_sync() {
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();

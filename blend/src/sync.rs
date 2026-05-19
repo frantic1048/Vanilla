@@ -3,8 +3,8 @@ use std::path::Path;
 
 use anyhow::{Context as AnyhowContext, Result};
 use console::style;
-use walkdir::WalkDir;
 
+use crate::compose::{build_glob_set, collect_merged_files};
 use crate::context::Context;
 use crate::diff::{DiffResult, KeyChange, KeyChangeType};
 use crate::formats::get_renderer;
@@ -241,66 +241,28 @@ fn pull_directory(
     local_dir: Option<&Path>,
     exclude_patterns: &[String],
 ) -> Result<()> {
-    use crate::compose::build_glob_set;
-
     let exclude = build_glob_set(exclude_patterns)?;
 
-    // Build a set of relative paths that are local overrides
-    let local_overrides: std::collections::HashSet<std::path::PathBuf> = if let Some(ld) = local_dir
-    {
-        if ld.exists() {
-            let mut set = std::collections::HashSet::new();
-            for entry in WalkDir::new(ld).min_depth(1) {
-                let entry = entry?;
-                if entry.file_type().is_dir() {
-                    continue;
-                }
-                let rel = entry.path().strip_prefix(ld)?.to_path_buf();
-                set.insert(rel);
-            }
-            set
-        } else {
-            std::collections::HashSet::new()
-        }
-    } else {
-        std::collections::HashSet::new()
-    };
-
-    for entry in WalkDir::new(deployed_dir).min_depth(1) {
-        let entry = entry?;
-        let rel_path = entry.path().strip_prefix(deployed_dir)?;
-
-        // Apply exclude filter
-        if let Some(ref gs) = exclude
-            && gs.is_match(rel_path)
-        {
+    for managed_file in collect_merged_files(source_dir, local_dir, exclude.as_ref())? {
+        let deployed_file = deployed_dir.join(&managed_file.rel_path);
+        if !deployed_file.is_file() {
             continue;
         }
 
-        if entry.file_type().is_dir() {
-            std::fs::create_dir_all(source_dir.join(rel_path))?;
+        let pull_dest = if managed_file.is_local {
             if let Some(ld) = local_dir {
-                let rel_owned = rel_path.to_path_buf();
-                if local_overrides.iter().any(|p| p.starts_with(&rel_owned)) {
-                    std::fs::create_dir_all(ld.join(rel_path))?;
-                }
+                ld.join(&managed_file.rel_path)
+            } else {
+                source_dir.join(&managed_file.rel_path)
             }
         } else {
-            let rel_owned = rel_path.to_path_buf();
-            let pull_dest = if let Some(ld) = local_dir
-                && local_overrides.contains(&rel_owned)
-            {
-                // This file came from local overlay; pull back there
-                ld.join(rel_path)
-            } else {
-                source_dir.join(rel_path)
-            };
+            source_dir.join(&managed_file.rel_path)
+        };
 
-            if let Some(parent) = pull_dest.parent() {
-                std::fs::create_dir_all(parent)?;
-            }
-            std::fs::copy(entry.path(), &pull_dest)?;
+        if let Some(parent) = pull_dest.parent() {
+            std::fs::create_dir_all(parent)?;
         }
+        std::fs::copy(&deployed_file, &pull_dest)?;
     }
 
     Ok(())
@@ -1160,8 +1122,11 @@ mod tests {
         std::fs::create_dir_all(deployed.join("sub")).unwrap();
         std::fs::write(deployed.join("file.txt"), "content").unwrap();
         std::fs::write(deployed.join("sub/nested.txt"), "nested").unwrap();
+        std::fs::write(deployed.join("target-only.txt"), "target-only").unwrap();
 
-        std::fs::create_dir(&source).unwrap();
+        std::fs::create_dir_all(source.join("sub")).unwrap();
+        std::fs::write(source.join("file.txt"), "old").unwrap();
+        std::fs::write(source.join("sub/nested.txt"), "old nested").unwrap();
 
         pull_from_file(&source, &deployed, None, &[], false).unwrap();
 
@@ -1172,6 +1137,10 @@ mod tests {
         assert_eq!(
             std::fs::read_to_string(source.join("sub/nested.txt")).unwrap(),
             "nested"
+        );
+        assert!(
+            !source.join("target-only.txt").exists(),
+            "target-only deployed files should stay outside blend's ownership boundary"
         );
     }
 

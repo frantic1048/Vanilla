@@ -212,6 +212,12 @@ mod tests {
     }
 
     #[test]
+    fn test_nickel_eval_accepts_unicode_brace_escapes() {
+        let v = eval(r#"{ symbol = "\u{e76f} " }"#).unwrap();
+        assert_eq!(v, serde_json::json!({"symbol": "\u{e76f} "}));
+    }
+
+    #[test]
     fn test_injected_merge_overrides_defaults() {
         // Mirrors what blend evaluates at runtime for an order importing
         // `../metadata.ncl`. We inline a stand-in for the imported record

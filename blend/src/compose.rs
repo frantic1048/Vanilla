@@ -421,7 +421,13 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
 
     // Always try to clear an existing immutable target before writing. This
     // lets a config converge from `immutable = true` back to `false`.
-    if result.target.exists() {
+    let is_plaintext_dir = result.is_plaintext
+        && result
+            .source_path
+            .as_ref()
+            .is_some_and(|source_path| source_path.is_dir());
+
+    if result.target.exists() && !is_plaintext_dir {
         if dry_run {
             if result.immutable {
                 log::info(&format!(
@@ -445,6 +451,7 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
                     &result.target,
                     result.local_dir.as_deref(),
                     exclude.as_ref(),
+                    result.immutable,
                     dry_run,
                 )?;
             } else {
@@ -475,7 +482,7 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
     }
 
     // Set immutable flag after successful write
-    if result.immutable && !dry_run {
+    if result.immutable && !dry_run && !is_plaintext_dir {
         if result.target.is_dir() {
             set_immutable_flag_recursive(&result.target)?;
         } else {
@@ -661,6 +668,7 @@ fn copy_directory(
     target: &Path,
     local_dir: Option<&Path>,
     exclude: Option<&GlobSet>,
+    immutable: bool,
     dry_run: bool,
 ) -> Result<()> {
     if !source.exists() {
@@ -691,8 +699,14 @@ fn copy_directory(
         if let Some(parent) = target_path.parent() {
             ensure_dir(parent)?;
         }
+        if target_path.exists() {
+            remove_immutable_flag(&target_path, immutable)?;
+        }
         remove_symlink_if_exists(&target_path, false)?;
         std::fs::copy(&mf.source, &target_path)?;
+        if immutable {
+            set_immutable_flag(&target_path)?;
+        }
     }
 
     Ok(())
@@ -903,7 +917,7 @@ mod tests {
         let patterns = vec!["*.bak".to_string()];
         let gs = build_glob_set(&patterns).unwrap();
 
-        copy_directory(&source, &target, None, gs.as_ref(), false).unwrap();
+        copy_directory(&source, &target, None, gs.as_ref(), false, false).unwrap();
 
         assert!(target.join("keep.txt").exists());
         assert!(!target.join("skip.bak").exists());
@@ -924,7 +938,7 @@ mod tests {
         std::fs::write(local.join("shared.txt"), "local-version").unwrap();
         std::fs::write(local.join("extra.txt"), "local-only").unwrap();
 
-        copy_directory(&source, &target, Some(&local), None, false).unwrap();
+        copy_directory(&source, &target, Some(&local), None, false, false).unwrap();
 
         assert_eq!(
             std::fs::read_to_string(target.join("tracked.txt")).unwrap(),
@@ -1015,6 +1029,92 @@ mod tests {
                 .lines()
                 .any(|line| line == set_arg || line.starts_with(&format!("{set_arg} "))),
             "desired immutable=false should not set immutable, got: {calls}"
+        );
+    }
+
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
+    #[test]
+    fn test_write_result_directory_clears_immutable_only_for_managed_files() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let _guard = env_lock().lock().unwrap();
+        let temp = TempDir::new().unwrap();
+        let bin = temp.path().join("bin");
+        let calls = temp.path().join("immutable-calls.log");
+        std::fs::create_dir(&bin).unwrap();
+
+        #[cfg(target_os = "macos")]
+        let tool = "chflags";
+        #[cfg(target_os = "linux")]
+        let tool = "chattr";
+
+        let tool_path = bin.join(tool);
+        std::fs::write(
+            &tool_path,
+            format!("#!/bin/sh\nprintf '%s\\n' \"$*\" >> {}\n", calls.display()),
+        )
+        .unwrap();
+        let mut perms = std::fs::metadata(&tool_path).unwrap().permissions();
+        perms.set_mode(0o755);
+        std::fs::set_permissions(&tool_path, perms).unwrap();
+
+        let prev_path = std::env::var_os("PATH");
+        let new_path = match &prev_path {
+            Some(path) => format!("{}:{}", bin.display(), path.to_string_lossy()),
+            None => bin.display().to_string(),
+        };
+        unsafe { std::env::set_var("PATH", new_path) };
+
+        let source = temp.path().join("source");
+        let target = temp.path().join("target");
+        std::fs::create_dir_all(&source).unwrap();
+        std::fs::create_dir_all(&target).unwrap();
+        std::fs::write(source.join("managed.txt"), "new").unwrap();
+        std::fs::write(target.join("managed.txt"), "old").unwrap();
+        std::fs::write(target.join("target-only.txt"), "cache").unwrap();
+
+        let result = BuildResult {
+            target: target.clone(),
+            content: String::new(),
+            is_plaintext: true,
+            source_path: Some(source),
+            name: "target".to_string(),
+            format: Format::Plaintext,
+            ignore_keys: vec![],
+            is_symlink: false,
+            canonical_source: None,
+            exclude_patterns: vec![],
+            local_dir: None,
+            immutable: false,
+        };
+
+        let write = write_result(&result, false);
+
+        unsafe {
+            match prev_path {
+                Some(path) => std::env::set_var("PATH", path),
+                None => std::env::remove_var("PATH"),
+            }
+        }
+
+        write.unwrap();
+        assert_eq!(
+            std::fs::read_to_string(target.join("managed.txt")).unwrap(),
+            "new"
+        );
+        assert_eq!(
+            std::fs::read_to_string(target.join("target-only.txt")).unwrap(),
+            "cache"
+        );
+
+        let calls = std::fs::read_to_string(calls).unwrap();
+        assert!(
+            calls.contains("managed.txt"),
+            "managed file should be prepared for overwrite, got: {calls}"
+        );
+        assert!(
+            !calls.contains("target-only.txt"),
+            "target-only files must not be touched, got: {calls}"
         );
     }
 }

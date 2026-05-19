@@ -58,6 +58,11 @@ let { Order, .. } = import "../order.contract.ncl" in
           # Terminal
           "terminal.integrated.fontFamily" = "JetBrainsMono NF",
           "terminal.integrated.stickyScroll.enabled" = true,
+          "terminal.integrated.gpuAcceleration" = metadata.os |> match {
+            "darwin" => "off", # macOS have rendering issues
+            "linux" => "auto",
+            _ => "auto"
+          },
 
           # Window
           "window.menuBarVisibility" = "hidden",

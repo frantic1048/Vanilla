@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.3...blend-v0.2.4) - 2026-05-22
+
+### Added
+- update blend-dir config after operating on a valid blend dir
+
 ## [0.2.3](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.2...blend-v0.2.3) - 2026-05-19
 
 ### Fixed

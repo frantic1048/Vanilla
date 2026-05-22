@@ -69,4 +69,9 @@ fn main() {
         log::error(&format!("Error: {e}"));
         std::process::exit(1);
     }
+
+    if let Err(e) = ctx.update_config_after_success() {
+        log::error(&format!("Error: {e}"));
+        std::process::exit(1);
+    }
 }

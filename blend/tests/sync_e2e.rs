@@ -1450,11 +1450,53 @@ fn test_commands_use_configured_blend_dir_outside_checkout() {
     );
 
     let view_output = run_blend_in_cwd(home.path(), outside.path(), &["view"]);
+    let stdout = String::from_utf8_lossy(&view_output.stdout);
     assert!(
         view_output.status.success(),
         "blend view should use ~/.config/blend/config.toml outside a checkout\nstdout: {}\nstderr: {}",
-        String::from_utf8_lossy(&view_output.stdout),
+        stdout,
         String::from_utf8_lossy(&view_output.stderr),
+    );
+    assert!(
+        stdout.contains("blend") && !stdout.contains("toml-basic"),
+        "blend view should use the configured temp checkout, not the executable checkout\nstdout: {stdout}",
+    );
+}
+
+#[test]
+fn test_valid_cwd_refreshes_stale_configured_blend_dir() {
+    let home = TempDir::new().unwrap();
+    let stale = copy_fixture("plaintext-single");
+    let current = copy_fixture("toml-basic");
+
+    let config_dir = home.path().join(".config/blend");
+    std::fs::create_dir_all(&config_dir).unwrap();
+    std::fs::write(
+        config_dir.join("config.toml"),
+        format!("blend_dir = \"{}\"\n", stale.path().display()),
+    )
+    .unwrap();
+
+    let output = run_blend_in_cwd(home.path(), current.path(), &["view", "toml-basic"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "blend view should use the current checkout and succeed\nstdout: {stdout}\nstderr: {stderr}",
+    );
+    assert!(
+        stdout.contains("differs from configured blend-dir"),
+        "expected mismatch warning\nstdout: {stdout}",
+    );
+
+    let config = std::fs::read_to_string(config_dir.join("config.toml")).unwrap();
+    assert!(
+        config.contains(&current.path().display().to_string()),
+        "config should be refreshed to current checkout, got:\n{config}",
+    );
+    assert!(
+        !config.contains(&stale.path().display().to_string()),
+        "config should not keep pointing at stale checkout, got:\n{config}",
     );
 }
 

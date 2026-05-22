@@ -166,7 +166,7 @@ pub fn aggregate_dir_diff(file_diffs: &[FileDiffResult]) -> DiffResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
     use tempfile::TempDir;
 
     #[test]
@@ -450,12 +450,12 @@ mod tests {
         assert_eq!(diffs.len(), 2);
         let a = diffs
             .iter()
-            .find(|d| d.rel_path == PathBuf::from("a.conf"))
+            .find(|d| d.rel_path.as_path() == Path::new("a.conf"))
             .unwrap();
         assert!(!a.has_changes);
         let b = diffs
             .iter()
-            .find(|d| d.rel_path == PathBuf::from("b.conf"))
+            .find(|d| d.rel_path.as_path() == Path::new("b.conf"))
             .unwrap();
         assert!(b.has_changes);
         assert!(b.source_only);

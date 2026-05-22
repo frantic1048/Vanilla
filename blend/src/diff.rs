@@ -204,10 +204,50 @@ pub fn check_file_sync(
     None
 }
 
+/// Diff two configs based on format
+pub fn diff_configs(
+    format: Format,
+    generated: &str,
+    deployed: &str,
+    ignore_keys: &[String],
+) -> DiffResult {
+    match format {
+        Format::Toml
+        | Format::Json
+        | Format::Jsonc
+        | Format::Yaml
+        | Format::SpaceRecordLines
+        | Format::EqualsRecordLines => semantic_diff(format, generated, deployed, ignore_keys),
+        Format::SpacePairLines | Format::Plaintext => text_diff(generated, deployed, ignore_keys),
+    }
+}
+
+/// Diff two configs against a Base snapshot when one is available.
+pub fn diff_configs_with_base(
+    format: Format,
+    generated: &str,
+    deployed: &str,
+    base: &str,
+    ignore_keys: &[String],
+) -> DiffResult {
+    match format {
+        Format::Toml
+        | Format::Json
+        | Format::Jsonc
+        | Format::Yaml
+        | Format::SpaceRecordLines
+        | Format::EqualsRecordLines => {
+            semantic_diff_with_base(format, generated, deployed, base, ignore_keys)
+        }
+        Format::SpacePairLines | Format::Plaintext => {
+            text_diff_with_base(generated, deployed, base, ignore_keys)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
     use tempfile::TempDir;
 
     fn write_file(base: &Path, relative: &str, content: &str) {
@@ -245,7 +285,7 @@ mod tests {
         assert_eq!(results.len(), 2);
         let source_only = results
             .iter()
-            .find(|r| r.rel_path == PathBuf::from("only_in_source.txt"))
+            .find(|r| r.rel_path.as_path() == Path::new("only_in_source.txt"))
             .unwrap();
         assert!(source_only.has_changes);
         assert!(source_only.source_only);
@@ -262,7 +302,7 @@ mod tests {
         write_file(target.path(), "only_in_target.txt", "extra\n");
         let results = diff_directory(source.path(), target.path(), &[]);
         assert_eq!(results.len(), 1);
-        assert_eq!(results[0].rel_path, PathBuf::from("shared.txt"));
+        assert_eq!(results[0].rel_path.as_path(), Path::new("shared.txt"));
         assert!(!results[0].has_changes);
     }
 
@@ -290,12 +330,12 @@ mod tests {
         assert_eq!(results.len(), 2);
         let deep = results
             .iter()
-            .find(|r| r.rel_path == PathBuf::from("a/b/c.txt"))
+            .find(|r| r.rel_path.as_path() == Path::new("a/b/c.txt"))
             .unwrap();
         assert!(!deep.has_changes);
         let shallow = results
             .iter()
-            .find(|r| r.rel_path == PathBuf::from("a/d.txt"))
+            .find(|r| r.rel_path.as_path() == Path::new("a/d.txt"))
             .unwrap();
         assert!(shallow.has_changes);
     }
@@ -314,8 +354,8 @@ mod tests {
     fn test_diff_directory_binary_files_differ() {
         let source = TempDir::new().unwrap();
         let target = TempDir::new().unwrap();
-        std::fs::write(source.path().join("image.bin"), &[0x00, 0xFF, 0x80, 0x01]).unwrap();
-        std::fs::write(target.path().join("image.bin"), &[0x00, 0xFF, 0x80, 0x02]).unwrap();
+        std::fs::write(source.path().join("image.bin"), [0x00, 0xFF, 0x80, 0x01]).unwrap();
+        std::fs::write(target.path().join("image.bin"), [0x00, 0xFF, 0x80, 0x02]).unwrap();
         let results = diff_directory(source.path(), target.path(), &[]);
         assert_eq!(results.len(), 1);
         assert!(results[0].has_changes);
@@ -327,8 +367,8 @@ mod tests {
         let source = TempDir::new().unwrap();
         let target = TempDir::new().unwrap();
         let bytes = [0x00, 0xFF, 0x80, 0x01];
-        std::fs::write(source.path().join("data.bin"), &bytes).unwrap();
-        std::fs::write(target.path().join("data.bin"), &bytes).unwrap();
+        std::fs::write(source.path().join("data.bin"), bytes).unwrap();
+        std::fs::write(target.path().join("data.bin"), bytes).unwrap();
         let results = diff_directory(source.path(), target.path(), &[]);
         assert_eq!(results.len(), 1);
         assert!(!results[0].has_changes);
@@ -422,46 +462,5 @@ mod tests {
         assert_eq!(results.len(), 1);
         assert!(!results[0].target_is_symlink);
         assert!(!results[0].has_changes);
-    }
-}
-
-/// Diff two configs based on format
-pub fn diff_configs(
-    format: Format,
-    generated: &str,
-    deployed: &str,
-    ignore_keys: &[String],
-) -> DiffResult {
-    match format {
-        Format::Toml
-        | Format::Json
-        | Format::Jsonc
-        | Format::Yaml
-        | Format::SpaceRecordLines
-        | Format::EqualsRecordLines => semantic_diff(format, generated, deployed, ignore_keys),
-        Format::SpacePairLines | Format::Plaintext => text_diff(generated, deployed, ignore_keys),
-    }
-}
-
-/// Diff two configs against a Base snapshot when one is available.
-pub fn diff_configs_with_base(
-    format: Format,
-    generated: &str,
-    deployed: &str,
-    base: &str,
-    ignore_keys: &[String],
-) -> DiffResult {
-    match format {
-        Format::Toml
-        | Format::Json
-        | Format::Jsonc
-        | Format::Yaml
-        | Format::SpaceRecordLines
-        | Format::EqualsRecordLines => {
-            semantic_diff_with_base(format, generated, deployed, base, ignore_keys)
-        }
-        Format::SpacePairLines | Format::Plaintext => {
-            text_diff_with_base(generated, deployed, base, ignore_keys)
-        }
     }
 }

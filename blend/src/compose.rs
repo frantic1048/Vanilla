@@ -855,14 +855,14 @@ mod tests {
         // new.txt (local)
         let new = merged
             .iter()
-            .find(|m| m.rel_path == PathBuf::from("new.txt"))
+            .find(|m| m.rel_path.as_path() == Path::new("new.txt"))
             .unwrap();
         assert!(new.is_local);
 
         // sub/shared.txt (local override)
         let shared = merged
             .iter()
-            .find(|m| m.rel_path == PathBuf::from("sub/shared.txt"))
+            .find(|m| m.rel_path.as_path() == Path::new("sub/shared.txt"))
             .unwrap();
         assert!(shared.is_local);
         assert_eq!(
@@ -873,7 +873,7 @@ mod tests {
         // tracked.txt (from source)
         let tracked = merged
             .iter()
-            .find(|m| m.rel_path == PathBuf::from("tracked.txt"))
+            .find(|m| m.rel_path.as_path() == Path::new("tracked.txt"))
             .unwrap();
         assert!(!tracked.is_local);
     }
@@ -900,7 +900,7 @@ mod tests {
         assert!(
             !merged
                 .iter()
-                .any(|m| m.rel_path == PathBuf::from("skip.bak"))
+                .any(|m| m.rel_path.as_path() == Path::new("skip.bak"))
         );
     }
 

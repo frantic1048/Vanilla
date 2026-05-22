@@ -1,10 +1,11 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context as AnyhowContext, Result, bail};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::cli::{Cli, Commands};
 use crate::metadata::Metadata;
+use crate::output::log;
 use crate::state::StateStore;
 
 /// Runtime context for blend operations
@@ -16,6 +17,7 @@ pub struct Context {
     pub verbose: bool,
     pub metadata: Metadata,
     pub state: StateStore,
+    update_config_after_success: bool,
 }
 
 impl Context {
@@ -24,18 +26,8 @@ impl Context {
             PathBuf::from(std::env::var("HOME").expect("Could not determine home directory"))
         });
 
-        let blend_dir = cli.blend_dir.clone().map(Ok).unwrap_or_else(|| {
-            if matches!(cli.command, Some(Commands::Init)) {
-                find_blend_dir_from_current_dir()
-                    .or_else(|_| {
-                        find_blend_dir_from_config(&home_dir)?
-                            .ok_or_else(|| anyhow::anyhow!("No blend config found."))
-                    })
-                    .or_else(|_| std::env::current_dir().map_err(Into::into))
-            } else {
-                find_blend_dir(&home_dir)
-            }
-        })?;
+        let blend_dir_choice = resolve_blend_dir(cli, &home_dir)?;
+        let blend_dir = blend_dir_choice.path;
         let orders_dir = blend_dir.join("orders");
         let metadata = Metadata::detect(&home_dir);
         let state = StateStore::from_env();
@@ -48,6 +40,7 @@ impl Context {
             verbose: cli.verbose,
             metadata,
             state,
+            update_config_after_success: blend_dir_choice.update_config_after_success,
         })
     }
 
@@ -66,39 +59,107 @@ impl Context {
     pub fn expand_path(&self, path: &std::path::Path) -> PathBuf {
         self.expand_path_str(&path.to_string_lossy())
     }
+
+    pub fn update_config_after_success(&self) -> Result<()> {
+        if !self.update_config_after_success || self.dry_run {
+            return Ok(());
+        }
+
+        write_blend_dir_config(&self.home_dir, &self.blend_dir)?;
+        if self.verbose {
+            log::info(&format!(
+                "Updated blend config: {}",
+                config_path(&self.home_dir).display()
+            ));
+        }
+
+        Ok(())
+    }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 struct BlendConfig {
     blend_dir: PathBuf,
 }
 
-fn find_blend_dir(home_dir: &Path) -> Result<PathBuf> {
-    // Find a blend directory relative to current directory or executable.
-    let exe_dir = std::env::current_exe()
-        .ok()
-        .and_then(|p| p.parent().map(|p| p.to_path_buf()));
+struct BlendDirChoice {
+    path: PathBuf,
+    update_config_after_success: bool,
+}
 
-    for base in [std::env::current_dir().ok(), exe_dir]
-        .into_iter()
-        .flatten()
-    {
-        for candidate in base.ancestors() {
-            if candidate.join("orders").is_dir() {
-                return Ok(candidate.to_path_buf());
-            }
+fn resolve_blend_dir(cli: &Cli, home_dir: &Path) -> Result<BlendDirChoice> {
+    if let Some(blend_dir) = &cli.blend_dir {
+        return Ok(BlendDirChoice {
+            path: blend_dir.clone(),
+            update_config_after_success: false,
+        });
+    }
+
+    if matches!(cli.command, Some(Commands::Init)) {
+        if let Some(current) = find_blend_dir_from_current_dir() {
+            return choice_from_current_dir(home_dir, current);
         }
+
+        if let Some(configured) = find_blend_dir_from_config(home_dir)? {
+            return Ok(BlendDirChoice {
+                path: configured,
+                update_config_after_success: false,
+            });
+        }
+
+        return Ok(BlendDirChoice {
+            path: std::env::current_dir()?,
+            update_config_after_success: true,
+        });
+    }
+
+    find_blend_dir(home_dir)
+}
+
+fn find_blend_dir(home_dir: &Path) -> Result<BlendDirChoice> {
+    if let Some(current) = find_blend_dir_from_current_dir() {
+        return choice_from_current_dir(home_dir, current);
     }
 
     if let Some(configured) = find_blend_dir_from_config(home_dir)? {
-        return Ok(configured);
+        return Ok(BlendDirChoice {
+            path: configured,
+            update_config_after_success: false,
+        });
     }
 
     bail!("Could not find blend directory. Run from a blend checkout or pass --blend-dir <PATH>.")
 }
 
+fn choice_from_current_dir(home_dir: &Path, current: PathBuf) -> Result<BlendDirChoice> {
+    let configured = find_blend_dir_from_config(home_dir)?;
+    let update_config_after_success = configured
+        .as_ref()
+        .is_none_or(|configured| !same_path(configured, &current));
+
+    if let Some(configured) = configured
+        && configured.join("orders").is_dir()
+        && !same_path(&configured, &current)
+    {
+        log::warn(&format!(
+            "warning: current blend dir {} differs from configured blend-dir {}; using current directory",
+            current.display(),
+            configured.display()
+        ));
+    }
+
+    Ok(BlendDirChoice {
+        path: current,
+        update_config_after_success,
+    })
+}
+
+fn config_path(home_dir: &Path) -> PathBuf {
+    home_dir.join(".config/blend/config.toml")
+}
+
 fn find_blend_dir_from_config(home_dir: &Path) -> Result<Option<PathBuf>> {
-    let path = home_dir.join(".config/blend/config.toml");
+    let path = config_path(home_dir);
     if !path.exists() {
         return Ok(None);
     }
@@ -111,15 +172,35 @@ fn find_blend_dir_from_config(home_dir: &Path) -> Result<Option<PathBuf>> {
     Ok(Some(config.blend_dir))
 }
 
-fn find_blend_dir_from_current_dir() -> Result<PathBuf> {
-    let current_dir = std::env::current_dir().unwrap_or_default();
+fn find_blend_dir_from_current_dir() -> Option<PathBuf> {
+    let current_dir = std::env::current_dir().ok()?;
     for candidate in current_dir.ancestors() {
         if candidate.join("orders").is_dir() {
-            return Ok(candidate.to_path_buf());
+            return Some(candidate.to_path_buf());
         }
     }
 
-    bail!("Could not find blend directory from current directory.")
+    None
+}
+
+fn write_blend_dir_config(home_dir: &Path, blend_dir: &Path) -> Result<()> {
+    let path = config_path(home_dir);
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)
+            .with_context(|| format!("Failed to create {}", parent.display()))?;
+    }
+
+    let config = BlendConfig {
+        blend_dir: blend_dir.to_path_buf(),
+    };
+    let raw = toml::to_string_pretty(&config)?;
+    std::fs::write(&path, raw).with_context(|| format!("Failed to write {}", path.display()))?;
+    Ok(())
+}
+
+fn same_path(a: &Path, b: &Path) -> bool {
+    let normalize = |path: &Path| path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+    normalize(a) == normalize(b)
 }
 
 #[cfg(test)]

@@ -123,3 +123,7 @@ brew "kanidm"
 
 brew "nickel"
 brew "just"
+
+# Datadog
+tap "datadog-labs/pack"
+brew "datadog-labs/pack/pup"

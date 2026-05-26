@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.4...blend-v0.2.5) - 2026-05-26
+
+### Added
+- replace chflags/chattr with native API call
+
+### Other
+- switch nickel from git tag to crate release
+
 ## [0.2.4](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.3...blend-v0.2.4) - 2026-05-22
 
 ### Added

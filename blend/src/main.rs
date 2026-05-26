@@ -4,6 +4,7 @@ mod compose;
 mod context;
 mod diff;
 mod formats;
+mod immutable;
 mod metadata;
 mod nickel;
 mod output;

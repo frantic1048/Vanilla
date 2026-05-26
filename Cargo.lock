@@ -139,6 +139,7 @@ dependencies = [
  "hostname",
  "indexmap",
  "json-strip-comments",
+ "libc",
  "nickel-lang",
  "nickel-lang-parser",
  "rayon",

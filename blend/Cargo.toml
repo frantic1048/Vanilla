@@ -29,6 +29,7 @@ regex = "1"
 
 # System info
 hostname = "0.4"
+libc = "0.2"
 
 # Parallelism
 rayon = "1"

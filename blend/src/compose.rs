@@ -7,6 +7,7 @@ use walkdir::WalkDir;
 
 use crate::context::Context;
 use crate::formats::get_renderer;
+use crate::immutable;
 use crate::nickel::{FileEntry, Format, NickelEvaluator, Order};
 use crate::output::log;
 
@@ -282,98 +283,12 @@ fn remove_symlink_if_exists(path: &Path, dry_run: bool) -> Result<()> {
 
 /// Remove OS immutable flag from a file so it can be overwritten.
 fn remove_immutable_flag(path: &Path, warn_on_failure: bool) -> Result<()> {
-    if !path.exists() {
-        return Ok(());
-    }
-
-    #[cfg(target_os = "macos")]
-    {
-        let status = std::process::Command::new("chflags")
-            .arg("nouchg")
-            .arg(path)
-            .status()
-            .with_context(|| format!("Failed to run chflags nouchg on {}", path.display()))?;
-        if warn_on_failure && !status.success() {
-            log::warn(&format!(
-                "chflags nouchg failed on {} (exit {})",
-                path.display(),
-                status.code().unwrap_or(-1)
-            ));
-        }
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        let status = std::process::Command::new("chattr")
-            .arg("-i")
-            .arg(path)
-            .status();
-        match status {
-            Ok(s) if warn_on_failure && !s.success() => {
-                log::warn(&format!(
-                    "chattr -i failed on {} (exit {}) — may require root",
-                    path.display(),
-                    s.code().unwrap_or(-1)
-                ));
-            }
-            Err(e) if warn_on_failure => {
-                log::warn(&format!(
-                    "Failed to run chattr -i on {}: {} — may require root",
-                    path.display(),
-                    e
-                ));
-            }
-            _ => {}
-        }
-    }
-
-    Ok(())
+    immutable::clear(path, warn_on_failure)
 }
 
 /// Set OS immutable flag on a file to prevent modification.
 fn set_immutable_flag(path: &Path) -> Result<()> {
-    #[cfg(target_os = "macos")]
-    {
-        let status = std::process::Command::new("chflags")
-            .arg("uchg")
-            .arg(path)
-            .status()
-            .with_context(|| format!("Failed to run chflags uchg on {}", path.display()))?;
-        if !status.success() {
-            log::warn(&format!(
-                "chflags uchg failed on {} (exit {})",
-                path.display(),
-                status.code().unwrap_or(-1)
-            ));
-        }
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        let status = std::process::Command::new("chattr")
-            .arg("+i")
-            .arg(path)
-            .status();
-        match status {
-            Ok(s) if !s.success() => {
-                log::warn(&format!(
-                    "chattr +i failed on {} (exit {}) — may require root",
-                    path.display(),
-                    s.code().unwrap_or(-1)
-                ));
-            }
-            Err(e) => {
-                log::warn(&format!(
-                    "Failed to run chattr +i on {}: {} — may require root",
-                    path.display(),
-                    e
-                ));
-            }
-            _ => {}
-        }
-    }
-
-    Ok(())
+    immutable::set(path)
 }
 
 /// Set immutable flags on all files within a directory.
@@ -957,35 +872,11 @@ mod tests {
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     #[test]
     fn test_write_result_clears_existing_immutable_even_when_desired_false() {
-        use std::os::unix::fs::PermissionsExt;
+        use crate::immutable::{TestImmutableEventKind, take_test_events};
 
         let _guard = env_lock().lock().unwrap();
+        take_test_events();
         let temp = TempDir::new().unwrap();
-        let bin = temp.path().join("bin");
-        let calls = temp.path().join("immutable-calls.log");
-        std::fs::create_dir(&bin).unwrap();
-
-        #[cfg(target_os = "macos")]
-        let (tool, clear_arg, set_arg) = ("chflags", "nouchg", "uchg");
-        #[cfg(target_os = "linux")]
-        let (tool, clear_arg, set_arg) = ("chattr", "-i", "+i");
-
-        let tool_path = bin.join(tool);
-        std::fs::write(
-            &tool_path,
-            format!("#!/bin/sh\nprintf '%s\\n' \"$*\" >> {}\n", calls.display()),
-        )
-        .unwrap();
-        let mut perms = std::fs::metadata(&tool_path).unwrap().permissions();
-        perms.set_mode(0o755);
-        std::fs::set_permissions(&tool_path, perms).unwrap();
-
-        let prev_path = std::env::var_os("PATH");
-        let new_path = match &prev_path {
-            Some(path) => format!("{}:{}", bin.display(), path.to_string_lossy()),
-            None => bin.display().to_string(),
-        };
-        unsafe { std::env::set_var("PATH", new_path) };
 
         let target = temp.path().join("target.txt");
         std::fs::write(&target, "old").unwrap();
@@ -1005,65 +896,32 @@ mod tests {
             immutable: false,
         };
 
-        let write = write_result(&result, false);
-
-        unsafe {
-            match prev_path {
-                Some(path) => std::env::set_var("PATH", path),
-                None => std::env::remove_var("PATH"),
-            }
-        }
-
-        write.unwrap();
+        write_result(&result, false).unwrap();
         assert_eq!(std::fs::read_to_string(&target).unwrap(), "new");
 
-        let calls = std::fs::read_to_string(calls).unwrap();
+        let events = take_test_events();
         assert!(
-            calls
-                .lines()
-                .any(|line| line == clear_arg || line.starts_with(&format!("{clear_arg} "))),
-            "expected clear immutable call `{clear_arg}`, got: {calls}"
+            events
+                .iter()
+                .any(|(kind, path)| *kind == TestImmutableEventKind::Clear && path == &target),
+            "expected clear immutable event for target, got: {events:?}"
         );
         assert!(
-            !calls
-                .lines()
-                .any(|line| line == set_arg || line.starts_with(&format!("{set_arg} "))),
-            "desired immutable=false should not set immutable, got: {calls}"
+            !events
+                .iter()
+                .any(|(kind, path)| *kind == TestImmutableEventKind::Set && path == &target),
+            "desired immutable=false should not set immutable, got: {events:?}"
         );
     }
 
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     #[test]
     fn test_write_result_directory_clears_immutable_only_for_managed_files() {
-        use std::os::unix::fs::PermissionsExt;
+        use crate::immutable::{TestImmutableEventKind, take_test_events};
 
         let _guard = env_lock().lock().unwrap();
+        take_test_events();
         let temp = TempDir::new().unwrap();
-        let bin = temp.path().join("bin");
-        let calls = temp.path().join("immutable-calls.log");
-        std::fs::create_dir(&bin).unwrap();
-
-        #[cfg(target_os = "macos")]
-        let tool = "chflags";
-        #[cfg(target_os = "linux")]
-        let tool = "chattr";
-
-        let tool_path = bin.join(tool);
-        std::fs::write(
-            &tool_path,
-            format!("#!/bin/sh\nprintf '%s\\n' \"$*\" >> {}\n", calls.display()),
-        )
-        .unwrap();
-        let mut perms = std::fs::metadata(&tool_path).unwrap().permissions();
-        perms.set_mode(0o755);
-        std::fs::set_permissions(&tool_path, perms).unwrap();
-
-        let prev_path = std::env::var_os("PATH");
-        let new_path = match &prev_path {
-            Some(path) => format!("{}:{}", bin.display(), path.to_string_lossy()),
-            None => bin.display().to_string(),
-        };
-        unsafe { std::env::set_var("PATH", new_path) };
 
         let source = temp.path().join("source");
         let target = temp.path().join("target");
@@ -1088,16 +946,7 @@ mod tests {
             immutable: false,
         };
 
-        let write = write_result(&result, false);
-
-        unsafe {
-            match prev_path {
-                Some(path) => std::env::set_var("PATH", path),
-                None => std::env::remove_var("PATH"),
-            }
-        }
-
-        write.unwrap();
+        write_result(&result, false).unwrap();
         assert_eq!(
             std::fs::read_to_string(target.join("managed.txt")).unwrap(),
             "new"
@@ -1107,14 +956,19 @@ mod tests {
             "cache"
         );
 
-        let calls = std::fs::read_to_string(calls).unwrap();
+        let events = take_test_events();
         assert!(
-            calls.contains("managed.txt"),
-            "managed file should be prepared for overwrite, got: {calls}"
+            events
+                .iter()
+                .any(|(kind, path)| *kind == TestImmutableEventKind::Clear
+                    && path == &target.join("managed.txt")),
+            "managed file should be prepared for overwrite, got: {events:?}"
         );
         assert!(
-            !calls.contains("target-only.txt"),
-            "target-only files must not be touched, got: {calls}"
+            !events
+                .iter()
+                .any(|(_, path)| path == &target.join("target-only.txt")),
+            "target-only files must not be touched, got: {events:?}"
         );
     }
 }

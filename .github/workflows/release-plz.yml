@@ -12,6 +12,9 @@ on:
       - ".github/workflows/release-plz.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   release-plz-release:
     name: Release-plz release
@@ -20,15 +23,22 @@ jobs:
       contents: write
       pull-requests: read
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.92.0
+        uses: step-security/dtolnay-rust-toolchain@8dd607977d06adf4ed49b190381e74c17a9dd25f # v1.0.0
+        with:
+          toolchain: 1.92.0
       - name: Run release-plz
-        uses: release-plz/action@v0.5
+        uses: release-plz/action@064f4d1e36c843611ddf013be726beaa4ad804db # v0.5.129
         with:
           command: release
           manifest_path: Cargo.toml
@@ -46,15 +56,22 @@ jobs:
       group: release-plz/${{ github.ref }}
       cancel-in-progress: false
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           persist-credentials: false
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@1.92.0
+        uses: step-security/dtolnay-rust-toolchain@8dd607977d06adf4ed49b190381e74c17a9dd25f # v1.0.0
+        with:
+          toolchain: 1.92.0
       - name: Run release-plz
-        uses: release-plz/action@v0.5
+        uses: release-plz/action@064f4d1e36c843611ddf013be726beaa4ad804db # v0.5.129
         with:
           command: release-pr
           manifest_path: Cargo.toml

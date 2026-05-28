@@ -142,6 +142,7 @@ fn starter_ncl(ctx: &Context) -> anyhow::Result<String> {
         name = "config.toml",
         from_config = {{
           blend_dir = {blend_dir},
+          sandbox = "prefer",
         }},
       }},
     ],

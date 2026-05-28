@@ -42,6 +42,25 @@ fn run_blend_in_cwd(home: &Path, cwd: &Path, args: &[&str]) -> std::process::Out
         .expect("Failed to execute blend")
 }
 
+fn run_blend_with_env(
+    home: &Path,
+    blend_dir: &Path,
+    args: &[&str],
+    envs: &[(&str, &str)],
+) -> std::process::Output {
+    let mut command = Command::new(blend_binary());
+    command
+        .args(args)
+        .arg("--home")
+        .arg(home)
+        .arg("--blend-dir")
+        .arg(blend_dir);
+    for (key, value) in envs {
+        command.env(key, value);
+    }
+    command.output().expect("Failed to execute blend")
+}
+
 fn orders_dir(blend_dir: &Path) -> PathBuf {
     blend_dir.join("orders")
 }
@@ -83,6 +102,51 @@ fn copy_dir_recursive(src: &Path, dst: &Path) {
             std::fs::copy(entry.path(), &target).unwrap();
         }
     }
+}
+
+#[test]
+fn test_sandbox_never_ignores_debug_probe() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend_with_env(
+        home.path(),
+        &orders,
+        &["--sandbox", "never", "view", "--short", "toml-basic"],
+        &[("BLEND_SANDBOX_PROBE", "exec")],
+    );
+
+    assert!(
+        output.status.success(),
+        "--sandbox never should skip sandbox probe\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr),
+    );
+}
+
+#[test]
+fn test_sandbox_force_exec_probe() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend_with_env(
+        home.path(),
+        &orders,
+        &["--sandbox", "force", "view", "--short", "toml-basic"],
+        &[("BLEND_SANDBOX_PROBE", "exec")],
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    if output.status.success() {
+        return;
+    }
+
+    assert!(
+        stderr.contains("failed to enable process sandbox"),
+        "force mode should either enforce the exec probe or fail before work when sandbox is unavailable\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        stderr,
+    );
 }
 
 #[test]

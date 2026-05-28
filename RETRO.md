@@ -11,6 +11,25 @@ Future work may let `blend` understand system package availability, report
 missing packages for active orders, or grow into a broader package-management
 layer. That is intentionally out of scope for the current bootstrap path.
 
+## Sandbox Is Currently Process-Scoped
+
+The first `blend` sandbox layer is intentionally small: install early, then deny
+new process execution and new socket-based communication. On Linux this means a
+seccomp denylist for `execve`/`execveat` and socket syscalls, including Unix
+domain socket creation through `socket`/`socketpair`. On macOS this maps to a
+Seatbelt profile that denies process execution and network access.
+
+That is useful hardening, but it is not yet a full least-privilege model. It
+does not describe which files an order may read or write, and it does not stop
+ordinary reads/writes on file descriptors inherited before the sandbox is
+installed. Future sandbox iterations should treat execution as staged:
+
+- disable permissions that are never needed as early as possible;
+- evaluate orders before filesystem tightening so `blend` can calculate the
+  dynamic set of source, overlay, target, and state paths it may touch;
+- apply an explicit filesystem allowlist with Landlock on Linux and Seatbelt on
+  macOS, leaving only the evaluated order footprint writable/readable as needed.
+
 ## Nickel Source Editing Without a Native CST
 
 Nickel gives us an embeddable evaluator and a parser with useful AST byte spans,

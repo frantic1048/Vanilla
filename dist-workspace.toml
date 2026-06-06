@@ -14,3 +14,4 @@ checksum = "sha256"
 github-attestations = true
 tag-namespace = "blend-v"
 github-build-setup = "../dist-build-setup.yml"
+allow-dirty = ["ci"]

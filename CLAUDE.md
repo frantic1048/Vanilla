@@ -56,3 +56,11 @@ Run `cargo build --release` directly inside `blend/` if you want to skip the `bi
 - clap v4 (derive) for CLI
 - Key crates: walkdir, globset, console, serde/serde_json, similar, rayon, anyhow, tree-sitter/tree-sitter-nickel (CST for surgical rewrite), json-strip-comments (JSONC support)
 - In `.ncl` files, use `\u{xxxx}` escape sequences for non-ASCII characters (e.g. Nerd Font icons) instead of raw unicode codepoints, for readability
+
+## CI / Release Pipeline
+
+- **Release workflow** (`blend-v-release.yml`) is generated and validated by **cargo-dist** (`dist-workspace.toml`).
+- `allow-dirty = ["ci"]` is set so that supply chain hardening (SHA-pinned actions, `step-security/harden-runner`) can be applied on top of the generated workflow without failing `dist plan`.
+- **Trade-off**: after bumping `cargo-dist-version` and running `dist init`, manually diff the regenerated workflow against the current one to preserve security additions.
+- **Upstream tracking**: [axodotdev/cargo-dist#2407](https://github.com/axodotdev/cargo-dist/issues/2407) — once cargo-dist natively supports SHA-pinning in generated workflows, `allow-dirty` can be removed.
+- `github-build-setup` (`.github/dist-build-setup.yml`) injects extra steps into `build-local-artifacts` only (not plan/host/announce). See [axodotdev/cargo-dist#2065](https://github.com/axodotdev/cargo-dist/issues/2065) for expanding to all jobs.

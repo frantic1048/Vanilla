@@ -3,7 +3,7 @@
 changelog_config = "git-cliff.toml"
 dependencies_update = false
 git_only = true
-git_release_enable = true
+git_release_enable = false
 git_tag_name = "blend-v{{ version }}"
 pr_branch_prefix = "release-plz/"
 pr_name = "chore(blend): release {{ version }}"
@@ -15,3 +15,4 @@ semver_check = false
 [[package]]
 name = "blend"
 changelog_path = "blend/CHANGELOG.md"
+

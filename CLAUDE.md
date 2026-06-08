@@ -59,8 +59,11 @@ Run `cargo build --release` directly inside `blend/` if you want to skip the `bi
 
 ## CI / Release Pipeline
 
-- **Release workflow** (`blend-v-release.yml`) is generated and validated by **cargo-dist** (`dist-workspace.toml`).
-- `allow-dirty = ["ci"]` is set so that supply chain hardening (SHA-pinned actions, `step-security/harden-runner`) can be applied on top of the generated workflow without failing `dist plan`.
-- **Trade-off**: after bumping `cargo-dist-version` and running `dist init`, manually diff the regenerated workflow against the current one to preserve security additions.
-- **Upstream tracking**: [axodotdev/cargo-dist#2407](https://github.com/axodotdev/cargo-dist/issues/2407) — once cargo-dist natively supports SHA-pinning in generated workflows, `allow-dirty` can be removed.
-- `github-build-setup` (`.github/dist-build-setup.yml`) injects extra steps into `build-local-artifacts` only (not plan/host/announce). See [axodotdev/cargo-dist#2065](https://github.com/axodotdev/cargo-dist/issues/2065) for expanding to all jobs.
+- **Release workflow** (`blend-v-release.yml`) is hand-maintained (no cargo-dist dependency).
+- Triggered by tags matching `blend-v*` (e.g. `blend-v0.3.0`). Tags are created by release-plz (`git_release_enable = false` — release-plz only tags, the release workflow creates the GitHub Release with artifacts).
+- Builds 3 targets: `aarch64-apple-darwin`, `x86_64-apple-darwin`, `x86_64-unknown-linux-gnu`.
+- Archives are `tar.xz` with `blend`, `README.md`, `CHANGELOG.md`, `LICENSE`.
+- Shell installer template (`install_template.sh`) lives in `.github/`. CI generates a release version with the version number and SHA256 checksums embedded, uploaded as `blend-installer.sh`.
+- Install path: `~/.local/bin` (XDG-correct for user-installed binaries).
+- All GitHub Actions are SHA-pinned to commit digests, with `step-security/harden-runner` for egress auditing.
+- Build provenance attestations via `actions/attest-build-provenance`.

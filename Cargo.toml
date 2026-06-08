@@ -2,6 +2,5 @@
 members = ["blend"]
 resolver = "3"
 
-[profile.dist]
-inherits = "release"
+[profile.release]
 lto = "thin"

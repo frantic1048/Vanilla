@@ -1,3 +1,0 @@
-- name: Ignore repository Brewfile during cargo-dist builds
-  shell: bash
-  run: echo "HOMEBREW_BUNDLE_FILE=/dev/null" >> "$GITHUB_ENV"

@@ -8,6 +8,7 @@ mod immutable;
 mod metadata;
 mod nickel;
 mod output;
+mod sandbox;
 mod state;
 mod sync;
 
@@ -15,12 +16,53 @@ use clap::Parser;
 
 use cli::{Cli, Commands};
 use commands::{cmd_init, cmd_status, cmd_sync, cmd_table, cmd_view};
-use context::Context;
+use context::{Context, sandbox_mode_from_cli_and_config};
 use output::log;
+use sandbox::SandboxMode;
 use sync::{SyncMode, TerminalPrompter};
 
 fn main() {
     let cli = Cli::parse();
+    let sandbox_mode = match sandbox_mode_from_cli_and_config(&cli) {
+        Ok(mode) => mode,
+        Err(e) => {
+            log::error(&format!("Error: {e}"));
+            std::process::exit(1);
+        }
+    };
+    let sandbox_installed = match sandbox_mode {
+        SandboxMode::Force | SandboxMode::Prefer => match sandbox::install() {
+            Ok(()) if cli.verbose => {
+                log::info("Enabled process sandbox");
+                true
+            }
+            Ok(()) => true,
+            Err(e) if sandbox_mode == SandboxMode::Force => {
+                log::error(&format!("Error: failed to enable process sandbox: {e}"));
+                std::process::exit(1);
+            }
+            Err(e) => {
+                log::warn(&format!("failed to enable process sandbox: {e}"));
+                false
+            }
+        },
+        SandboxMode::Never => {
+            if cli.verbose {
+                log::info("Process sandbox disabled");
+            }
+            false
+        }
+    };
+
+    #[cfg(not(debug_assertions))]
+    let _ = sandbox_installed;
+
+    #[cfg(debug_assertions)]
+    if sandbox_installed && let Err(e) = sandbox::run_probe_from_env() {
+        log::error(&format!("Error: sandbox probe failed: {e}"));
+        std::process::exit(1);
+    }
+
     let ctx = match Context::new(&cli) {
         Ok(ctx) => ctx,
         Err(e) => {

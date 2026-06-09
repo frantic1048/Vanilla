@@ -1,6 +1,8 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+use crate::sandbox::SandboxMode;
+
 #[derive(Parser)]
 #[command(
     name = "blend",
@@ -26,6 +28,10 @@ pub struct Cli {
     /// Override blend directory (the parent directory that contains orders/)
     #[arg(long = "blend-dir", global = true)]
     pub blend_dir: Option<PathBuf>,
+
+    /// Process sandbox policy
+    #[arg(long, value_enum, global = true)]
+    pub sandbox: Option<SandboxMode>,
 }
 
 #[derive(Subcommand)]

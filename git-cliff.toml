@@ -38,6 +38,9 @@ include_paths = [
   ".github/workflows/release-plz.yml",
   ".github/workflows/blend-v-release.yml",
 ]
+# Allow non-conventional commit messages to pass through to commit_parsers
+# so the catch-all parser can pick them up instead of silently dropping them.
+filter_unconventional = false
 commit_preprocessors = [
   { pattern = "\\(#([0-9]+)\\)", replace = "([#${1}](https://github.com/frantic1048/Vanilla/pull/${1}))" },
 ]

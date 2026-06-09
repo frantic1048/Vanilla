@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.5...blend-v0.2.6) - 2026-06-09
+
+### Other
+- Add basic process sandbox for blend ([#15](https://github.com/frantic1048/Vanilla/pull/15))
+
 ## [0.2.5](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.4...blend-v0.2.5) - 2026-05-26
 
 ### Added

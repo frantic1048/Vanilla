@@ -9,7 +9,7 @@ let { Order, .. } = import "../order.contract.ncl" in
         name = "starship.toml",
         from_config = {
           "$schema" = "https://starship.rs/config-schema.json",
-          command_timeout = 10000,
+          command_timeout = 20000,
 
           git_branch = {
             style = "bold bright-green",

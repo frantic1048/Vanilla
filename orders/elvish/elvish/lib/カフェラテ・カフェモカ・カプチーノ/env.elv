@@ -125,6 +125,10 @@ if (has-external nvim) {
   set-env VISUAL nano
 }
 
+# Codex
+# Making `codex exec` work with custom endpoints
+set-env CODEX_INTERNAL_ORIGINATOR_OVERRIDE 'codex_cli_rs'
+
 # GPG
 if (has-external gpgconf) {
   at-env &os="darwin" {

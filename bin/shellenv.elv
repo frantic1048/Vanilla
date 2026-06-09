@@ -21,4 +21,5 @@ each {|env_name|
   'SSH_AUTH_SOCK'
   'GPG_TTY'
   'VISUAL'
+  'CODEX_INTERNAL_ORIGINATOR_OVERRIDE'
 ]

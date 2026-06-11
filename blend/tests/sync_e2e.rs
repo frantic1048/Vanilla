@@ -1591,6 +1591,36 @@ fn test_init_uses_cwd_when_blend_dir_is_absent() {
 }
 
 #[test]
+fn test_blend_order_rejects_stale_blend_dir_config_field() {
+    let home = TempDir::new().unwrap();
+    let cwd = TempDir::new().unwrap();
+
+    let init_output = run_blend_in_cwd(home.path(), cwd.path(), &["init"]);
+    assert!(
+        init_output.status.success(),
+        "blend init should bootstrap an empty cwd\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&init_output.stdout),
+        String::from_utf8_lossy(&init_output.stderr),
+    );
+
+    let blend_order = cwd.path().join("orders/blend/order.ncl");
+    let raw = std::fs::read_to_string(&blend_order).unwrap();
+    let stale = raw.replace(
+        "from_config = {\n          sandbox = \"prefer\",",
+        "from_config = {\n          blend_dir = \"/tmp/stale-dotfiles\",\n          sandbox = \"prefer\",",
+    );
+    std::fs::write(&blend_order, stale).unwrap();
+
+    let output = run_blend_in_cwd(home.path(), cwd.path(), &["view", "blend"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        stdout.contains("extra field `blend_dir`") || stderr.contains("extra field `blend_dir`"),
+        "expected Nickel contract error for stale blend_dir\nstdout: {stdout}\nstderr: {stderr}",
+    );
+}
+
+#[test]
 fn test_commands_use_configured_blend_dir_outside_checkout() {
     let home = TempDir::new().unwrap();
     let blend_dir = TempDir::new().unwrap();
@@ -1608,7 +1638,7 @@ fn test_commands_use_configured_blend_dir_outside_checkout() {
     let stdout = String::from_utf8_lossy(&view_output.stdout);
     assert!(
         view_output.status.success(),
-        "blend view should use ~/.config/blend/config.toml outside a checkout\nstdout: {}\nstderr: {}",
+        "blend view should use remembered blend dir state outside a checkout\nstdout: {}\nstderr: {}",
         stdout,
         String::from_utf8_lossy(&view_output.stderr),
     );
@@ -1644,14 +1674,16 @@ fn test_valid_cwd_refreshes_stale_configured_blend_dir() {
         "expected mismatch warning\nstdout: {stdout}",
     );
 
+    let state = std::fs::read_to_string(home.path().join(".local/state/blend/state.json")).unwrap();
+    assert!(
+        state.contains(&current.path().display().to_string()),
+        "state should be refreshed to current checkout, got:\n{state}",
+    );
+
     let config = std::fs::read_to_string(config_dir.join("config.toml")).unwrap();
     assert!(
-        config.contains(&current.path().display().to_string()),
-        "config should be refreshed to current checkout, got:\n{config}",
-    );
-    assert!(
-        !config.contains(&stale.path().display().to_string()),
-        "config should not keep pointing at stale checkout, got:\n{config}",
+        config.contains(&stale.path().display().to_string()),
+        "legacy config should be left untouched after state refresh, got:\n{config}",
     );
 }
 

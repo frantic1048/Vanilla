@@ -118,38 +118,29 @@ fn write_blend_starter(ctx: &Context) -> anyhow::Result<()> {
         .with_context(|| format!("Failed to create {}", order_dir.display()))?;
 
     let path = starter_path(ctx);
-    std::fs::write(&path, starter_ncl(ctx)?)
+    std::fs::write(&path, starter_ncl())
         .with_context(|| format!("Failed to write {}", path.display()))?;
     log::info(&format!("created {}", path.display()));
     Ok(())
 }
 
-fn starter_ncl(ctx: &Context) -> anyhow::Result<String> {
-    let blend_dir = serde_json::to_string(&ctx.blend_dir.to_string_lossy())?;
-    Ok(format!(
-        r#"let {{ Order, .. }} = import "../order.contract.ncl" in
-{{
-  blend = {{
+fn starter_ncl() -> String {
+    r#"let { Order, BlendOrder, .. } = import "../order.contract.ncl" in
+{
+  blend = {
     prefix = ["~/.config/blend/"],
-    ignore = [
-      # This points to the local checkout location. Most people do not need to
-      # persist changes to it in their dotfile repo; remove this ignore if you
-      # intentionally keep blend at a stable path such as ~/dotfiles.
-      "blend_dir",
-    ],
     files = [
-      {{
+      {
         name = "config.toml",
-        from_config = {{
-          blend_dir = {blend_dir},
+        from_config = {
           sandbox = "prefer",
-        }},
-      }},
+        },
+      },
     ],
-  }},
-}} | Order
+  },
+} | Order | BlendOrder
 "#
-    ))
+    .to_string()
 }
 
 #[cfg(test)]

@@ -1,4 +1,4 @@
-name: blend CI
+name: Blend CI
 
 on:
   push:
@@ -7,13 +7,13 @@ on:
       - "blend/**"
       - "Cargo.toml"
       - "Cargo.lock"
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/blend-ci.yml"
   pull_request:
     paths:
       - "blend/**"
       - "Cargo.toml"
       - "Cargo.lock"
-      - ".github/workflows/ci.yml"
+      - ".github/workflows/blend-ci.yml"
 
 permissions:
   contents: read
@@ -44,3 +44,5 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy -- -D warnings
       - run: cargo test
+      - run: cargo run -- check
+      - run: cargo run -- format --check

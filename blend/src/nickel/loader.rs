@@ -1,4 +1,5 @@
 use std::ffi::OsString;
+use std::io::Cursor;
 use std::path::Path;
 
 use anyhow::{Context as AnyhowContext, Result};
@@ -7,6 +8,14 @@ use nickel_lang::Context;
 use crate::metadata::Metadata;
 
 use super::schema::Order;
+
+/// Format Nickel source using Nickel's in-process formatter.
+pub fn format_source(source: &str) -> Result<String> {
+    let mut output = Vec::new();
+    nickel_lang_core::format::format(Cursor::new(source.as_bytes()), &mut output)
+        .map_err(|e| anyhow::anyhow!("Nickel formatting error: {e}"))?;
+    String::from_utf8(output).with_context(|| "Nickel formatter emitted invalid UTF-8")
+}
 
 /// Nickel evaluator with metadata injection
 pub struct NickelEvaluator {

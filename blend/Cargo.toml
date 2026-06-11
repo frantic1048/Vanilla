@@ -13,6 +13,7 @@ console = "0.15"
 
 # Nickel DSL
 nickel-lang = "=2.1.0"
+nickel-lang-core = { version = "=0.17.0", default-features = false, features = ["format"] }
 nickel-lang-parser = "=0.2.0"
 codespan = "0.11"
 
@@ -35,7 +36,7 @@ libc = "0.2"
 rayon = "1"
 
 # Tree-sitter (CST structural parsing)
-tree-sitter = "0.25"
+tree-sitter = "0.26"
 tree-sitter-nickel = "0.5"
 
 # Error handling

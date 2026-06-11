@@ -1,6 +1,5 @@
 # tealdeer (tldr client) configuration
 # https://dbrgn.github.io/tealdeer/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

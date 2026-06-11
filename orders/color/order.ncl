@@ -1,5 +1,4 @@
 # Display color profiles (ICC)
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

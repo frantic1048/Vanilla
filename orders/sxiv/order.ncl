@@ -1,5 +1,4 @@
 # sxiv image viewer configuration
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

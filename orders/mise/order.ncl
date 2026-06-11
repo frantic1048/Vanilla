@@ -1,6 +1,5 @@
 # mise configuration
 # https://mise.jdx.dev/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

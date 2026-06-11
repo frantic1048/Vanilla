@@ -1,0 +1,40 @@
+name: Orders CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "orders/**"
+      - ".github/workflows/orders-ci.yml"
+  pull_request:
+    paths:
+      - "orders/**"
+      - ".github/workflows/orders-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install latest blend release
+        run: |
+          set -eu
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl --proto '=https' --tlsv1.2 -fsSL https://github.com/frantic1048/Vanilla/releases/latest/download/blend-installer.sh -o "$RUNNER_TEMP/blend-installer.sh"
+          sh "$RUNNER_TEMP/blend-installer.sh" --dir "$RUNNER_TEMP/bin" --quiet
+          "$RUNNER_TEMP/bin/blend" --version
+
+      - name: Check orders
+        run: '"$RUNNER_TEMP/bin/blend" check'
+
+      - name: Check order formatting
+        run: '"$RUNNER_TEMP/bin/blend" format --check'

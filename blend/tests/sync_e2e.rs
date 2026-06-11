@@ -150,6 +150,97 @@ fn test_sandbox_force_exec_probe() {
 }
 
 #[test]
+fn test_check_order_success() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(home.path(), &orders, &["check", "toml-basic"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend check failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("Checked 1 order(s)"));
+}
+
+#[test]
+fn test_check_order_fails_when_from_file_is_missing() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("plaintext-single");
+    std::fs::remove_file(orders_dir(blend_dir.path()).join("plaintext-single/config.txt")).unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["check", "plaintext-single"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "blend check should fail for missing from_file\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        stderr.contains("source file not found"),
+        "missing from_file error should mention the missing source\nstdout: {stdout}\nstderr: {stderr}"
+    );
+}
+
+#[test]
+fn test_format_check_order_success() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(home.path(), &orders, &["format", "--check", "toml-basic"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend format --check failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("Checked formatting for 1 order.ncl file(s)"));
+}
+
+#[test]
+fn test_format_order_writes_changes() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("toml-basic");
+    let order_path = orders_dir(blend_dir.path()).join("toml-basic/order.ncl");
+    let compact = r#"{ blend = { prefix = ["~/.config/toml-basic/"], files = [{ name = "config.toml", from_config = { key = "value", number = 42, nested = { inner = true, }, }, }], }, }"#;
+    std::fs::write(&order_path, compact).unwrap();
+
+    let output = run_blend(home.path(), blend_dir.path(), &["format", "toml-basic"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend format failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("Formatted 1 order.ncl file(s)"));
+
+    let formatted = std::fs::read_to_string(&order_path).unwrap();
+    assert_ne!(formatted, compact);
+    assert!(formatted.contains("files = ["));
+
+    let check = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["--sandbox", "never", "format", "--check", "toml-basic"],
+    );
+    assert!(
+        check.status.success(),
+        "formatted order should pass format --check\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&check.stdout),
+        String::from_utf8_lossy(&check.stderr)
+    );
+}
+
+#[test]
 fn test_sync_force_source_to_target_plain_data_new_file() {
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();

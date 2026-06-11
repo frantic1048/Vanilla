@@ -26,14 +26,18 @@ Migration from the legacy nushell-based blend + `packages/` (stow-managed) to Ru
 
 ## blend Development
 
-blend is being enhanced iteratively via manual testing. No CI yet.
+blend is being enhanced iteratively via manual testing and CI.
+
+**Commit conventions:** use semantic/conventional commit subjects for changes to the blend program and its release/CI tooling (for example, `feat(blend): ...`, `fix(blend): ...`, `ci: ...`, `chore(blend): ...`).
+
+**Branch conventions:** development branches should use the `dev/*` namespace.
 
 **Pre-release posture:** blend is pre-initial-release with one user (the repo owner). Backwards compatibility is *not* a constraint — prefer the cleanest design over compat shims, deprecation paths, or migration tooling for hypothetical external users. Migrating the user's own dotfiles in this repo is still in scope.
 
 **Build / common tasks (via `just`):**
 ```sh
 just build         # cargo build --release + symlink target/release/blend → bin/blend
-just check         # blend view --dry-run (validates all orders)
+just check         # blend check (validates all orders)
 just test          # cargo test --release
 just fmt-check     # rustfmt --check
 just clippy        # cargo clippy -- -D warnings

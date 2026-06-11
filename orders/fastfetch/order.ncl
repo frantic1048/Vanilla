@@ -1,6 +1,5 @@
 # Fastfetch configuration
 # https://github.com/fastfetch-cli/fastfetch
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

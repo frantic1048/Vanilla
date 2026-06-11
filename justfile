@@ -16,7 +16,7 @@ build-debug:
 
 # Validate all orders
 check:
-    bin/blend view --dry-run
+    bin/blend check
 
 # Run rustfmt on the blend crate
 fmt:

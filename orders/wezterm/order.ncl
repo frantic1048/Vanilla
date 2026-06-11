@@ -1,6 +1,5 @@
 # WezTerm terminal configuration
 # https://wezfurlong.org/wezterm/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

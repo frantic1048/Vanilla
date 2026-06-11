@@ -1,5 +1,4 @@
 # Suppress the "Last login" banner in new macOS terminal sessions.
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

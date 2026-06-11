@@ -1,8 +1,19 @@
 use console::style;
 
-use crate::compose::BuildResult;
+use crate::compose::{BuildResult, discover_orders};
+use crate::context::Context;
 use crate::diff::{DiffResult, FileDiffResult, diff_configs, diff_directory};
 use crate::nickel;
+
+pub fn select_orders(ctx: &Context, orders: &[String]) -> Vec<String> {
+    let mut selected: Vec<String> = if orders.is_empty() {
+        discover_orders(&ctx.orders_dir).into_iter().collect()
+    } else {
+        orders.to_vec()
+    };
+    selected.sort();
+    selected
+}
 
 /// For directory-style entries: walk the source dir and check whether any
 /// per-file target is itself a symlink. Returns true even when resolved

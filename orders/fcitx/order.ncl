@@ -1,5 +1,4 @@
 # Fcitx input method configuration
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

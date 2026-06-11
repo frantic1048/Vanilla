@@ -1,6 +1,5 @@
 # Zellij terminal multiplexer configuration (macOS)
 # https://zellij.dev/documentation/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

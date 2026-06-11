@@ -707,7 +707,7 @@ pub fn surgical_rewrite(
         // For now, additions are only supported for fully-rewritable from_config blocks.
     }
 
-    edits.sort_by(|a, b| b.0.cmp(&a.0));
+    edits.sort_by_key(|edit| std::cmp::Reverse(edit.0));
 
     let mut result = source.to_string();
     for (start, end, replacement) in &edits {
@@ -896,7 +896,7 @@ pub fn surgical_rewrite_with_structure(
 
     // Sort ops by offset descending so we apply from back to front
     // (this ensures earlier edits don't shift the offsets of later ones)
-    ops.sort_by(|a, b| b.0.cmp(&a.0));
+    ops.sort_by_key(|op| std::cmp::Reverse(op.0));
 
     // Apply all operations
     let mut result = source.to_string();

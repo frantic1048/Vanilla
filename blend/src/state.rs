@@ -11,6 +11,13 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context as AnyhowContext, Result};
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Deserialize, Serialize)]
+struct StateFile {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    blend_dir: Option<PathBuf>,
+}
 
 /// Per-machine snapshot store.
 pub struct StateStore {
@@ -21,15 +28,20 @@ impl StateStore {
     /// Resolve the snapshots root from the environment.
     /// Honors `XDG_STATE_HOME`; falls back to `$HOME/.local/state` on every
     /// platform (including macOS, where `dirs::state_dir()` returns `None`).
+    #[cfg(test)]
     pub fn from_env() -> Self {
+        let home = std::env::var_os("HOME")
+            .map(PathBuf::from)
+            .expect("HOME must be set");
+        Self::from_env_for_home(&home)
+    }
+
+    /// Resolve the state store from the environment, falling back under the
+    /// supplied home directory when `XDG_STATE_HOME` is unset.
+    pub fn from_env_for_home(home: &Path) -> Self {
         let base = std::env::var_os("XDG_STATE_HOME")
             .map(PathBuf::from)
-            .unwrap_or_else(|| {
-                let home = std::env::var_os("HOME")
-                    .map(PathBuf::from)
-                    .expect("HOME must be set");
-                home.join(".local/state")
-            });
+            .unwrap_or_else(|| home.join(".local/state"));
         Self {
             snapshots_root: base.join("blend").join("snapshots"),
         }
@@ -107,6 +119,64 @@ impl StateStore {
         }
         rename_result?;
         Ok(())
+    }
+
+    /// Read the last remembered blend checkout directory.
+    pub fn read_blend_dir(&self) -> Result<Option<PathBuf>> {
+        Ok(self.read_state_file()?.and_then(|state| state.blend_dir))
+    }
+
+    /// Remember the blend checkout directory for future invocations outside a checkout.
+    pub fn write_blend_dir(&self, blend_dir: &Path) -> Result<()> {
+        let path = self.state_file_path();
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)
+                .with_context(|| format!("failed to create state dir {}", parent.display()))?;
+        }
+        let state = StateFile {
+            blend_dir: Some(blend_dir.to_path_buf()),
+        };
+        let raw = serde_json::to_vec_pretty(&state)?;
+        let tmp = {
+            let mut s = path.clone().into_os_string();
+            s.push(format!(".tmp.{}", std::process::id()));
+            PathBuf::from(s)
+        };
+        std::fs::write(&tmp, raw)
+            .with_context(|| format!("failed to write state temp file {}", tmp.display()))?;
+        let rename_result = std::fs::rename(&tmp, &path).with_context(|| {
+            format!(
+                "failed to rename state file {} -> {}",
+                tmp.display(),
+                path.display()
+            )
+        });
+        if rename_result.is_err() {
+            let _ = std::fs::remove_file(&tmp);
+        }
+        rename_result?;
+        Ok(())
+    }
+
+    fn read_state_file(&self) -> Result<Option<StateFile>> {
+        let path = self.state_file_path();
+        match std::fs::read_to_string(&path) {
+            Ok(raw) => {
+                let state = serde_json::from_str(&raw)
+                    .with_context(|| format!("failed to parse state file {}", path.display()))?;
+                Ok(Some(state))
+            }
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(e) => Err(anyhow::Error::new(e)
+                .context(format!("failed to read state file {}", path.display()))),
+        }
+    }
+
+    pub fn state_file_path(&self) -> PathBuf {
+        self.snapshots_root
+            .parent()
+            .expect("snapshots root should have a parent")
+            .join("state.json")
     }
 }
 
@@ -200,6 +270,41 @@ mod tests {
                 None => std::env::remove_var("HOME"),
             }
         }
+    }
+
+    #[test]
+    fn from_env_for_home_falls_back_to_supplied_home() {
+        let prev_xdg = std::env::var_os("XDG_STATE_HOME");
+        // SAFETY: single-threaded test scope.
+        unsafe {
+            std::env::remove_var("XDG_STATE_HOME");
+        }
+        let store = StateStore::from_env_for_home(Path::new("/tmp/blend-home"));
+        assert_eq!(
+            store.snapshots_root,
+            PathBuf::from("/tmp/blend-home/.local/state/blend/snapshots")
+        );
+        // SAFETY: restore prior env.
+        unsafe {
+            match prev_xdg {
+                Some(v) => std::env::set_var("XDG_STATE_HOME", v),
+                None => std::env::remove_var("XDG_STATE_HOME"),
+            }
+        }
+    }
+
+    #[test]
+    fn blend_dir_state_roundtrips_path() {
+        let tmp = TempDir::new().unwrap();
+        let store = StateStore {
+            snapshots_root: tmp.path().join("blend/snapshots"),
+        };
+        let path = Path::new("/tmp/my-dotfiles");
+
+        assert!(store.read_blend_dir().unwrap().is_none());
+        store.write_blend_dir(path).unwrap();
+
+        assert_eq!(store.read_blend_dir().unwrap(), Some(path.to_path_buf()));
     }
 
     #[test]

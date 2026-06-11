@@ -336,6 +336,9 @@ blend view [orders...]             Preview diffs (read-only)
 blend view -c [orders...]          Show generated content only (no diff)
 blend view -a [orders...]          Show both content and diff
 blend view -s [orders...]          Short mode: omit up-to-date entries
+blend check [orders...]            Typecheck/evaluate order.ncl files
+blend format [orders...]           Format order.ncl files
+blend format --check [orders...]   Check order.ncl formatting without writing
 blend table                        Output order info as HTML table (for README)
 blend init                         Generate/refresh orders contract + metadata files
 ```
@@ -458,7 +461,6 @@ In `.ncl` files, use `\u{xxxx}` escape sequences for non-ASCII characters (e.g.,
 
 - **Richer deploy state** — extend snapshots with order/file identity, timestamps, machine identity, and deployment mode for better diagnostics and old-target cleanup
 - **Secrets management** — integration with system keychains or sops
-- **Standalone validation command** — a first-class `blend check`/`blend lint` command rather than relying on `blend view --dry-run` or the top-level `just check`
 - **INI format renderer** — for git config and similar `[section]` formats
 - **`--no-rewrite` info display** — show branch context and Nickel snippets when Target -> Source rewrite is disabled
 - **Full YAML parser/renderer** — current `Yaml` uses JSON-compatible output and JSON/JSONC parsing

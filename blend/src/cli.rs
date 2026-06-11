@@ -73,6 +73,23 @@ pub enum Commands {
         short: bool,
     },
 
+    /// Typecheck order.ncl files with Nickel
+    Check {
+        /// Orders to check (default: all)
+        orders: Vec<String>,
+    },
+
+    /// Format order.ncl files with Nickel
+    #[command(alias = "fmt")]
+    Format {
+        /// Orders to format (default: all)
+        orders: Vec<String>,
+
+        /// Check formatting without writing changes
+        #[arg(long)]
+        check: bool,
+    },
+
     /// Output order info as HTML table (for README generation)
     Table,
 

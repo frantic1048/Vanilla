@@ -15,7 +15,7 @@ mod sync;
 use clap::Parser;
 
 use cli::{Cli, Commands};
-use commands::{cmd_init, cmd_status, cmd_sync, cmd_table, cmd_view};
+use commands::{cmd_check, cmd_format, cmd_init, cmd_status, cmd_sync, cmd_table, cmd_view};
 use context::{Context, sandbox_mode_from_cli_and_config};
 use output::log;
 use sandbox::SandboxMode;
@@ -103,6 +103,8 @@ fn main() {
             all,
             short,
         }) => cmd_view(&ctx, &orders, content_only, all, short),
+        Some(Commands::Check { orders }) => cmd_check(&ctx, &orders),
+        Some(Commands::Format { orders, check }) => cmd_format(&ctx, &orders, check),
         Some(Commands::Table) => cmd_table(&ctx),
         Some(Commands::Init) => cmd_init(&ctx),
         None => cmd_status(&ctx),

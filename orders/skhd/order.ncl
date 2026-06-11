@@ -1,6 +1,5 @@
 # skhd hotkey daemon configuration
 # https://github.com/koekeishiya/skhd
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

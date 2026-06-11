@@ -1,6 +1,5 @@
 # Picom compositor configuration
 # https://github.com/yshui/picom
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

@@ -1,6 +1,5 @@
 # Sway Wayland compositor configuration
 # https://swaywm.org/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

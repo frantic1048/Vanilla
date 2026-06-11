@@ -1,5 +1,4 @@
 # PAM environment configuration
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

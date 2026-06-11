@@ -1,6 +1,5 @@
 # Ghostty terminal configuration
 # https://ghostty.org/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

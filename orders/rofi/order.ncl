@@ -1,6 +1,5 @@
 # Rofi application launcher configuration
 # https://github.com/davatorium/rofi
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

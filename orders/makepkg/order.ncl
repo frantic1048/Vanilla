@@ -1,5 +1,4 @@
 # makepkg configuration (Arch Linux)
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

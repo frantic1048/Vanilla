@@ -1,6 +1,5 @@
 # SketchyBar configuration
 # https://felixkratz.github.io/SketchyBar/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

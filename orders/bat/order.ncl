@@ -1,6 +1,5 @@
 # bat configuration
 # https://github.com/sharkdp/bat
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

@@ -1,6 +1,5 @@
 # Pueue task manager configuration
 # https://github.com/Nukesor/pueue
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

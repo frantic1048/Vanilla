@@ -1,5 +1,4 @@
 # tint2 panel configuration
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

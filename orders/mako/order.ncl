@@ -1,6 +1,5 @@
 # Mako notification daemon configuration
 # https://github.com/emersion/mako
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

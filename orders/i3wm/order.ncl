@@ -1,6 +1,5 @@
 # i3 window manager configuration
 # https://i3wm.org/
-
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {

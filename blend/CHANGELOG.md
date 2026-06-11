@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.7](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.6...blend-v0.2.7) - 2026-06-11
+
+### Added
+- *(blend)* add check and format commands
+
 ## [0.2.6](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.5...blend-v0.2.6) - 2026-06-09
 
 ### Other

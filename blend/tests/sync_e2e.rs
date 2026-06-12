@@ -1649,16 +1649,17 @@ fn test_commands_use_configured_blend_dir_outside_checkout() {
 }
 
 #[test]
-fn test_valid_cwd_refreshes_stale_configured_blend_dir() {
+fn test_valid_cwd_refreshes_stale_remembered_blend_dir() {
     let home = TempDir::new().unwrap();
     let stale = copy_fixture("plaintext-single");
     let current = copy_fixture("toml-basic");
 
-    let config_dir = home.path().join(".config/blend");
-    std::fs::create_dir_all(&config_dir).unwrap();
+    // Seed a stale blend dir into state so it differs from the cwd checkout.
+    let state_dir = home.path().join(".local/state/blend");
+    std::fs::create_dir_all(&state_dir).unwrap();
     std::fs::write(
-        config_dir.join("config.toml"),
-        format!("blend_dir = \"{}\"\n", stale.path().display()),
+        state_dir.join("state.json"),
+        format!("{{\"blend_dir\":\"{}\"}}", stale.path().display()),
     )
     .unwrap();
 
@@ -1670,20 +1671,14 @@ fn test_valid_cwd_refreshes_stale_configured_blend_dir() {
         "blend view should use the current checkout and succeed\nstdout: {stdout}\nstderr: {stderr}",
     );
     assert!(
-        stdout.contains("differs from configured blend-dir"),
+        stdout.contains("differs from remembered blend-dir"),
         "expected mismatch warning\nstdout: {stdout}",
     );
 
-    let state = std::fs::read_to_string(home.path().join(".local/state/blend/state.json")).unwrap();
+    let state = std::fs::read_to_string(state_dir.join("state.json")).unwrap();
     assert!(
         state.contains(&current.path().display().to_string()),
         "state should be refreshed to current checkout, got:\n{state}",
-    );
-
-    let config = std::fs::read_to_string(config_dir.join("config.toml")).unwrap();
-    assert!(
-        config.contains(&stale.path().display().to_string()),
-        "legacy config should be left untouched after state refresh, got:\n{config}",
     );
 }
 

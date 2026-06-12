@@ -26,7 +26,7 @@ impl Context {
         let home_dir = home_dir_from_cli(cli);
         let state = StateStore::from_env_for_home(&home_dir);
 
-        let blend_dir_choice = resolve_blend_dir(cli, &home_dir, &state)?;
+        let blend_dir_choice = resolve_blend_dir(cli, &state)?;
         let blend_dir = blend_dir_choice.path;
         let orders_dir = blend_dir.join("orders");
         let metadata = Metadata::detect(&home_dir);
@@ -78,9 +78,6 @@ impl Context {
 
 #[derive(Deserialize, Serialize)]
 struct BlendConfig {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    blend_dir: Option<PathBuf>,
-
     #[serde(default)]
     sandbox: SandboxMode,
 }
@@ -90,7 +87,7 @@ struct BlendDirChoice {
     update_config_after_success: bool,
 }
 
-fn resolve_blend_dir(cli: &Cli, home_dir: &Path, state: &StateStore) -> Result<BlendDirChoice> {
+fn resolve_blend_dir(cli: &Cli, state: &StateStore) -> Result<BlendDirChoice> {
     if let Some(blend_dir) = &cli.blend_dir {
         return Ok(BlendDirChoice {
             path: blend_dir.clone(),
@@ -100,12 +97,12 @@ fn resolve_blend_dir(cli: &Cli, home_dir: &Path, state: &StateStore) -> Result<B
 
     if matches!(cli.command, Some(Commands::Init)) {
         if let Some(current) = find_blend_dir_from_current_dir() {
-            return choice_from_current_dir(home_dir, state, current);
+            return choice_from_current_dir(state, current);
         }
 
-        if let Some(configured) = find_blend_dir_from_state_or_config(home_dir, state)? {
+        if let Some(remembered) = state.read_blend_dir()? {
             return Ok(BlendDirChoice {
-                path: configured,
+                path: remembered,
                 update_config_after_success: false,
             });
         }
@@ -116,17 +113,17 @@ fn resolve_blend_dir(cli: &Cli, home_dir: &Path, state: &StateStore) -> Result<B
         });
     }
 
-    find_blend_dir(home_dir, state)
+    find_blend_dir(state)
 }
 
-fn find_blend_dir(home_dir: &Path, state: &StateStore) -> Result<BlendDirChoice> {
+fn find_blend_dir(state: &StateStore) -> Result<BlendDirChoice> {
     if let Some(current) = find_blend_dir_from_current_dir() {
-        return choice_from_current_dir(home_dir, state, current);
+        return choice_from_current_dir(state, current);
     }
 
-    if let Some(configured) = find_blend_dir_from_state_or_config(home_dir, state)? {
+    if let Some(remembered) = state.read_blend_dir()? {
         return Ok(BlendDirChoice {
-            path: configured,
+            path: remembered,
             update_config_after_success: false,
         });
     }
@@ -134,24 +131,20 @@ fn find_blend_dir(home_dir: &Path, state: &StateStore) -> Result<BlendDirChoice>
     bail!("Could not find blend directory. Run from a blend checkout or pass --blend-dir <PATH>.")
 }
 
-fn choice_from_current_dir(
-    home_dir: &Path,
-    state: &StateStore,
-    current: PathBuf,
-) -> Result<BlendDirChoice> {
-    let configured = find_blend_dir_from_state_or_config(home_dir, state)?;
-    let update_config_after_success = configured
+fn choice_from_current_dir(state: &StateStore, current: PathBuf) -> Result<BlendDirChoice> {
+    let remembered = state.read_blend_dir()?;
+    let update_config_after_success = remembered
         .as_ref()
-        .is_none_or(|configured| !same_path(configured, &current));
+        .is_none_or(|remembered| !same_path(remembered, &current));
 
-    if let Some(configured) = configured
-        && configured.join("orders").is_dir()
-        && !same_path(&configured, &current)
+    if let Some(remembered) = remembered
+        && remembered.join("orders").is_dir()
+        && !same_path(&remembered, &current)
     {
         log::warn(&format!(
-            "warning: current blend dir {} differs from configured blend-dir {}; using current directory",
+            "warning: current blend dir {} differs from remembered blend-dir {}; using current directory",
             current.display(),
-            configured.display()
+            remembered.display()
         ));
     }
 
@@ -182,21 +175,6 @@ pub fn sandbox_mode_from_cli_and_config(cli: &Cli) -> Result<SandboxMode> {
         .unwrap_or_default())
 }
 
-fn find_blend_dir_from_config(home_dir: &Path) -> Result<Option<PathBuf>> {
-    Ok(read_blend_config(home_dir)?.and_then(|config| config.blend_dir))
-}
-
-fn find_blend_dir_from_state_or_config(
-    home_dir: &Path,
-    state: &StateStore,
-) -> Result<Option<PathBuf>> {
-    if let Some(blend_dir) = state.read_blend_dir()? {
-        return Ok(Some(blend_dir));
-    }
-
-    find_blend_dir_from_config(home_dir)
-}
-
 fn read_blend_config(home_dir: &Path) -> Result<Option<BlendConfig>> {
     let path = config_path(home_dir);
     if !path.exists() {
@@ -220,26 +198,6 @@ fn find_blend_dir_from_current_dir() -> Option<PathBuf> {
     }
 
     None
-}
-
-#[cfg(test)]
-fn write_blend_dir_config(home_dir: &Path, blend_dir: &Path) -> Result<()> {
-    let path = config_path(home_dir);
-    if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
-            .with_context(|| format!("Failed to create {}", parent.display()))?;
-    }
-
-    let sandbox = read_blend_config(home_dir)?
-        .map(|config| config.sandbox)
-        .unwrap_or_default();
-    let config = BlendConfig {
-        blend_dir: Some(blend_dir.to_path_buf()),
-        sandbox,
-    };
-    let raw = toml::to_string_pretty(&config)?;
-    std::fs::write(&path, raw).with_context(|| format!("Failed to write {}", path.display()))?;
-    Ok(())
 }
 
 fn same_path(a: &Path, b: &Path) -> bool {
@@ -316,15 +274,11 @@ mod tests {
     #[test]
     fn sandbox_mode_reads_config() {
         let home = TempDir::new().unwrap();
-        let blend_dir = TempDir::new().unwrap();
         let config_dir = home.path().join(".config/blend");
         std::fs::create_dir_all(&config_dir).unwrap();
         std::fs::write(
             config_dir.join("config.toml"),
-            format!(
-                "blend_dir = \"{}\"\nsandbox = \"never\"\n",
-                blend_dir.path().display()
-            ),
+            "sandbox = \"never\"\n",
         )
         .unwrap();
         let cli = Cli::parse_from(["blend", "--home", home.path().to_str().unwrap()]);
@@ -338,15 +292,11 @@ mod tests {
     #[test]
     fn sandbox_cli_flags_override_config() {
         let home = TempDir::new().unwrap();
-        let blend_dir = TempDir::new().unwrap();
         let config_dir = home.path().join(".config/blend");
         std::fs::create_dir_all(&config_dir).unwrap();
         std::fs::write(
             config_dir.join("config.toml"),
-            format!(
-                "blend_dir = \"{}\"\nsandbox = \"never\"\n",
-                blend_dir.path().display()
-            ),
+            "sandbox = \"never\"\n",
         )
         .unwrap();
         let cli = Cli::parse_from([
@@ -361,28 +311,5 @@ mod tests {
             sandbox_mode_from_cli_and_config(&cli).unwrap(),
             SandboxMode::Force
         );
-    }
-
-    #[test]
-    fn write_blend_dir_config_preserves_sandbox_mode() {
-        let home = TempDir::new().unwrap();
-        let old_blend_dir = TempDir::new().unwrap();
-        let new_blend_dir = TempDir::new().unwrap();
-        let config_dir = home.path().join(".config/blend");
-        std::fs::create_dir_all(&config_dir).unwrap();
-        std::fs::write(
-            config_dir.join("config.toml"),
-            format!(
-                "blend_dir = \"{}\"\nsandbox = \"never\"\n",
-                old_blend_dir.path().display()
-            ),
-        )
-        .unwrap();
-
-        write_blend_dir_config(home.path(), new_blend_dir.path()).unwrap();
-
-        let raw = std::fs::read_to_string(config_dir.join("config.toml")).unwrap();
-        assert!(raw.contains(&new_blend_dir.path().display().to_string()));
-        assert!(raw.contains("sandbox = \"never\""));
     }
 }

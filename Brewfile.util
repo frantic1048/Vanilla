@@ -129,3 +129,7 @@ tap "datadog-labs/pack"
 brew "datadog-labs/pack/pup"
 
 brew "getsentry/tools/sentry"
+
+# Atlassian CLI
+tap "atlassian/twg"
+brew "atlassian/twg/twg"

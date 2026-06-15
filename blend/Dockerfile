@@ -4,8 +4,5 @@ LABEL org.opencontainers.image.source="https://github.com/frantic1048/Vanilla"
 LABEL org.opencontainers.image.description="blend — dotfiles manager with Nickel DSL"
 LABEL org.opencontainers.image.licenses="MIT"
 
-RUN useradd --create-home blend
-USER blend
-
 COPY blend /usr/local/bin/blend
 ENTRYPOINT ["/usr/local/bin/blend"]

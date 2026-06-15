@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.7...blend-v0.2.8) - 2026-06-15
+
+### Other
+- *(blend)* publish Docker image to ghcr.io on release
+
 ## [0.2.7](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.6...blend-v0.2.7) - 2026-06-11
 
 ### Added

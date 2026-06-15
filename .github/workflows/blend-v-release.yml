@@ -9,6 +9,7 @@ permissions:
   contents: write
   attestations: write
   id-token: write
+  packages: write
 
 jobs:
   build:
@@ -156,3 +157,64 @@ jobs:
             artifacts/blend-*.tar.xz.sha256 \
             artifacts/sha256.sum \
             artifacts/blend-installer.sh
+
+  docker:
+    name: Publish Docker image
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner (audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: archive-x86_64-unknown-linux-gnu
+          path: artifacts
+
+      - name: Extract binary
+        run: |
+          tar xJf artifacts/blend-x86_64-unknown-linux-gnu.tar.xz
+          cp blend-x86_64-unknown-linux-gnu/blend blend/
+
+      - name: Log in to ghcr.io
+        uses: step-security/docker-login-action@164e21d7e52229904128e2f946001cb88278c33d # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine image tags
+        id: tags
+        run: |
+          VERSION="${GITHUB_REF_NAME#blend-v}"
+          TAGS="ghcr.io/${{ github.repository_owner }}/blend:${VERSION}"
+
+          # Only tag latest for stable releases (no hyphen in version)
+          case "$VERSION" in
+            *-*) ;;
+            *) TAGS="${TAGS},ghcr.io/${{ github.repository_owner }}/blend:latest" ;;
+          esac
+
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image
+        id: build
+        uses: step-security/docker-build-push-action@9af9b5acc1751dcec2aa5375a068979fa526bc9a # v7.2.0
+        with:
+          context: blend
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
+
+      - name: Attest Docker image provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 # v4.1.0
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/blend
+          subject-digest: ${{ steps.build.outputs.digest }}

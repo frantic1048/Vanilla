@@ -1,0 +1,11 @@
+# Machine-local environment overrides, loaded by shellenv for every shell.
+# Copy this file to shellenv.local.nu (in this same directory) and edit.
+# shellenv.local.nu is gitignored.
+#
+# Return extra environment variables and/or PATH entries (prepended).
+export def overrides []: nothing -> record {
+    {
+        vars: {}
+        path: []
+    }
+}

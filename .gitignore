@@ -24,3 +24,6 @@ node_modules
 
 # local superpowers docs
 /docs/superpowers/
+
+# machine-local shellenv override (next to bin/shellenv.nu)
+/bin/shellenv.local.nu

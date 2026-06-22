@@ -823,3 +823,8 @@ alias nu-n = n
 use ~/.cache/starship/init.nu
 use ./modules/dhd.nu
 use ./modules/alias.nu *
+
+# Deduplicate PATH. Nushell evaluates env.nu twice per startup (env + config
+# phases) and merges both results, so shellenv's prepended entries land twice.
+# This runs once, post-merge, keeping the first occurrence (correct precedence).
+$env.PATH = ($env.PATH | uniq)

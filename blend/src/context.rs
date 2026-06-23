@@ -95,7 +95,7 @@ fn resolve_blend_dir(cli: &Cli, state: &StateStore) -> Result<BlendDirChoice> {
         });
     }
 
-    if matches!(cli.command, Some(Commands::Init)) {
+    if matches!(cli.command, Some(Commands::Init { .. })) {
         if let Some(current) = find_blend_dir_from_current_dir() {
             return choice_from_current_dir(state, current);
         }
@@ -276,11 +276,7 @@ mod tests {
         let home = TempDir::new().unwrap();
         let config_dir = home.path().join(".config/blend");
         std::fs::create_dir_all(&config_dir).unwrap();
-        std::fs::write(
-            config_dir.join("config.toml"),
-            "sandbox = \"never\"\n",
-        )
-        .unwrap();
+        std::fs::write(config_dir.join("config.toml"), "sandbox = \"never\"\n").unwrap();
         let cli = Cli::parse_from(["blend", "--home", home.path().to_str().unwrap()]);
 
         assert_eq!(
@@ -294,11 +290,7 @@ mod tests {
         let home = TempDir::new().unwrap();
         let config_dir = home.path().join(".config/blend");
         std::fs::create_dir_all(&config_dir).unwrap();
-        std::fs::write(
-            config_dir.join("config.toml"),
-            "sandbox = \"never\"\n",
-        )
-        .unwrap();
+        std::fs::write(config_dir.join("config.toml"), "sandbox = \"never\"\n").unwrap();
         let cli = Cli::parse_from([
             "blend",
             "--home",

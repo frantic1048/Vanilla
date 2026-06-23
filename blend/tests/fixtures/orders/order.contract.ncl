@@ -3,6 +3,8 @@
 # Regenerate with: blend init  (or any sync run).
 
 {
+  contract_version = 2,
+
   Format = std.contract.from_predicate (fun x =>
     std.is_string x &&
     std.array.elem x ["toml", "json", "jsonc", "yaml", "space_pair_lines", "space_record_lines", "equals_record_lines", "plaintext"]

@@ -6,6 +6,7 @@ mod diff;
 mod formats;
 mod immutable;
 mod metadata;
+mod migration;
 mod nickel;
 mod output;
 mod sandbox;
@@ -106,7 +107,7 @@ fn main() {
         Some(Commands::Check { orders }) => cmd_check(&ctx, &orders),
         Some(Commands::Format { orders, check }) => cmd_format(&ctx, &orders, check),
         Some(Commands::Table) => cmd_table(&ctx),
-        Some(Commands::Init) => cmd_init(&ctx),
+        Some(Commands::Init { upgrade }) => cmd_init(&ctx, upgrade),
         None => cmd_status(&ctx),
     };
 

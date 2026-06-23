@@ -12,7 +12,9 @@ use crate::sync::{SyncMode, TerminalPrompter};
 /// `orders/metadata.ncl`, then bootstrap a starter blend config order for new
 /// blend directories. Honors `--dry-run` by checking freshness (read-only)
 /// instead of writing.
-pub fn cmd_init(ctx: &Context) -> anyhow::Result<()> {
+///
+/// When `upgrade` is true, breaking contract migrations are allowed.
+pub fn cmd_init(ctx: &Context, upgrade: bool) -> anyhow::Result<()> {
     if ctx.dry_run {
         return generated::assert_orders_ready(&ctx.orders_dir);
     }
@@ -22,7 +24,7 @@ pub fn cmd_init(ctx: &Context) -> anyhow::Result<()> {
         ensure_scaffold_target_clean(ctx)?;
     }
 
-    generated::ensure_orders_ready(&ctx.orders_dir)?;
+    generated::ensure_orders_ready(&ctx.orders_dir, upgrade)?;
 
     if should_create_starter {
         write_blend_starter(ctx)?;
@@ -165,7 +167,7 @@ mod tests {
     fn cmd_init_creates_files() {
         let tmp = TempDir::new().unwrap();
         let ctx = ctx_for(tmp.path());
-        cmd_init(&ctx).unwrap();
+        cmd_init(&ctx, false).unwrap();
         assert!(tmp.path().join("orders/order.contract.ncl").exists());
         assert!(tmp.path().join("orders/metadata.ncl").exists());
         assert!(tmp.path().join("orders/blend/order.ncl").exists());
@@ -176,8 +178,8 @@ mod tests {
     fn cmd_init_is_idempotent() {
         let tmp = TempDir::new().unwrap();
         let ctx = ctx_for(tmp.path());
-        cmd_init(&ctx).unwrap();
-        cmd_init(&ctx).unwrap(); // second call must not error
+        cmd_init(&ctx, false).unwrap();
+        cmd_init(&ctx, false).unwrap(); // second call must not error
     }
 
     #[test]
@@ -186,7 +188,7 @@ mod tests {
         std::fs::write(tmp.path().join("README.md"), "already mine\n").unwrap();
         let ctx = ctx_for(tmp.path());
 
-        let err = cmd_init(&ctx).unwrap_err();
+        let err = cmd_init(&ctx, false).unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("not clean enough"), "got: {msg}");
         assert!(!tmp.path().join("orders/order.contract.ncl").exists());
@@ -201,7 +203,7 @@ mod tests {
         std::fs::write(&order, "{ blend = { files = [] } }\n").unwrap();
 
         let ctx = ctx_for(tmp.path());
-        cmd_init(&ctx).unwrap();
+        cmd_init(&ctx, false).unwrap();
 
         assert_eq!(
             std::fs::read_to_string(order).unwrap(),

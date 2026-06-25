@@ -23,7 +23,7 @@ pub fn cmd_sync(
     if ctx.dry_run {
         generated::assert_orders_ready(&ctx.orders_dir)?;
     } else {
-        generated::ensure_orders_ready(&ctx.orders_dir)?;
+        generated::ensure_orders_ready(&ctx.orders_dir, false)?;
     }
 
     let all_orders = discover_orders(&ctx.orders_dir);

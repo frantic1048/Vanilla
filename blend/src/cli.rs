@@ -94,5 +94,9 @@ pub enum Commands {
     Table,
 
     /// Generate or refresh orders/order.contract.ncl and orders/metadata.ncl
-    Init,
+    Init {
+        /// Apply breaking contract migrations (required when upgrading across breaking versions)
+        #[arg(long)]
+        upgrade: bool,
+    },
 }

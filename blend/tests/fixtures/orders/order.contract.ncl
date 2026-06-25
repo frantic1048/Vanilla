@@ -3,9 +3,16 @@
 # Regenerate with: blend init  (or any sync run).
 
 {
+  contract_version = 2,
+
   Format = std.contract.from_predicate (fun x =>
     std.is_string x &&
     std.array.elem x ["toml", "json", "jsonc", "yaml", "space_pair_lines", "space_record_lines", "equals_record_lines", "plaintext"]
+  ),
+
+  SandboxMode = std.contract.from_predicate (fun x =>
+    std.is_string x &&
+    std.array.elem x ["prefer", "force", "never"]
   ),
 
   WhenCondition = {
@@ -38,6 +45,24 @@
 
   Order = {
     blend | OrderMeta,
+  },
+
+  # Additional contract for the generated `orders/blend/order.ncl`.
+  # Keeps blend's own config from accepting stale or unknown config keys.
+  BlendConfig = {
+    sandbox | SandboxMode | optional,
+  },
+
+  BlendFileEntry = {
+    from_config | BlendConfig | optional,
+    ..
+  },
+
+  BlendOrder = {
+    blend | {
+      files | Array BlendFileEntry | optional,
+      ..
+    },
   },
 
   Metadata = {

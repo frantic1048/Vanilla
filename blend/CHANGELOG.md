@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.10](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.9...blend-v0.2.10) - 2026-06-25
+
+### Added
+- *(blend)* contract versioning and migration framework
+
+### Fixed
+- *(blend)* store remembered checkout in state file
+
 ## [0.2.9](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.8...blend-v0.2.9) - 2026-06-15
 
 ### Fixed

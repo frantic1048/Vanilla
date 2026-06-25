@@ -3,11 +3,14 @@
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {
-    prefix = ["~/"],
+    prefix = ["~"],
     files = [
       {
-        from_file = ".proto",
+        from_file = ".proto/.prototools",
       },
+      {
+        from_file = ".proto/tools/node/globals/bin/.gitkeep",
+      }
     ],
     when = { os = ["darwin", "linux"] },
   },

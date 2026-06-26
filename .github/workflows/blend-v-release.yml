@@ -218,3 +218,39 @@ jobs:
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/blend
           subject-digest: ${{ steps.build.outputs.digest }}
+
+  notify-tap:
+    name: Notify Homebrew tap
+    needs: release
+    runs-on: ubuntu-latest
+    # Skip for prerelease versions
+    if: ${{ !contains(github.ref_name, '-') }}
+    steps:
+      - name: Harden the runner (audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
+      - name: Create app token for homebrew-tap
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: homebrew-tap
+          permission-contents: write
+
+      - name: Dispatch formula update
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#blend-v}"
+
+          gh api \
+            --method POST \
+            "/repos/${{ github.repository_owner }}/homebrew-tap/dispatches" \
+            -f event_type="update-formula" \
+            -f "client_payload[formula]=blend" \
+            -f "client_payload[version]=$VERSION"
+
+          echo "::notice::Dispatched formula update for blend v${VERSION} to homebrew-tap"

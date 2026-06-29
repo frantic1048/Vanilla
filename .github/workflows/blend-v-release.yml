@@ -135,9 +135,17 @@ jobs:
           # Write to file to avoid quoting issues
           echo "$NOTES" > "$RUNNER_TEMP/release-notes.txt"
 
+      - name: Create release app token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          client-id: ${{ secrets.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#blend-v}"
@@ -254,3 +262,4 @@ jobs:
             -f "client_payload[version]=$VERSION"
 
           echo "::notice::Dispatched formula update for blend v${VERSION} to homebrew-tap"
+

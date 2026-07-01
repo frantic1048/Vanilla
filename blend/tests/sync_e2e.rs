@@ -1764,7 +1764,7 @@ fn test_commands_use_configured_blend_dir_outside_checkout() {
 }
 
 #[test]
-fn test_valid_cwd_refreshes_stale_remembered_blend_dir() {
+fn test_read_command_uses_current_cwd_without_refreshing_stale_remembered_blend_dir() {
     let home = TempDir::new().unwrap();
     let stale = copy_fixture("plaintext-single");
     let current = copy_fixture("toml-basic");
@@ -1792,8 +1792,42 @@ fn test_valid_cwd_refreshes_stale_remembered_blend_dir() {
 
     let state = std::fs::read_to_string(state_dir.join("state.json")).unwrap();
     assert!(
+        state.contains(&stale.path().display().to_string()),
+        "read command should not refresh remembered blend dir, got:\n{state}",
+    );
+}
+
+#[test]
+fn test_mutating_command_refreshes_stale_remembered_blend_dir() {
+    let home = TempDir::new().unwrap();
+    let stale = copy_fixture("plaintext-single");
+    let current = copy_fixture("toml-basic");
+
+    // Seed a stale blend dir into state so it differs from the cwd checkout.
+    let state_dir = home.path().join(".local/state/blend");
+    std::fs::create_dir_all(&state_dir).unwrap();
+    std::fs::write(
+        state_dir.join("state.json"),
+        format!("{{\"blend_dir\":\"{}\"}}", stale.path().display()),
+    )
+    .unwrap();
+
+    let output = run_blend_in_cwd(home.path(), current.path(), &["format", "toml-basic"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "blend format should use the current checkout and succeed\nstdout: {stdout}\nstderr: {stderr}",
+    );
+    assert!(
+        stdout.contains("differs from remembered blend-dir"),
+        "expected mismatch warning\nstdout: {stdout}",
+    );
+
+    let state = std::fs::read_to_string(state_dir.join("state.json")).unwrap();
+    assert!(
         state.contains(&current.path().display().to_string()),
-        "state should be refreshed to current checkout, got:\n{state}",
+        "mutating command should refresh state to current checkout, got:\n{state}",
     );
 }
 

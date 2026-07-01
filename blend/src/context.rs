@@ -39,7 +39,8 @@ impl Context {
             verbose: cli.verbose,
             metadata,
             state,
-            update_config_after_success: blend_dir_choice.update_config_after_success,
+            update_config_after_success: blend_dir_choice.update_config_after_success
+                && command_can_update_blend_dir_state(cli),
         })
     }
 
@@ -132,6 +133,15 @@ fn find_blend_dir(state: &StateStore) -> Result<BlendDirChoice> {
     }
 
     bail!("Could not find blend directory. Run from a blend checkout or pass --blend-dir <PATH>.")
+}
+
+fn command_can_update_blend_dir_state(cli: &Cli) -> bool {
+    matches!(
+        cli.command,
+        Some(Commands::Maintain(MaintainCommands::Sync { .. }))
+            | Some(Commands::Maintain(MaintainCommands::Format { .. }))
+            | Some(Commands::Maintain(MaintainCommands::Init { .. }))
+    )
 }
 
 fn choice_from_current_dir(state: &StateStore, current: PathBuf) -> Result<BlendDirChoice> {

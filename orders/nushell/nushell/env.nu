@@ -1,7 +1,7 @@
 # Nushell Environment Config File
 # https://github.com/nushell/nushell/blob/main/crates/nu-utils/src/sample_config/default_env.nu
 
-# Environment comes from the shellenv brain (bin/shellenv.nu, deployed to ~/.local/bin/van).
+# Environment comes from the centralized shellenv.nu (bin/shellenv.nu, deployed to ~/.local/bin/van).
 use ~/.local/bin/van/shellenv.nu
 shellenv apply
 

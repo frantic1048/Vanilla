@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context as AnyhowContext, Result, bail};
 use serde::{Deserialize, Serialize};
 
-use crate::cli::{Cli, Commands};
+use crate::cli::{Cli, Commands, MaintainCommands};
 use crate::metadata::Metadata;
 use crate::output::log;
 use crate::sandbox::SandboxMode;
@@ -95,7 +95,10 @@ fn resolve_blend_dir(cli: &Cli, state: &StateStore) -> Result<BlendDirChoice> {
         });
     }
 
-    if matches!(cli.command, Some(Commands::Init { .. })) {
+    if matches!(
+        cli.command,
+        Some(Commands::Maintain(MaintainCommands::Init { .. }))
+    ) {
         if let Some(current) = find_blend_dir_from_current_dir() {
             return choice_from_current_dir(state, current);
         }

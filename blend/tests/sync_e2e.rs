@@ -426,6 +426,121 @@ fn test_status_shows_orders() {
 }
 
 #[test]
+fn test_status_subcommand_shows_orders() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(home.path(), &orders, &["status"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    assert!(output.status.success());
+    assert!(
+        stdout.contains("toml-basic"),
+        "explicit status should list orders:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_help_groups_commands_and_documents_blend_dir_resolution() {
+    let output = Command::new(blend_binary())
+        .arg("--help")
+        .output()
+        .expect("Failed to execute blend");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend --help failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        stdout.contains("Inspect:"),
+        "missing Inspect group:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("Maintain:"),
+        "missing Maintain group:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("status  [read] Show order deployment status (default)"),
+        "missing explicit status command:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("sync    [source, target] Reconcile Source orders and Target files"),
+        "missing sync safety tag:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("nearest ancestor with orders/, then remembered state"),
+        "missing blend-dir resolution docs:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_status_help_succeeds() {
+    let output = Command::new(blend_binary())
+        .args(["status", "-h"])
+        .output()
+        .expect("Failed to execute blend");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend status -h failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        stdout.contains("[read] Show order deployment status (default)"),
+        "status help should describe the command:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_view_content_only_conflicts_with_all() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(home.path(), &orders, &["view", "--content-only", "--all"]);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "conflicting view flags should fail:\nstdout: {}\nstderr: {stderr}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    assert!(
+        stderr.contains("--content-only") && stderr.contains("--all"),
+        "error should name both conflicting flags:\n{stderr}"
+    );
+}
+
+#[test]
+fn test_sync_force_directions_conflict() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(
+        home.path(),
+        &orders,
+        &[
+            "sync",
+            "--force-source-to-target",
+            "--force-target-to-source",
+        ],
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "conflicting sync force flags should fail:\nstdout: {}\nstderr: {stderr}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    assert!(
+        stderr.contains("--force-source-to-target") && stderr.contains("--force-target-to-source"),
+        "error should name both conflicting flags:\n{stderr}"
+    );
+}
+
+#[test]
 fn test_status_shows_order_when_first_file_entry_is_skipped() {
     let home = TempDir::new().unwrap();
     let temp = TempDir::new().unwrap();

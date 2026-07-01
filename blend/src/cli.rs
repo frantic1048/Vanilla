@@ -3,17 +3,48 @@ use std::path::PathBuf;
 
 use crate::sandbox::SandboxMode;
 
+const LONG_ABOUT: &str = "\
+Cross-platform dotfiles manager with Nickel DSL
+
+Tags: [read] writes nothing; [source] writes Blend Source files; [target] writes deployed files or Blend runtime state.";
+
+const HELP_TEMPLATE: &str = "\
+{about}
+
+{usage-heading} {usage}{after-help}
+Options:
+{options}";
+
+const COMMAND_HELP: &str = "\
+Inspect:
+  status  [read] Show order deployment status (default)
+  view    [read] Preview generated config and diff from Target files
+  table   [read] Output order info as HTML table
+
+Maintain:
+  check   [read] Validate Source order definitions
+  format  [source] Format Source order files
+  init    [source, target] Initialize or refresh Blend metadata and config
+  sync    [source, target] Reconcile Source orders and Target files
+
+Other:
+  help    Print this message or the help of the given subcommand(s)
+";
+
 #[derive(Parser)]
 #[command(
     name = "blend",
     version,
-    about = "Cross-platform dotfiles manager with Nickel DSL"
+    about = "Cross-platform dotfiles manager with Nickel DSL",
+    long_about = LONG_ABOUT,
+    help_template = HELP_TEMPLATE,
+    after_help = COMMAND_HELP
 )]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Option<Commands>,
 
-    /// Show what would be done without making changes
+    /// Preview mutating commands without writing files
     #[arg(short = 'n', long, global = true)]
     pub dry_run: bool,
 
@@ -25,7 +56,7 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub home: Option<PathBuf>,
 
-    /// Override blend directory (the parent directory that contains orders/)
+    /// Override Blend Source root; default: nearest ancestor with orders/, then remembered state
     #[arg(long = "blend-dir", global = true)]
     pub blend_dir: Option<PathBuf>,
 
@@ -36,32 +67,25 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Bidirectional sync between Source (orders) and Target (deployed files)
-    #[command(alias = "s")]
-    Sync {
-        /// Orders to sync (default: all)
-        orders: Vec<String>,
+    #[command(flatten)]
+    Inspect(InspectCommands),
 
-        /// Force-resolve: apply all Source values to Targets without prompting
-        #[arg(long = "force-source-to-target")]
-        force_source_to_target: bool,
+    #[command(flatten)]
+    Maintain(MaintainCommands),
+}
 
-        /// Force-resolve: apply all Target values back to Source without prompting
-        #[arg(long = "force-target-to-source")]
-        force_target_to_source: bool,
+#[derive(Subcommand)]
+pub enum InspectCommands {
+    /// [read] Show order deployment status (default)
+    Status,
 
-        /// Disable .ncl rewrite when applying Target to Source; show diff for manual merge
-        #[arg(long)]
-        no_rewrite: bool,
-    },
-
-    /// Preview generated config and diff from deployed
+    /// [read] Preview generated config and diff from Target files
     View {
         /// Orders to view (default: all)
         orders: Vec<String>,
 
         /// Only show generated content (no diff)
-        #[arg(short = 'c', long)]
+        #[arg(short = 'c', long, conflicts_with = "all")]
         content_only: bool,
 
         /// Show both generated content and diff
@@ -73,13 +97,41 @@ pub enum Commands {
         short: bool,
     },
 
-    /// Typecheck order.ncl files with Nickel
+    /// [read] Output order info as HTML table
+    Table,
+}
+
+#[derive(Subcommand)]
+pub enum MaintainCommands {
+    /// [source, target] Reconcile Source orders and Target files
+    #[command(alias = "s")]
+    Sync {
+        /// Orders to sync (default: all)
+        orders: Vec<String>,
+
+        /// Force-resolve: apply all Source values to Targets without prompting
+        #[arg(
+            long = "force-source-to-target",
+            conflicts_with = "force_target_to_source"
+        )]
+        force_source_to_target: bool,
+
+        /// Force-resolve: apply all Target values back to Source without prompting
+        #[arg(long = "force-target-to-source")]
+        force_target_to_source: bool,
+
+        /// Disable .ncl rewrite when applying Target to Source; show diff for manual merge
+        #[arg(long)]
+        no_rewrite: bool,
+    },
+
+    /// [read] Validate Source order definitions
     Check {
         /// Orders to check (default: all)
         orders: Vec<String>,
     },
 
-    /// Format order.ncl files with Nickel
+    /// [source] Format Source order files
     #[command(alias = "fmt")]
     Format {
         /// Orders to format (default: all)
@@ -90,10 +142,11 @@ pub enum Commands {
         check: bool,
     },
 
-    /// Output order info as HTML table (for README generation)
-    Table,
+    /// [source, target] Initialize or refresh Blend metadata and config
+    #[command(long_about = "\
+[source, target] Initialize or refresh Blend metadata and config
 
-    /// Generate or refresh orders/order.contract.ncl and orders/metadata.ncl
+Writes or refreshes orders/order.contract.ncl and orders/metadata.ncl. For a new Source root, also creates a starter blend order and deploys its config to Target. If no Source root is found, init bootstraps the current directory.")]
     Init {
         /// Apply breaking contract migrations (required when upgrading across breaking versions)
         #[arg(long)]

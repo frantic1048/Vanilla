@@ -15,7 +15,7 @@ mod sync;
 
 use clap::Parser;
 
-use cli::{Cli, Commands};
+use cli::{Cli, Commands, InspectCommands, MaintainCommands};
 use commands::{cmd_check, cmd_format, cmd_init, cmd_status, cmd_sync, cmd_table, cmd_view};
 use context::{Context, sandbox_mode_from_cli_and_config};
 use output::log;
@@ -83,12 +83,13 @@ fn main() {
     }
 
     let result = match cli.command {
-        Some(Commands::Sync {
+        Some(Commands::Inspect(InspectCommands::Status)) => cmd_status(&ctx),
+        Some(Commands::Maintain(MaintainCommands::Sync {
             orders,
             force_source_to_target,
             force_target_to_source,
             no_rewrite,
-        }) => {
+        })) => {
             let mode = if force_source_to_target {
                 SyncMode::ApplySourceToTargetAll
             } else if force_target_to_source {
@@ -98,16 +99,18 @@ fn main() {
             };
             cmd_sync(&ctx, &orders, mode, no_rewrite, &TerminalPrompter)
         }
-        Some(Commands::View {
+        Some(Commands::Inspect(InspectCommands::View {
             orders,
             content_only,
             all,
             short,
-        }) => cmd_view(&ctx, &orders, content_only, all, short),
-        Some(Commands::Check { orders }) => cmd_check(&ctx, &orders),
-        Some(Commands::Format { orders, check }) => cmd_format(&ctx, &orders, check),
-        Some(Commands::Table) => cmd_table(&ctx),
-        Some(Commands::Init { upgrade }) => cmd_init(&ctx, upgrade),
+        })) => cmd_view(&ctx, &orders, content_only, all, short),
+        Some(Commands::Maintain(MaintainCommands::Check { orders })) => cmd_check(&ctx, &orders),
+        Some(Commands::Maintain(MaintainCommands::Format { orders, check })) => {
+            cmd_format(&ctx, &orders, check)
+        }
+        Some(Commands::Inspect(InspectCommands::Table)) => cmd_table(&ctx),
+        Some(Commands::Maintain(MaintainCommands::Init { upgrade })) => cmd_init(&ctx, upgrade),
         None => cmd_status(&ctx),
     };
 

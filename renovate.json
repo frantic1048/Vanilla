@@ -1,0 +1,41 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "prConcurrentLimit": 3,
+  "packageRules": [
+    {
+      "description": "Group all GitHub Actions updates",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "groupName": "github-actions"
+    },
+    {
+      "description": "Group all Rust dependency updates",
+      "matchManagers": [
+        "cargo"
+      ],
+      "groupName": "rust-dependencies"
+    },
+    {
+      "description": "Group all Docker image updates",
+      "matchDatasources": [
+        "docker"
+      ],
+      "groupName": "docker-images"
+    },
+    {
+      "description": "Group blend container image updates separately and automerge",
+      "matchPackageNames": [
+        "ghcr.io/frantic1048/blend"
+      ],
+      "groupName": "blend",
+      "automerge": true
+    }
+  ]
+}

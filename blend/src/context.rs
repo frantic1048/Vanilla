@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context as AnyhowContext, Result, bail};
 use serde::{Deserialize, Serialize};
 
-use crate::cli::{Cli, Commands};
+use crate::cli::{Cli, Commands, MaintainCommands};
 use crate::metadata::Metadata;
 use crate::output::log;
 use crate::sandbox::SandboxMode;
@@ -39,7 +39,8 @@ impl Context {
             verbose: cli.verbose,
             metadata,
             state,
-            update_config_after_success: blend_dir_choice.update_config_after_success,
+            update_config_after_success: blend_dir_choice.update_config_after_success
+                && command_can_update_blend_dir_state(cli),
         })
     }
 
@@ -95,7 +96,10 @@ fn resolve_blend_dir(cli: &Cli, state: &StateStore) -> Result<BlendDirChoice> {
         });
     }
 
-    if matches!(cli.command, Some(Commands::Init { .. })) {
+    if matches!(
+        cli.command,
+        Some(Commands::Maintain(MaintainCommands::Init { .. }))
+    ) {
         if let Some(current) = find_blend_dir_from_current_dir() {
             return choice_from_current_dir(state, current);
         }
@@ -129,6 +133,15 @@ fn find_blend_dir(state: &StateStore) -> Result<BlendDirChoice> {
     }
 
     bail!("Could not find blend directory. Run from a blend checkout or pass --blend-dir <PATH>.")
+}
+
+fn command_can_update_blend_dir_state(cli: &Cli) -> bool {
+    matches!(
+        cli.command,
+        Some(Commands::Maintain(MaintainCommands::Sync { .. }))
+            | Some(Commands::Maintain(MaintainCommands::Format { .. }))
+            | Some(Commands::Maintain(MaintainCommands::Init { .. }))
+    )
 }
 
 fn choice_from_current_dir(state: &StateStore, current: PathBuf) -> Result<BlendDirChoice> {

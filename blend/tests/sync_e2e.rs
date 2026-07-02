@@ -426,6 +426,121 @@ fn test_status_shows_orders() {
 }
 
 #[test]
+fn test_status_subcommand_shows_orders() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(home.path(), &orders, &["status"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    assert!(output.status.success());
+    assert!(
+        stdout.contains("toml-basic"),
+        "explicit status should list orders:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_help_groups_commands_and_documents_blend_dir_resolution() {
+    let output = Command::new(blend_binary())
+        .arg("--help")
+        .output()
+        .expect("Failed to execute blend");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend --help failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        stdout.contains("Inspect:"),
+        "missing Inspect group:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("Maintain:"),
+        "missing Maintain group:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("status  [read] Show order deployment status (default)"),
+        "missing explicit status command:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("sync    [source, target] Reconcile Source orders and Target files"),
+        "missing sync safety tag:\n{stdout}"
+    );
+    assert!(
+        stdout.contains("nearest ancestor with orders/, then remembered state"),
+        "missing blend-dir resolution docs:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_status_help_succeeds() {
+    let output = Command::new(blend_binary())
+        .args(["status", "-h"])
+        .output()
+        .expect("Failed to execute blend");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend status -h failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        stdout.contains("[read] Show order deployment status (default)"),
+        "status help should describe the command:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_view_content_only_conflicts_with_all() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(home.path(), &orders, &["view", "--content-only", "--all"]);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "conflicting view flags should fail:\nstdout: {}\nstderr: {stderr}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    assert!(
+        stderr.contains("--content-only") && stderr.contains("--all"),
+        "error should name both conflicting flags:\n{stderr}"
+    );
+}
+
+#[test]
+fn test_sync_force_directions_conflict() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let output = run_blend(
+        home.path(),
+        &orders,
+        &[
+            "sync",
+            "--force-source-to-target",
+            "--force-target-to-source",
+        ],
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "conflicting sync force flags should fail:\nstdout: {}\nstderr: {stderr}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+    assert!(
+        stderr.contains("--force-source-to-target") && stderr.contains("--force-target-to-source"),
+        "error should name both conflicting flags:\n{stderr}"
+    );
+}
+
+#[test]
 fn test_status_shows_order_when_first_file_entry_is_skipped() {
     let home = TempDir::new().unwrap();
     let temp = TempDir::new().unwrap();
@@ -1649,7 +1764,7 @@ fn test_commands_use_configured_blend_dir_outside_checkout() {
 }
 
 #[test]
-fn test_valid_cwd_refreshes_stale_remembered_blend_dir() {
+fn test_read_command_uses_current_cwd_without_refreshing_stale_remembered_blend_dir() {
     let home = TempDir::new().unwrap();
     let stale = copy_fixture("plaintext-single");
     let current = copy_fixture("toml-basic");
@@ -1677,8 +1792,42 @@ fn test_valid_cwd_refreshes_stale_remembered_blend_dir() {
 
     let state = std::fs::read_to_string(state_dir.join("state.json")).unwrap();
     assert!(
+        state.contains(&stale.path().display().to_string()),
+        "read command should not refresh remembered blend dir, got:\n{state}",
+    );
+}
+
+#[test]
+fn test_mutating_command_refreshes_stale_remembered_blend_dir() {
+    let home = TempDir::new().unwrap();
+    let stale = copy_fixture("plaintext-single");
+    let current = copy_fixture("toml-basic");
+
+    // Seed a stale blend dir into state so it differs from the cwd checkout.
+    let state_dir = home.path().join(".local/state/blend");
+    std::fs::create_dir_all(&state_dir).unwrap();
+    std::fs::write(
+        state_dir.join("state.json"),
+        format!("{{\"blend_dir\":\"{}\"}}", stale.path().display()),
+    )
+    .unwrap();
+
+    let output = run_blend_in_cwd(home.path(), current.path(), &["format", "toml-basic"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "blend format should use the current checkout and succeed\nstdout: {stdout}\nstderr: {stderr}",
+    );
+    assert!(
+        stdout.contains("differs from remembered blend-dir"),
+        "expected mismatch warning\nstdout: {stdout}",
+    );
+
+    let state = std::fs::read_to_string(state_dir.join("state.json")).unwrap();
+    assert!(
         state.contains(&current.path().display().to_string()),
-        "state should be refreshed to current checkout, got:\n{state}",
+        "mutating command should refresh state to current checkout, got:\n{state}",
     );
 }
 

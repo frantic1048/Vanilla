@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.11](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.10...blend-v0.2.11) - 2026-07-02
+
+### Other
+- Improve blend CLI help discoverability
+- Keep read commands from updating blend state
+
 ## [0.2.10](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.9...blend-v0.2.10) - 2026-06-25
 
 ### Added

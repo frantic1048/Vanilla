@@ -131,5 +131,5 @@ brew "datadog-labs/pack/pup"
 brew "getsentry/tools/sentry"
 
 # Atlassian CLI
-tap "atlassian/twg"
-brew "atlassian/twg/twg"
+# upstream changed to installation script ... (°_°)
+# https://developer.atlassian.com/cloud/twg-cli/getting-started/installation/

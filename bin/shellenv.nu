@@ -51,9 +51,14 @@ export def compute-env []: nothing -> record {
         RUSTUP_HOME: $"($home)/.rustup"
         CARGO_HOME: $"($home)/.cargo"
         CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "codex_cli_rs"
+
+        # Telemetry things
+        DO_NOT_TRACK: "1"
         GRIT_TELEMETRY_DISABLED: "true"
+        NEXT_TELEMETRY_DISABLED: "1"
+        SENTRY_CLI_NO_TELEMETRY: "1"
+
         VISUAL: (if (which nvim | is-not-empty) { "nvim" } else { "nano" })
-        __SHELLENV_ACTIVATED: "1"
     }
 
     # NODE_OPTIONS: append the heap flag once. Content-based idempotency (not the
@@ -162,7 +167,8 @@ def render-elvish [e: record]: nothing -> string {
 # One-time imperative work, guarded so subshells don't repeat it.
 # Receives the computed record so launchctl/PATH use the new values.
 export def do-side-effects [computed: record] {
-    if ($env.__SHELLENV_ACTIVATED? | is-not-empty) { return }
+    if ($env.__SHELLENV_SIDE_EFFECTS_APPLIED? | is-not-empty) { return }
+
     let os = $nu.os-info.name
 
     if (which gpgconf | is-not-empty) {
@@ -174,14 +180,7 @@ export def do-side-effects [computed: record] {
         }
     }
 
-    if $os == "macos" and (which launchctl | is-not-empty) {
-        let pathstr = ($computed.path | str join (char esep))
-        ^launchctl setenv PATH $pathstr | complete | ignore
-        ^launchctl setenv PROTO_HOME $computed.vars.PROTO_HOME | complete | ignore
-        if ($env.SHELL? | is-not-empty) {
-            ^launchctl setenv SHELL $env.SHELL | complete | ignore
-        }
-    }
+    $env.__SHELLENV_SIDE_EFFECTS_APPLIED = "1"
 }
 
 # Apply the computed environment directly to the current nushell session.
@@ -189,7 +188,6 @@ export def do-side-effects [computed: record] {
 # per startup (env + config phases) and child shells inherit an already-correct
 # PATH, so re-applying would prepend our entries again.
 export def --env apply [] {
-    if ($env.__SHELLENV_ACTIVATED? | is-not-empty) { return }
     let e = (compute-env)
     do-side-effects $e
     load-env $e.vars

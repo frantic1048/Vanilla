@@ -12,6 +12,15 @@ let { Order, .. } = import "../order.contract.ncl" in
         from_file = ".zshenv",
         immutable = true,
       },
+      {
+        from_file = ".zprofile",
+        immutable = true,
+      },
+      {
+        name = ".zlogin",
+        immutable = true,
+        from_config = "",
+      }
     ],
     when = { os = ["darwin", "linux"] },
   },

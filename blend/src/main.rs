@@ -16,7 +16,9 @@ mod sync;
 use clap::Parser;
 
 use cli::{Cli, Commands, InspectCommands, MaintainCommands};
-use commands::{cmd_check, cmd_format, cmd_init, cmd_status, cmd_sync, cmd_table, cmd_view};
+use commands::{
+    cmd_add, cmd_check, cmd_create, cmd_format, cmd_init, cmd_status, cmd_sync, cmd_table, cmd_view,
+};
 use context::{Context, sandbox_mode_from_cli_and_config};
 use output::log;
 use sandbox::SandboxMode;
@@ -106,6 +108,21 @@ fn main() {
             short,
         })) => cmd_view(&ctx, &orders, content_only, all, short),
         Some(Commands::Maintain(MaintainCommands::Check { orders })) => cmd_check(&ctx, &orders),
+        Some(Commands::Maintain(MaintainCommands::Create { order })) => cmd_create(&ctx, &order),
+        Some(Commands::Maintain(MaintainCommands::Add {
+            order,
+            path,
+            prefix,
+            symlink,
+            allow_overlap,
+        })) => cmd_add(
+            &ctx,
+            &order,
+            &path,
+            prefix.as_deref(),
+            symlink,
+            allow_overlap,
+        ),
         Some(Commands::Maintain(MaintainCommands::Format { orders, check })) => {
             cmd_format(&ctx, &orders, check)
         }

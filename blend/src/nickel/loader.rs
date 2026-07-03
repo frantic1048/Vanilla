@@ -1,6 +1,6 @@
 use std::ffi::OsString;
 use std::io::Cursor;
-use std::path::Path;
+use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Context as AnyhowContext, Result};
 use nickel_lang::Context;
@@ -62,6 +62,8 @@ impl NickelEvaluator {
                 .with_context(|| format!("Invalid file entry in {}", ncl_path.display()))?;
         }
 
+        validate_order_source_paths(&order, ncl_path)?;
+
         if timing {
             eprintln!(
                 "[timing] eval {}: total={}us nickel={}us",
@@ -113,6 +115,60 @@ impl NickelEvaluator {
 
         Ok(json)
     }
+}
+
+fn validate_order_source_paths(order: &Order, ncl_path: &Path) -> Result<()> {
+    for entry in &order.blend.files {
+        if let Some(from_file) = &entry.from_file {
+            normalize_order_source_path(from_file).with_context(|| {
+                format!("Invalid from_file '{from_file}' in {}", ncl_path.display())
+            })?;
+        }
+
+        if let Some(local) = &entry.local {
+            normalize_order_source_path(local)
+                .with_context(|| format!("Invalid local '{local}' in {}", ncl_path.display()))?;
+        }
+
+        if entry.prefix.is_empty() && order.blend.prefix.is_empty() {
+            anyhow::bail!(
+                "Invalid file entry '{}' in {}: no effective prefix; set blend.prefix or entry.prefix",
+                entry.name,
+                ncl_path.display()
+            );
+        }
+    }
+
+    Ok(())
+}
+
+pub fn normalize_order_source_path(path: &str) -> Result<PathBuf> {
+    let path = Path::new(path);
+    if path.is_absolute() {
+        anyhow::bail!("source paths must be relative to the order directory");
+    }
+
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::CurDir => {}
+            Component::Normal(part) => normalized.push(part),
+            Component::ParentDir => {
+                if !normalized.pop() {
+                    anyhow::bail!("source path escapes the order directory");
+                }
+            }
+            Component::Prefix(_) | Component::RootDir => {
+                anyhow::bail!("source paths must be relative to the order directory");
+            }
+        }
+    }
+
+    if normalized.as_os_str().is_empty() {
+        anyhow::bail!("source path cannot be empty");
+    }
+
+    Ok(normalized)
 }
 
 #[cfg(test)]

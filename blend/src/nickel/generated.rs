@@ -407,6 +407,7 @@ mod tests {
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {
+    prefix = ["~/.config/schema-agreement/"],
     files = [
       {
         name = "agreement.toml",

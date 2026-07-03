@@ -82,13 +82,21 @@ fn copy_fixture(order_name: &str) -> TempDir {
     let order_dst = orders_dst.join(order_name);
     copy_dir_recursive(&order_src, &order_dst);
 
+    copy_shared_order_files(temp.path());
+
+    temp
+}
+
+fn copy_shared_order_files(blend_dir: &Path) {
+    let orders_src = fixtures_dir().join("orders");
+    let orders_dst = orders_dir(blend_dir);
+    std::fs::create_dir_all(&orders_dst).unwrap();
+
     // Copy the two blend-owned schema files so reader commands don't fail
     // their freshness check and so metadata-importing fixtures resolve.
     for shared in ["order.contract.ncl", "metadata.ncl"] {
         std::fs::copy(orders_src.join(shared), orders_dst.join(shared)).unwrap();
     }
-
-    temp
 }
 
 fn copy_dir_recursive(src: &Path, dst: &Path) {
@@ -102,6 +110,239 @@ fn copy_dir_recursive(src: &Path, dst: &Path) {
             std::fs::copy(entry.path(), &target).unwrap();
         }
     }
+}
+
+#[test]
+fn test_create_order_scaffolds_empty_order() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let output = run_blend(home.path(), blend_dir.path(), &["create", "kitty"]);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend create failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("Created order 'kitty'"));
+
+    let order_path = orders_dir(blend_dir.path()).join("kitty/order.ncl");
+    let source = std::fs::read_to_string(&order_path).unwrap();
+    assert!(source.contains("files = []"));
+
+    let check = run_blend(home.path(), blend_dir.path(), &["check", "kitty"]);
+    assert!(
+        check.status.success(),
+        "created order should check:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&check.stdout),
+        String::from_utf8_lossy(&check.stderr),
+    );
+}
+
+#[test]
+fn test_add_target_path_defaults_to_home_prefix() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    run_blend(home.path(), blend_dir.path(), &["create", "kitty"]);
+
+    let target = home.path().join(".config/kitty/kitty.conf");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    std::fs::write(&target, "font_size 13\n").unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["add", "kitty", "~/.config/kitty/kitty.conf"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend add failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("Added"));
+
+    let copied = orders_dir(blend_dir.path()).join("kitty/.config/kitty/kitty.conf");
+    assert_eq!(std::fs::read_to_string(copied).unwrap(), "font_size 13\n");
+
+    let order_source =
+        std::fs::read_to_string(orders_dir(blend_dir.path()).join("kitty/order.ncl")).unwrap();
+    assert!(order_source.contains(r#"prefix = ["~"]"#));
+    assert!(order_source.contains(r#"from_file = ".config/kitty/kitty.conf""#));
+    assert!(
+        order_source.find("prefix =").unwrap() < order_source.find("files =").unwrap(),
+        "promoted order prefix should be inserted before files:\n{order_source}"
+    );
+
+    let check = run_blend(home.path(), blend_dir.path(), &["check", "kitty"]);
+    assert!(
+        check.status.success(),
+        "added order should check:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&check.stdout),
+        String::from_utf8_lossy(&check.stderr),
+    );
+}
+
+#[test]
+fn test_add_target_path_with_explicit_prefix_strips_prefix() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    run_blend(home.path(), blend_dir.path(), &["create", "kitty"]);
+
+    let target = home.path().join(".config/kitty/kitty.conf");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    std::fs::write(&target, "font_size 13\n").unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &[
+            "add",
+            "kitty",
+            "--prefix",
+            "~/.config/kitty",
+            "~/.config/kitty/kitty.conf",
+        ],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend add --prefix failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+
+    let copied = orders_dir(blend_dir.path()).join("kitty/kitty.conf");
+    assert_eq!(std::fs::read_to_string(copied).unwrap(), "font_size 13\n");
+
+    let order_source =
+        std::fs::read_to_string(orders_dir(blend_dir.path()).join("kitty/order.ncl")).unwrap();
+    assert!(order_source.contains(r#"prefix = ["~/.config/kitty"]"#));
+    assert!(order_source.contains(r#"from_file = "kitty.conf""#));
+    assert!(
+        order_source.find("prefix =").unwrap() < order_source.find("files =").unwrap(),
+        "promoted order prefix should be inserted before files:\n{order_source}"
+    );
+}
+
+#[test]
+fn test_add_promoted_prefix_goes_before_comments_when_files_is_absent() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let order_dir = orders_dir(blend_dir.path()).join("kitty");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"let { Order, .. } = import "../order.contract.ncl" in
+{
+  blend = {
+    # no files yet
+  },
+} | Order
+"#,
+    )
+    .unwrap();
+
+    let target = home.path().join(".config/kitty/kitty.conf");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    std::fs::write(&target, "font_size 13\n").unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["add", "kitty", "~/.config/kitty/kitty.conf"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend add failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+
+    let order_source =
+        std::fs::read_to_string(orders_dir(blend_dir.path()).join("kitty/order.ncl")).unwrap();
+    let prefix_pos = order_source.find("prefix =").unwrap();
+    assert!(
+        prefix_pos < order_source.find("# no files yet").unwrap(),
+        "promoted order prefix should be inserted before existing comments:\n{order_source}"
+    );
+    assert!(
+        prefix_pos < order_source.find("files =").unwrap(),
+        "promoted order prefix should be inserted before created files:\n{order_source}"
+    );
+}
+
+#[test]
+fn test_add_symlink_target_requires_explicit_policy() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    run_blend(home.path(), blend_dir.path(), &["create", "kitty"]);
+
+    let real = home.path().join(".config/kitty/real.conf");
+    let link = home.path().join(".config/kitty/kitty.conf");
+    std::fs::create_dir_all(real.parent().unwrap()).unwrap();
+    std::fs::write(&real, "font_size 13\n").unwrap();
+    create_symlink(&real, &link);
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["add", "kitty", "~/.config/kitty/kitty.conf"],
+    );
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "blend add should reject symlink without policy"
+    );
+    assert!(stderr.contains("--symlink follow") && stderr.contains("--symlink preserve"));
+}
+
+#[test]
+fn test_check_rejects_from_file_that_escapes_order_dir() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let order_dir = orders_dir(blend_dir.path()).join("bad");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"let { Order, .. } = import "../order.contract.ncl" in
+{
+  blend = {
+    prefix = ["~"],
+    files = [
+      {
+        from_file = "../outside",
+      },
+    ],
+  },
+} | Order
+"#,
+    )
+    .unwrap();
+
+    let output = run_blend(home.path(), blend_dir.path(), &["check", "bad"]);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        !output.status.success(),
+        "blend check should reject escaping from_file"
+    );
+    assert!(
+        stderr.contains("source path escapes the order directory"),
+        "stderr should explain escaping path:\n{stderr}"
+    );
 }
 
 #[test]

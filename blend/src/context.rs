@@ -139,6 +139,8 @@ fn command_can_update_blend_dir_state(cli: &Cli) -> bool {
     matches!(
         cli.command,
         Some(Commands::Maintain(MaintainCommands::Sync { .. }))
+            | Some(Commands::Maintain(MaintainCommands::Create { .. }))
+            | Some(Commands::Maintain(MaintainCommands::Add { .. }))
             | Some(Commands::Maintain(MaintainCommands::Format { .. }))
             | Some(Commands::Maintain(MaintainCommands::Init { .. }))
     )

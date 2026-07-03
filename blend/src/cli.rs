@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
 use crate::sandbox::SandboxMode;
@@ -23,6 +23,8 @@ Inspect:
 
 Maintain:
   check   [read] Validate Source order definitions
+  create  [source] Create a new order
+  add     [source] Add a Target file or directory to an order
   format  [source] Format Source order files
   init    [source, target] Initialize or refresh Blend metadata and config
   sync    [source, target] Reconcile Source orders and Target files
@@ -131,6 +133,37 @@ pub enum MaintainCommands {
         orders: Vec<String>,
     },
 
+    /// [source] Create a new order
+    Create {
+        /// Order to create
+        order: String,
+    },
+
+    /// [source] Add a Target file or directory to an existing order
+    #[command(long_about = "\
+[source] Add a Target file or directory to an existing order
+
+Copies the Target path into the order Source tree and appends a file entry to order.ncl.")]
+    Add {
+        /// Order to add the Target path to
+        order: String,
+
+        /// Target file or directory to add; must be absolute or start with ~
+        path: PathBuf,
+
+        /// Target prefix to strip before copying into the order Source tree
+        #[arg(long)]
+        prefix: Option<String>,
+
+        /// Symlink deployment policy; required when the Target path is a symlink
+        #[arg(long)]
+        symlink: Option<SymlinkMode>,
+
+        /// Allow overlapping Target paths with existing entries
+        #[arg(long)]
+        allow_overlap: bool,
+    },
+
     /// [source] Format Source order files
     #[command(alias = "fmt")]
     Format {
@@ -152,4 +185,12 @@ Writes or refreshes orders/order.contract.ncl and orders/metadata.ncl. For a new
         #[arg(long)]
         upgrade: bool,
     },
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
+pub enum SymlinkMode {
+    /// Copy resolved Target content into Source and deploy a real file/directory
+    Follow,
+    /// Copy resolved Target content into Source and deploy the Target as a symlink
+    Preserve,
 }

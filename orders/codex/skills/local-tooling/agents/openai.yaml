@@ -1,0 +1,4 @@
+interface:
+  display_name: "Local Tooling"
+  short_description: "Machine shell and toolchain conventions"
+  default_prompt: "Use $local-tooling to inspect this machine’s shell, CLI, and language toolchain conventions before choosing commands."

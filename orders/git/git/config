@@ -33,6 +33,8 @@
 [rebase]
 	autoSquash = true
 	instructionFormat = "%aN\t%s"
+[branch]
+	autoSetupMerge = simple
 [http]
 	postBuffer = 1048576000
 

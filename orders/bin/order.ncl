@@ -6,7 +6,7 @@ let { Order, .. } = import "../order.contract.ncl" in
     files = [
       {
         name = "van",
-        from_file = "../../bin",
+        from_file = "bin",
         symlink = true,
       },
     ],

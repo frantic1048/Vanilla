@@ -2,11 +2,12 @@
 
 ## Context
 
-Investigating the current blend implementation (at `~/Vanilla/blend/`) to map essential user journeys and identify friction points. blend is a Rust-based dotfiles manager using Nickel DSL, managing ~55 orders across macOS and Linux.
+Investigating the current blend implementation (at `~/Vanilla/blend/`) to map essential user journeys and identify friction points. blend is a Rust-based dotfiles manager using Nickel DSL, managing roughly 50 orders across macOS and Linux.
 
-**Current CLI commands:** default status, `sync` (alias `s`), `view`, `table`,
-and `init`. The previous `ship`, `sample`, and task/upgrade CLI paths have been
-removed or moved to the top-level `justfile`.
+**Current CLI commands:** default status, `status`, `view`, `table`, `check`,
+`create`, `add`, `format` (alias `fmt`), `init`, and `sync` (alias `s`). The
+previous `ship`, `sample`, and task/upgrade CLI paths have been removed or
+moved to the top-level `justfile`.
 
 ---
 
@@ -50,10 +51,11 @@ removed or moved to the top-level `justfile`.
 ### Current Flow
 
 ```
-1. Create dir:           mkdir orders/my-app
-2. Write order.ncl:      (manually, from memory or by copying another order)
-3. For plaintext:        cp ~/.config/my-app/config orders/my-app/config
-4. For structured:       Manually transcribe TOML/JSON/YAML into Nickel from_config syntax
+1. Scaffold order:       blend create my-app
+2. Import plaintext:     blend add my-app ~/.config/my-app/config
+   2a. Or explicit root: blend add my-app --prefix ~/.config/my-app ~/.config/my-app/config
+3. For structured:       Manually transcribe TOML/JSON/YAML into Nickel from_config syntax
+4. Validate:             blend check my-app
 5. Preview:              blend view my-app
 6. Deploy:               blend sync my-app
 ```
@@ -62,19 +64,18 @@ removed or moved to the top-level `justfile`.
 
 | # | Issue | Severity | Detail |
 |---|-------|----------|--------|
-| 1 | **No scaffolding command** | High | No `blend add my-app` to create order skeleton with boilerplate order.ncl |
+| 1 | **~~No scaffolding command~~** | ~~High~~ | **Resolved** — `blend create <order>` scaffolds the Source order and `blend add <order> <target>` imports existing Target files/directories |
 | 2 | **Manual config transcription for structured** | High | User must hand-convert a TOML/JSON file into Nickel `from_config = { ... }` syntax. For a 200-line starship.toml, this is painful and error-prone |
 | 3 | **Must know Nickel syntax** | Medium | No inline documentation, no `blend help new-order` with examples |
-| 4 | **No first-class validation command** | Low | `just check` wraps `bin/blend view --dry-run`, but there is no dedicated `blend check`/`blend lint` CLI yet |
+| 4 | **~~No first-class validation command~~** | ~~Low~~ | **Resolved** — `blend check [orders...]` validates Source order definitions without deploying |
 | 5 | **Schema contract usage is implicit** | Low | User should pipe to `| Order` at end of order.ncl for editor/Nickel validation, but the workflow does not strongly suggest it; Rust deserialization still validates the evaluated shape |
 
 ### Improvement Ideas
 
-- `blend add <name> [--from <path>]` command that:
-  - Creates `orders/<name>/order.ncl` with sensible defaults
-  - If `--from ~/.config/app/config.toml` is given: auto-detects format, parses the file, generates `from_config` Nickel syntax using `json_to_nickel()` (already implemented in `ast_utils.rs`)
-  - For directories: creates `from_file` entry pointing to copied dir
-- `blend check`: validate all order.ncl files without deploying (first-class CLI wrapper around fast Nickel eval + schema check)
+- ~~Order scaffolding/import~~: **Implemented** via `blend create <order>` and
+  `blend add <order> <target>` for `from_file` entries.
+- Structured import remains future work: auto-detect a TOML/JSON/YAML Target,
+  parse it, and generate `from_config` Nickel syntax using `json_to_nickel()`.
 
 ---
 
@@ -158,14 +159,14 @@ These friction points from the original analysis have been addressed by `blend s
 
 | # | Issue | Severity | Detail |
 |---|-------|----------|--------|
-| 1 | **No first-class validation-only command** | Medium | No `blend check` or `blend lint` CLI yet; the top-level `just check` currently uses `bin/blend view --dry-run` |
+| 1 | **~~No first-class validation-only command~~** | ~~Medium~~ | **Resolved** — `blend check [orders...]` validates Source order definitions without deploying |
 | 2 | **No rollback** | Medium | If a force deploy overwrites a config and breaks an app, there's no `blend rollback` or automatic backup |
 | 3 | **Nickel errors can be opaque** | Low | Nickel evaluation errors include source info but can be hard to trace for contract violations |
 | 4 | **No pre-sync backup** | Low | Sync overwrites in-place. A backup of the previous deployed version would help recovery |
 
 ### Improvement Ideas
 
-- `blend check`: validate all orders without building (fast Nickel eval + schema check)
+- ~~`blend check`~~: **Implemented** — validate all orders without deploying (fast Nickel eval + schema check)
 - Auto-backup before Source -> Target sync: copy previous Target file to `~/.cache/blend/backups/<order>/<file>.bak`
 - `blend rollback <order>`: restore from backup
 
@@ -176,10 +177,12 @@ These friction points from the original analysis have been addressed by `blend s
 ### Quick Wins (low effort, high impact)
 1. ~~**Fix bootstrap script**: install proto/Rust, build `bin/blend`, then deploy via `just bootstrap`~~
 2. **First-run message**: When all orders are pending, show "Run `blend sync` to review and deploy"
-3. **`blend check` command**: Validate all order.ncl files without deploying
+3. ~~**`blend check` command**~~: **Implemented** — validate all order.ncl files without deploying
 
 ### Medium Effort
-4. **`blend add <name> [--from <path>]`**: Scaffold new orders with auto-import from existing deployed configs (can reuse existing `json_to_nickel()` for format conversion). This covers the "capture existing config into a new order" use case — currently there's no way to pull a config from the filesystem into a new order without manual setup.
+4. ~~**`blend create` / `blend add` for `from_file` import**~~:
+   **Implemented** — remaining work is structured `from_config` import from
+   existing TOML/JSON/YAML Targets.
 5. **`--no-rewrite` info display**: Show branch context and Nickel snippets for manual merge
 6. **Suggest ignore patterns**: Auto-detect frequently changing fields
 
@@ -195,6 +198,9 @@ These friction points from the original analysis have been addressed by `blend s
 Features that were in "Improvement Ideas" and are now implemented:
 
 - **`blend sync`** — bidirectional sync with interactive Source/Target/skip choices (Journey 3, items 1/3/4)
+- **`blend check`** — validation-only Source order checks
+- **`blend create`** — scaffold an empty Source order
+- **`blend add`** — import existing Target files/directories as `from_file` entries
 - **`blend sync --force-source-to-target`** — non-interactive Source -> Target all
 - **`blend sync --force-target-to-source`** — non-interactive Target -> Source all
 - **Surgical .ncl rewrite** — auto-patches Nickel source for data-only and conditional values

@@ -28,9 +28,14 @@ src/
 ├── metadata.rs          OS/arch/hostname/desktop/user detection
 ├── output.rs            log helpers (info/warn/error/success)
 │
-├── commands.rs          re-exports cmd_sync / cmd_view / cmd_status / cmd_table
+├── commands.rs          re-exports command handlers
 ├── commands/
+│   ├── add.rs           import Target files/directories into Source orders
+│   ├── create.rs        scaffold empty Source orders
+│   ├── check.rs         validate Source order definitions
+│   ├── format.rs        format order.ncl files
 │   ├── helpers.rs       shared symlink + diff-aggregation helpers
+│   ├── init.rs          refresh generated contract + metadata files
 │   ├── sync.rs          bidirectional sync + per-key interactive flow
 │   ├── view.rs          render preview & diff
 │   ├── status.rs        order state table (parallel via rayon)
@@ -60,7 +65,7 @@ src/
     └── text.rs          line-based diffing for plaintext
 
 tests/
-├── sync_e2e.rs          end-to-end CLI tests (39 scenarios)
+├── sync_e2e.rs          end-to-end CLI tests
 └── fixtures/            .ncl + deployed-file fixtures
 ```
 

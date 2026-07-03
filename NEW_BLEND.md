@@ -35,7 +35,7 @@ Two config modes per file entry:
 | Mode | Source | Rendering | Sync-back |
 |------|--------|-----------|-----------|
 | `from_config` | Inline Nickel data/expressions | Evaluated → rendered to target format | Context-aware AST rewrite |
-| `from_file` | Files/dirs in `orders/<order>/` | Copied as-is | File copy back |
+| `from_file` | Relative files/dirs inside `orders/<order>/` | Copied as-is | File copy back |
 
 ---
 
@@ -60,14 +60,14 @@ Each order is defined by `orders/<order>/order.ncl`. The evaluated result must c
 |-------|------|----------|-------------|
 | `name` | String | Yes (for `from_config`) | Destination filename. Combined with prefix for target path. Auto-set from `from_file` if omitted. |
 | `from_config` | Record/Array | One of these | Inline structured config data, evaluated by Nickel and rendered to target format |
-| `from_file` | String | One of these | Path to file/directory in the order dir, copied as-is |
-| `prefix` | Array<String> | No | Per-file prefix override (default: inherits global `blend.prefix`) |
+| `from_file` | String | One of these | Relative path to file/directory in the order dir, copied as-is. Absolute paths and paths that normalize outside the order dir are rejected. |
+| `prefix` | Array<String> | No | Per-file prefix override (default: inherits global `blend.prefix`). File entries require an effective prefix from either place. |
 | `format` | String | No | Output format override (default: inferred from `name` extension) |
 | `ignore` | Array<String> | No | Keys/patterns to exclude from diff (merged with global) |
 | `when` | Record | No | Per-file condition: `{ os, arch, hostname }` |
 | `symlink` | Bool | No | Create symlink instead of copying (`from_file` only) |
 | `exclude` | Array<String> | No | Glob patterns to skip in `from_file` directories |
-| `local` | String | No | Local overlay directory for machine-specific overrides (auto-created, gitignored) |
+| `local` | String | No | Relative local overlay directory for machine-specific overrides (auto-created, gitignored). It follows the same non-escaping Source path rule as `from_file`. |
 | `immutable` | Bool | No | Set OS immutable flag after deploying (macOS `chflags uchg`, Linux `chattr +i`) |
 
 ### Example: structured config (from_config)
@@ -325,7 +325,7 @@ Prompt diffs use explicit side markers instead of traditional `+/-`:
 
 ```
 blend                              Status: show all orders and sync state
-blend sync [orders...]             Interactive bidirectional sync (default)
+blend sync [orders...]             Interactive bidirectional sync
 blend s [orders...]                Alias for `blend sync`
 blend sync --force-source-to-target
                                    Force-apply Source values to Targets
@@ -337,6 +337,10 @@ blend view -c [orders...]          Show generated content only (no diff)
 blend view -a [orders...]          Show both content and diff
 blend view -s [orders...]          Short mode: omit up-to-date entries
 blend check [orders...]            Typecheck/evaluate order.ncl files
+blend create <order>               Scaffold an empty Source order
+blend add <order> <target>         Import a Target file/directory into an order
+blend add <order> --prefix <path> <target>
+                                   Strip an explicit Target prefix before import
 blend format [orders...]           Format order.ncl files
 blend format --check [orders...]   Check order.ncl formatting without writing
 blend table                        Output order info as HTML table (for README)
@@ -453,7 +457,7 @@ In `.ncl` files, use `\u{xxxx}` escape sequences for non-ASCII characters (e.g.,
 - **Three-way merge context**: Snapshot-backed prompts are implemented for conflict explanation. This is not a full automatic merge engine, but `blend` can now show Source/Target/Base context when a snapshot exists.
 - **Secrets management**: Deferred to v2. Focus on core config management first.
 - **JSONC round-trip**: Output JSON without comments. Comments live in Nickel source.
-- **Schema validation**: Orders are validated through the Nickel `| Order` contract when present, then through Rust deserialization and `resolve_defaults()`. Generated `order.contract.ncl` and `metadata.ncl` freshness is checked for read-only commands and repaired by `init`/`sync`.
+- **Schema validation**: Orders are validated through the Nickel `| Order` contract when present, then through Rust deserialization, `resolve_defaults()`, and Source path checks. Generated `order.contract.ncl` and `metadata.ncl` freshness is checked for read-only commands and repaired by `init`/`sync`.
 
 ---
 

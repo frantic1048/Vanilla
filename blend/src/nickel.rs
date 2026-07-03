@@ -4,5 +4,5 @@ mod loader;
 mod schema;
 pub mod structure_map;
 
-pub use loader::{NickelEvaluator, format_source};
+pub use loader::{NickelEvaluator, format_source, normalize_order_source_path};
 pub use schema::{FileEntry, Format, Order};

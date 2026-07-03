@@ -1,4 +1,6 @@
+pub mod add;
 pub mod check;
+pub mod create;
 pub mod format;
 pub mod helpers;
 pub mod init;
@@ -7,7 +9,9 @@ pub mod sync;
 pub mod table;
 pub mod view;
 
+pub use add::cmd_add;
 pub use check::cmd_check;
+pub use create::cmd_create;
 pub use format::cmd_format;
 pub use init::cmd_init;
 pub use status::cmd_status;

@@ -4,7 +4,8 @@
 
 Vanilla is the owner's dotfiles repository. Configs are defined as Nickel
 orders under `orders/` and deployed by the local `blend` CLI, a Rust tool in
-`blend/`. The root `bin/blend` entry is a symlink to the release build at
+`blend/`. The root `bin` entry is a symlink to `orders/bin/bin`, and
+`bin/blend` resolves through that Source directory to the release build at
 `target/release/blend`.
 
 This repo mixes two surfaces:
@@ -18,7 +19,7 @@ Keep those surfaces distinct when changing, testing, and interpreting CI.
 
 - `blend/` - Rust crate for the `blend` CLI.
 - `orders/` - active Nickel order definitions and config source files.
-- `bin/` - personal scripts deployed to `$PATH`, plus the `bin/blend` symlink.
+- `bin` - symlink to the physical personal-script Source at `orders/bin/bin`.
 - `legacy/` - stow-era or out-of-scope files kept for reference only; not
   managed by blend.
 - `screenshots/` - README screenshots.
@@ -86,7 +87,7 @@ Toolchain and dependency facts:
 Common tasks:
 
 ```sh
-just build       # release build + update bin/blend symlink
+just build       # release build + update the bin/blend entrypoint symlink
 just check       # bin/blend check
 just test        # cargo test --release in blend/
 just fmt-check   # cargo fmt --check in blend/
@@ -112,6 +113,10 @@ Inspect commands:
 Maintain commands:
 
 - `check [orders...]` - `[read]` validate Source order definitions.
+- `create <order>` - `[source]` scaffold a new empty Source order.
+- `add <order> <target>` - `[source]` import an absolute or `~`-prefixed
+  Target file/directory into an existing Source order. Useful flags:
+  `--prefix`, `--symlink follow|preserve`, `--allow-overlap`.
 - `format [orders...]` / `fmt` - `[source]` format Source order files; use
   `--check` in CI or review validation.
 - `init --upgrade` - `[source, target]` initialize or refresh
@@ -128,6 +133,13 @@ Global flags:
 - `--home` overrides Target `~` expansion and `metadata.home`.
 - `--blend-dir` overrides the Blend Source root.
 - `--sandbox force|prefer|never` controls the process sandbox policy.
+
+Order Source paths:
+
+- `from_file` and `local` are relative to their order directory and must not be
+  absolute or normalize outside that directory.
+- File entries need an effective Target prefix from either `blend.prefix` or
+  entry-level `prefix`.
 
 ## Source Map
 

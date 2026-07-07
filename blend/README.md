@@ -3,6 +3,60 @@
 Implementation reference for the `blend` crate. For design intent and
 architectural reasoning, see [`../NEW_BLEND.md`](../NEW_BLEND.md).
 
+## Install
+
+### Homebrew
+
+```sh
+brew install frantic1048/tap/blend
+```
+
+The Homebrew formula is maintained in
+[`frantic1048/homebrew-tap`](https://github.com/frantic1048/homebrew-tap) and
+tracks stable `blend-v*` releases.
+
+### Docker
+
+The container image is published to GitHub Container Registry:
+
+```sh
+docker run --rm ghcr.io/frantic1048/blend:latest --version
+docker run --rm -v "$PWD:/workspace" -w /workspace ghcr.io/frantic1048/blend:latest check
+```
+
+The image entrypoint is already `blend`, so pass the Blend subcommand directly.
+Stable releases publish both the version tag and `latest`; prereleases publish
+only the version tag.
+
+### GitHub Releases
+
+Release assets are available from
+[`frantic1048/Vanilla` releases](https://github.com/frantic1048/Vanilla/releases).
+The generated installer downloads the matching platform archive, verifies its
+embedded SHA256 checksum, and installs `blend` to `~/.local/bin` by default:
+
+```sh
+curl -fsSLO https://github.com/frantic1048/Vanilla/releases/latest/download/blend-installer.sh
+sh blend-installer.sh
+```
+
+Use `sh blend-installer.sh --dir /path/to/bin` to choose a different install
+directory. Archives and `.sha256` files are also published for:
+
+- `aarch64-apple-darwin`
+- `x86_64-apple-darwin`
+- `x86_64-unknown-linux-gnu`
+
+### From source
+
+```sh
+git clone https://github.com/frantic1048/Vanilla.git
+cd Vanilla/blend
+cargo build --release
+```
+
+The binary is written to `target/release/blend` at the repository root.
+
 ## Build & test
 
 ```sh

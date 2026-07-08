@@ -24,6 +24,7 @@ This repository mainly contains configs for various tools and applications shown
 Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://github.com/nickel-lang/nickel) language under [orders/](orders/). Deployed via the `blend` program in this repo. See [blend/README.md](blend/README.md) for details.
 
 <table><thead><tr><th>order</th><th colspan="3">profiles</th></tr></thead><tbody>
+<tr><td><a href="orders/agent-skill">agent-skill</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/alacritty">alacritty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bash">bash</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bat">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>

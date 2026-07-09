@@ -52,6 +52,9 @@ export def compute-env []: nothing -> record {
         CARGO_HOME: $"($home)/.cargo"
         CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "codex_cli_rs"
 
+        # This feature breaks many things, very dangerous!
+        CLAUDE_CODE_DISABLE_AGENT_VIEW: "1"
+
         # Telemetry things
         DO_NOT_TRACK: "1"
         GRIT_TELEMETRY_DISABLED: "true"

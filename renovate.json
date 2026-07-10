@@ -36,6 +36,16 @@
       ],
       "groupName": "blend",
       "automerge": true
+    },
+    {
+      "description": "Disable proto manager for dotfiles-managed toolchain versions",
+      "matchManagers": [
+        "proto"
+      ],
+      "matchFileNames": [
+        "orders/proto/.proto/.prototools"
+      ],
+      "enabled": false
     }
   ]
 }

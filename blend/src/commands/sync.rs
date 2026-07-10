@@ -9,6 +9,7 @@ use crate::diff::{diff_configs_with_base, key_change_with_base_display, semantic
 use crate::formats::get_renderer;
 use crate::nickel;
 use crate::nickel::generated;
+use crate::nickel::key_path::KeyPath;
 use crate::output::log;
 use crate::sync::{self, KeyAction, KeyResolution, Prompter, SyncAction, SyncMode};
 
@@ -298,7 +299,8 @@ pub fn cmd_sync(
                     target_display
                 );
 
-                let mut decisions = std::collections::HashMap::new();
+                let mut decisions: std::collections::HashMap<KeyPath, KeyResolution> =
+                    std::collections::HashMap::new();
                 let mut all_mode: Option<KeyResolution> = None;
                 let mut quit = false;
 
@@ -360,106 +362,116 @@ pub fn cmd_sync(
                     continue;
                 }
 
-                let has_source_resolutions =
-                    decisions.values().any(|&v| v == KeyResolution::Source);
-                let has_target_resolutions =
-                    decisions.values().any(|&v| v == KeyResolution::Target);
+                // Apply Target -> Source FIRST: a Target-resolved key that
+                // cannot be rewritten into order.ncl must not be baked into
+                // the merged Target or the snapshot, otherwise the unresolved
+                // conflict is silently masked. Keys that fail here are dropped
+                // from `decisions` (reported as skipped) so the Target keeps
+                // its deployed value and the conflict resurfaces next sync.
+                let target_keys: Vec<KeyPath> = decisions
+                    .iter()
+                    .filter(|(_, resolution)| **resolution == KeyResolution::Target)
+                    .map(|(k, _)| k.clone())
+                    .collect();
 
-                if has_source_resolutions || has_target_resolutions {
-                    let format_renderer = get_renderer(format);
-                    let source_json: serde_json::Value =
-                        format_renderer.parse(&result.content).unwrap_or_default();
-                    let target_json: serde_json::Value = std::fs::read_to_string(&result.target)
-                        .ok()
-                        .and_then(|s| format_renderer.parse(&s).ok())
-                        .unwrap_or_default();
-
-                    // Build merged JSON from decisions
-                    let merged = sync::build_merged_json(&source_json, &target_json, &decisions);
-
-                    // Write merged result to target
-                    match format_renderer.render(&merged) {
-                        Ok(merged_content) => {
-                            let merged_result = BuildResult {
-                                target: result.target.clone(),
-                                content: merged_content,
-                                is_plaintext: false,
-                                source_path: None,
-                                name: result.name.clone(),
-                                format,
-                                ignore_keys: result.ignore_keys.clone(),
-                                is_symlink: false,
-                                canonical_source: None,
-                                exclude_patterns: vec![],
-                                local_dir: None,
-                                immutable: result.immutable,
-                            };
-                            match write_result(&merged_result, false) {
-                                Ok(()) => {
-                                    source_to_target += 1;
-                                    refresh_snapshot_for_result(ctx, order_name, &merged_result);
-                                    log::success(&format!(
-                                        "Synced {}:{} ({} keys resolved)",
-                                        order_name,
-                                        result.name,
-                                        decisions.len()
-                                    ));
-                                }
-                                Err(e) => {
-                                    log::error(&format!(
-                                        "Failed to write merged {}:{}: {}",
-                                        order_name, result.name, e
-                                    ));
-                                    build_errors += 1;
-                                }
+                if !target_keys.is_empty() {
+                    match sync::pull_from_config_keys(
+                        ctx,
+                        order_name,
+                        *file_entry_index,
+                        &result.target,
+                        format,
+                        &target_keys,
+                        false,
+                    ) {
+                        Ok(report) => {
+                            for key in &report.unapplied {
+                                log::warn(&format!(
+                                    "Skipped {}:{} key {}: Target value could not be written back to order.ncl (resolve manually)",
+                                    order_name, result.name, key
+                                ));
+                                decisions.remove(key);
+                            }
+                            if report.any_applied() {
+                                target_to_source += 1;
                             }
                         }
                         Err(e) => {
                             log::error(&format!(
-                                "Failed to render merged {}:{}: {}",
+                                "Failed to rewrite .ncl for {}:{}: {}",
                                 order_name, result.name, e
                             ));
                             build_errors += 1;
+                            // None of the Target selections landed in Source;
+                            // drop them so they are not treated as resolved.
+                            for key in &target_keys {
+                                decisions.remove(key);
+                            }
                         }
                     }
+                }
 
-                    // Apply target selections: surgically rewrite .ncl for those keys.
-                    if has_target_resolutions && !no_rewrite {
-                        let target_keys: Vec<String> = decisions
-                            .iter()
-                            .filter(|(_, resolution)| **resolution == KeyResolution::Target)
-                            .map(|(k, _)| k.clone())
-                            .collect();
+                if decisions.is_empty() {
+                    // Every decision was dropped by write-back failures.
+                    skipped += 1;
+                    continue;
+                }
 
-                        match sync::pull_from_config_keys(
-                            ctx,
-                            order_name,
-                            *file_entry_index,
-                            &result.target,
+                let format_renderer = get_renderer(format);
+                let source_json: serde_json::Value =
+                    format_renderer.parse(&result.content).unwrap_or_default();
+                let target_json: serde_json::Value = std::fs::read_to_string(&result.target)
+                    .ok()
+                    .and_then(|s| format_renderer.parse(&s).ok())
+                    .unwrap_or_default();
+
+                // Build merged JSON from the decisions that actually applied
+                let merged = sync::build_merged_json(&source_json, &target_json, &decisions);
+
+                // Write merged result to target
+                match format_renderer.render(&merged) {
+                    Ok(merged_content) => {
+                        let merged_result = BuildResult {
+                            target: result.target.clone(),
+                            content: merged_content,
+                            is_plaintext: false,
+                            source_path: None,
+                            name: result.name.clone(),
                             format,
-                            &target_keys,
-                            false,
-                        ) {
-                            Ok(true) => {
-                                target_to_source += 1;
-                            }
-                            Ok(false) => {
-                                log::warn(&format!(
-                                    "Some Target-selected keys in {}:{} could not be auto-rewritten",
-                                    order_name, result.name
+                            ignore_keys: result.ignore_keys.clone(),
+                            is_symlink: false,
+                            canonical_source: None,
+                            exclude_patterns: vec![],
+                            local_dir: None,
+                            immutable: result.immutable,
+                        };
+                        match write_result(&merged_result, false) {
+                            Ok(()) => {
+                                source_to_target += 1;
+                                refresh_snapshot_for_result(ctx, order_name, &merged_result);
+                                log::success(&format!(
+                                    "Synced {}:{} ({} keys resolved)",
+                                    order_name,
+                                    result.name,
+                                    decisions.len()
                                 ));
                             }
                             Err(e) => {
                                 log::error(&format!(
-                                    "Failed to rewrite .ncl for {}:{}: {}",
+                                    "Failed to write merged {}:{}: {}",
                                     order_name, result.name, e
                                 ));
                                 build_errors += 1;
                             }
                         }
                     }
-                } else {
-                    skipped += 1;
+                    Err(e) => {
+                        log::error(&format!(
+                            "Failed to render merged {}:{}: {}",
+                            order_name, result.name, e
+                        ));
+                        build_errors += 1;
+                    }
                 }
             } else {
                 // Original whole-file flow for from_file, symlinks, and
@@ -550,6 +562,13 @@ pub fn cmd_sync(
                         }
                     },
                     SyncAction::ApplyTargetToSource => {
+                        /// Whether the pull landed anything in Source, and if
+                        /// so whether every needed key was written back.
+                        enum PullStatus {
+                            Applied { fully: bool },
+                            NothingApplied,
+                        }
+
                         let pull_result = if result.is_plaintext {
                             if let Some(source_path) = &result.source_path {
                                 sync::pull_from_file(
@@ -559,40 +578,60 @@ pub fn cmd_sync(
                                     &result.exclude_patterns,
                                     ctx.dry_run,
                                 )
+                                .map(|()| PullStatus::Applied { fully: true })
                             } else {
                                 Err(anyhow::anyhow!("No source path for plaintext entry"))
                             }
                         } else {
                             let format = result.format;
-                            match sync::pull_from_config(
+                            sync::pull_from_config(
                                 ctx,
                                 order_name,
                                 *file_entry_index,
                                 &result.target,
                                 format,
                                 ctx.dry_run,
-                            ) {
-                                Ok(true) => Ok(()),
-                                Ok(false) => {
-                                    log::warn(
-                                        "Cannot apply Target -> Source (from_config has logic)",
-                                    );
-                                    Ok(())
+                            )
+                            .map(|report| {
+                                if report.any_applied() {
+                                    PullStatus::Applied {
+                                        fully: report.unapplied.is_empty(),
+                                    }
+                                } else {
+                                    PullStatus::NothingApplied
                                 }
-                                Err(e) => Err(e),
-                            }
+                            })
                         };
 
                         match pull_result {
-                            Ok(()) => {
+                            Ok(PullStatus::Applied { fully }) => {
                                 if !ctx.dry_run {
                                     log::success(&format!(
                                         "Applied Target -> Source for {}:{}",
                                         order_name, result.name
                                     ));
                                     target_to_source += 1;
-                                    refresh_snapshot_for_result(ctx, order_name, result);
+                                    if fully {
+                                        refresh_snapshot_for_result(ctx, order_name, result);
+                                    } else {
+                                        // Partial write-back: leave the snapshot
+                                        // alone so the remaining keys resurface
+                                        // as a conflict instead of being masked.
+                                        log::warn(&format!(
+                                            "Some keys in {}:{} could not be written back to order.ncl; they remain unresolved",
+                                            order_name, result.name
+                                        ));
+                                    }
                                 }
+                            }
+                            Ok(PullStatus::NothingApplied) => {
+                                if !ctx.dry_run {
+                                    log::warn(&format!(
+                                        "Cannot apply Target -> Source for {}:{} (no key could be rewritten in order.ncl), skipping",
+                                        order_name, result.name
+                                    ));
+                                }
+                                skipped += 1;
                             }
                             Err(e) => {
                                 log::error(&format!(

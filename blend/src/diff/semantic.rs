@@ -3,6 +3,8 @@ use indexmap::IndexMap;
 
 use crate::formats::get_renderer;
 use crate::nickel::Format;
+use crate::nickel::ast_utils::json_get_segments;
+use crate::nickel::key_path::{KeyPath, display_segment};
 
 use super::DiffResult;
 
@@ -21,8 +23,9 @@ pub enum KeyChangeType {
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct KeyChange {
-    /// Dotted key path, e.g. "section.subsection.key"
-    pub path: String,
+    /// Structured key path; each segment is one literal key (segments may
+    /// contain dots or brackets). `Display` joins with '.' for UI only.
+    pub path: KeyPath,
     /// What kind of change this is
     pub change_type: KeyChangeType,
     /// Value in the Source config (None for Removed)
@@ -60,15 +63,18 @@ pub fn semantic_diff_keys(
     let dep_filtered = filter_keys(&dep_value, ignore_keys);
 
     let mut changes = Vec::new();
-    collect_key_changes(&gen_filtered, &dep_filtered, "", &mut changes);
+    collect_key_changes(&gen_filtered, &dep_filtered, &KeyPath::root(), &mut changes);
     changes
 }
 
-/// Recursively collect per-key changes between two JSON values
+/// Recursively collect per-key changes between two JSON values.
+///
+/// Descends real JSON objects, so every `KeyPath` segment is one literal key
+/// (keys containing dots/brackets stay intact).
 fn collect_key_changes(
     generated: &serde_json::Value,
     deployed: &serde_json::Value,
-    path: &str,
+    path: &KeyPath,
     changes: &mut Vec<KeyChange>,
 ) {
     if generated == deployed {
@@ -86,16 +92,13 @@ fn collect_key_changes(
         (serde_json::Value::Object(gen_obj), serde_json::Value::Object(dep_obj)) => {
             // Keys in generated but not in deployed (additions)
             for (key, gen_val) in gen_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = path.child(key.clone());
 
                 if let Some(dep_val) = dep_obj.get(key) {
                     collect_key_changes(gen_val, dep_val, &key_path, changes);
                 } else {
-                    let display = format_side_diff(&key_path, Some(gen_val), None, None);
+                    let display =
+                        format_side_diff(&key_path.to_string(), Some(gen_val), None, None);
                     changes.push(KeyChange {
                         path: key_path,
                         change_type: KeyChangeType::Added,
@@ -108,14 +111,10 @@ fn collect_key_changes(
 
             // Keys in deployed but not in generated (removals)
             for (key, dep_val) in dep_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
-
                 if !gen_obj.contains_key(key) {
-                    let display = format_side_diff(&key_path, None, Some(dep_val), None);
+                    let key_path = path.child(key.clone());
+                    let display =
+                        format_side_diff(&key_path.to_string(), None, Some(dep_val), None);
                     changes.push(KeyChange {
                         path: key_path,
                         change_type: KeyChangeType::Removed,
@@ -128,9 +127,10 @@ fn collect_key_changes(
         }
         (serde_json::Value::Array(gen_arr), serde_json::Value::Array(dep_arr)) => {
             if gen_arr != dep_arr {
-                let display = format_side_diff(path, Some(generated), Some(deployed), None);
+                let display =
+                    format_side_diff(&path.to_string(), Some(generated), Some(deployed), None);
                 changes.push(KeyChange {
-                    path: path.to_string(),
+                    path: path.clone(),
                     change_type: KeyChangeType::Modified,
                     repo_value: Some(generated.clone()),
                     deployed_value: Some(deployed.clone()),
@@ -139,9 +139,10 @@ fn collect_key_changes(
             }
         }
         _ => {
-            let display = format_side_diff(path, Some(generated), Some(deployed), None);
+            let display =
+                format_side_diff(&path.to_string(), Some(generated), Some(deployed), None);
             changes.push(KeyChange {
-                path: path.to_string(),
+                path: path.clone(),
                 change_type: KeyChangeType::Modified,
                 repo_value: Some(generated.clone()),
                 deployed_value: Some(deployed.clone()),
@@ -185,23 +186,12 @@ pub fn key_change_with_base_display(
     };
     let mut change = change.clone();
     change.display = format_side_diff(
-        &change.path,
+        &change.path.to_string(),
         change.repo_value.as_ref(),
         change.deployed_value.as_ref(),
-        Some(lookup_dotted(base_root, &change.path)),
+        Some(json_get_segments(base_root, change.path.segments())),
     );
     change
-}
-
-fn lookup_dotted<'a>(value: &'a serde_json::Value, path: &str) -> Option<&'a serde_json::Value> {
-    if path.is_empty() {
-        return Some(value);
-    }
-    let mut cur = value;
-    for segment in path.split('.') {
-        cur = cur.as_object()?.get(segment)?;
-    }
-    Some(cur)
 }
 
 fn side_value_line(label: &str, value: Option<&serde_json::Value>) -> String {
@@ -310,6 +300,17 @@ fn filter_keys(value: &serde_json::Value, ignore_keys: &[String]) -> serde_json:
     }
 }
 
+/// Append one segment to a display path, quoting segments that contain dots
+/// so literal dotted keys stay distinguishable from nested paths.
+fn join_display_path(path: &str, key: &str) -> String {
+    let segment = display_segment(key);
+    if path.is_empty() {
+        segment.into_owned()
+    } else {
+        format!("{path}.{segment}")
+    }
+}
+
 /// Recursively diff two JSON values
 fn diff_values(
     generated: &serde_json::Value,
@@ -334,11 +335,7 @@ fn diff_values(
 
             // Keys in generated but not in deployed (additions)
             for (key, gen_val) in gen_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = join_display_path(path, key);
 
                 if let Some(dep_val) = dep_obj.get(key) {
                     if diff_values(gen_val, dep_val, &key_path, output) {
@@ -352,11 +349,7 @@ fn diff_values(
 
             // Keys in deployed but not in generated (deletions)
             for (key, dep_val) in dep_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = join_display_path(path, key);
 
                 if !gen_obj.contains_key(key) {
                     output.push(format_side_diff(&key_path, None, Some(dep_val), None));
@@ -419,11 +412,7 @@ fn diff_values_with_base(
             let mut has_changes = false;
 
             for (key, gen_val) in gen_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = join_display_path(path, key);
                 let base_val = child_base(base, key);
 
                 if let Some(dep_val) = dep_obj.get(key) {
@@ -444,11 +433,7 @@ fn diff_values_with_base(
             }
 
             for (key, dep_val) in dep_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = join_display_path(path, key);
 
                 if !gen_obj.contains_key(key) {
                     output.push(format_side_diff(
@@ -626,7 +611,7 @@ mod tests {
         let deployed = r#"{"key": "old", "other": 1}"#;
         let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0].path, "key");
+        assert_eq!(changes[0].path.to_string(), "key");
         assert_eq!(changes[0].change_type, KeyChangeType::Modified);
         assert_eq!(changes[0].repo_value, Some(json!("new")));
         assert_eq!(changes[0].deployed_value, Some(json!("old")));
@@ -653,11 +638,17 @@ mod tests {
         let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
         assert_eq!(changes.len(), 2);
 
-        let added = changes.iter().find(|c| c.path == "repo_only").unwrap();
+        let added = changes
+            .iter()
+            .find(|c| c.path.to_string() == "repo_only")
+            .unwrap();
         assert_eq!(added.change_type, KeyChangeType::Added);
         assert!(added.deployed_value.is_none());
 
-        let removed = changes.iter().find(|c| c.path == "deployed_only").unwrap();
+        let removed = changes
+            .iter()
+            .find(|c| c.path.to_string() == "deployed_only")
+            .unwrap();
         assert_eq!(removed.change_type, KeyChangeType::Removed);
         assert!(removed.repo_value.is_none());
     }
@@ -668,7 +659,31 @@ mod tests {
         let deployed = r#"{"section": {"a": 1, "b": 3}}"#;
         let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0].path, "section.b");
+        assert_eq!(changes[0].path.to_string(), "section.b");
+        assert_eq!(changes[0].path.segments(), ["section", "b"]);
+        assert_eq!(changes[0].change_type, KeyChangeType::Modified);
+    }
+
+    #[test]
+    fn test_semantic_diff_keys_literal_dot_and_bracket_segments() {
+        // Keys containing literal dots/brackets must stay ONE segment each.
+        let generated = r#"{"[javascript]": {"editor.codeActionsOnSave": {"source.fixAll.eslint": "explicit"}}}"#;
+        let deployed =
+            r#"{"[javascript]": {"editor.codeActionsOnSave": {"source.fixAll.eslint": "always"}}}"#;
+        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
+        assert_eq!(changes.len(), 1);
+        assert_eq!(
+            changes[0].path.segments(),
+            [
+                "[javascript]",
+                "editor.codeActionsOnSave",
+                "source.fixAll.eslint"
+            ]
+        );
+        assert_eq!(
+            changes[0].path.to_string(),
+            "[javascript].\"editor.codeActionsOnSave\".\"source.fixAll.eslint\""
+        );
         assert_eq!(changes[0].change_type, KeyChangeType::Modified);
     }
 
@@ -678,6 +693,6 @@ mod tests {
         let deployed = r#"{"keep": "old", "skip": "old"}"#;
         let changes = semantic_diff_keys(Format::Json, generated, deployed, &["skip".to_string()]);
         assert_eq!(changes.len(), 1);
-        assert_eq!(changes[0].path, "keep");
+        assert_eq!(changes[0].path.to_string(), "keep");
     }
 }

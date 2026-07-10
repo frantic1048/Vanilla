@@ -9,6 +9,7 @@ use crate::context::Context;
 use crate::diff::{DiffResult, KeyChange, KeyChangeType};
 use crate::formats::get_renderer;
 use crate::nickel;
+use crate::nickel::key_path::KeyPath;
 use crate::output::log;
 
 /// Action to take for a file during bidirectional sync
@@ -277,6 +278,32 @@ fn pull_directory(
 ///
 /// Returns Ok(true) if the rewrite succeeded, Ok(false) if it couldn't
 /// be done, Err on failure.
+/// Result of a Target -> Source pull: which key paths were actually written
+/// back into the .ncl source, and which could not be applied.
+///
+/// Callers must treat an empty `applied` list as "nothing pulled" — the .ncl
+/// file was NOT modified in that case and no Target -> Source sync happened.
+#[derive(Debug, Default)]
+pub struct PullReport {
+    /// Key paths whose Target values were written back into the .ncl source.
+    pub applied: Vec<KeyPath>,
+    /// Key paths that were requested/needed but could not be rewritten.
+    pub unapplied: Vec<KeyPath>,
+}
+
+impl PullReport {
+    pub fn any_applied(&self) -> bool {
+        !self.applied.is_empty()
+    }
+}
+
+/// True when one path is the other (or an ancestor/descendant of it),
+/// compared segment-wise.
+fn paths_related(a: &KeyPath, b: &KeyPath) -> bool {
+    let (a, b) = (a.segments(), b.segments());
+    a.starts_with(b) || b.starts_with(a)
+}
+
 pub fn pull_from_config(
     ctx: &Context,
     order_name: &str,
@@ -284,7 +311,7 @@ pub fn pull_from_config(
     target: &Path,
     format: nickel::Format,
     dry_run: bool,
-) -> Result<bool> {
+) -> Result<PullReport> {
     let order_dir = ctx.orders_dir.join(order_name);
     let ncl_path = order_dir.join("order.ncl");
 
@@ -297,7 +324,7 @@ pub fn pull_from_config(
 
     let leaf_spans = rewrite_result.rewritable_spans();
     if leaf_spans.is_empty() {
-        return Ok(false);
+        return Ok(PullReport::default());
     }
 
     // Parse the deployed file
@@ -336,7 +363,11 @@ pub fn pull_from_config(
                 ));
             }
         }
-        return Ok(true);
+        // Dry-run: report the rewritable leaves as "would apply".
+        return Ok(PullReport {
+            applied: leaf_spans.iter().map(|s| s.path.clone()).collect(),
+            unapplied: vec![],
+        });
     }
 
     // Detect indentation level from the first span
@@ -348,7 +379,7 @@ pub fn pull_from_config(
 
     // Try structure-aware rewrite (supports insert/delete), fall back to
     // modify-only if StructureMap cannot be built
-    let new_source = match nickel::structure_map::build_structure_map(&source, file_entry_index) {
+    let outcome = match nickel::structure_map::build_structure_map(&source, file_entry_index) {
         Ok(structure) => {
             let edits = build_field_edits_from_diff(current_json, &deployed_json);
             if edits
@@ -385,8 +416,13 @@ pub fn pull_from_config(
         }
     };
 
-    std::fs::write(&ncl_path, &new_source)
-        .with_context(|| format!("Failed to write {}", ncl_path.display()))?;
+    for path in &outcome.unapplied {
+        log::warn(&format!(
+            "Cannot apply Target -> Source for {} (no rewritable location in {})",
+            path,
+            ncl_path.display()
+        ));
+    }
 
     // Log non-rewritable fields for user awareness
     for field in rewrite_result.non_rewritable_fields() {
@@ -396,7 +432,21 @@ pub fn pull_from_config(
         ));
     }
 
-    Ok(true)
+    if !outcome.changed() {
+        // Nothing was actually rewritten — do not write, do not claim success.
+        return Ok(PullReport {
+            applied: vec![],
+            unapplied: outcome.unapplied,
+        });
+    }
+
+    std::fs::write(&ncl_path, &outcome.new_source)
+        .with_context(|| format!("Failed to write {}", ncl_path.display()))?;
+
+    Ok(PullReport {
+        applied: outcome.applied,
+        unapplied: outcome.unapplied,
+    })
 }
 
 /// Build FieldEdit list by diffing current (repo) JSON against deployed JSON.
@@ -409,26 +459,25 @@ fn build_field_edits_from_diff(
     deployed: &serde_json::Value,
 ) -> Vec<nickel::ast_utils::FieldEdit> {
     let mut edits = Vec::new();
-    collect_field_edits(current, deployed, "", &mut edits);
+    collect_field_edits(current, deployed, &KeyPath::root(), &mut edits);
     edits
 }
 
 /// Recursively collect field edits between two JSON values.
+///
+/// Descends real JSON objects, so every `KeyPath` segment is one literal key
+/// (keys containing dots/brackets stay intact).
 fn collect_field_edits(
     current: &serde_json::Value,
     deployed: &serde_json::Value,
-    path: &str,
+    path: &KeyPath,
     edits: &mut Vec<nickel::ast_utils::FieldEdit>,
 ) {
     match (current, deployed) {
         (serde_json::Value::Object(cur_obj), serde_json::Value::Object(dep_obj)) => {
             // Keys modified or deleted
             for (key, cur_val) in cur_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = path.child(key.clone());
 
                 if let Some(dep_val) = dep_obj.get(key) {
                     if cur_val != dep_val {
@@ -450,13 +499,8 @@ fn collect_field_edits(
             // Keys added (in deployed but not current)
             for (key, dep_val) in dep_obj {
                 if !cur_obj.contains_key(key) {
-                    let key_path = if path.is_empty() {
-                        key.clone()
-                    } else {
-                        format!("{path}.{key}")
-                    };
                     edits.push(nickel::ast_utils::FieldEdit::Insert {
-                        path: key_path,
+                        path: path.child(key.clone()),
                         value: dep_val.clone(),
                     });
                 }
@@ -464,9 +508,9 @@ fn collect_field_edits(
         }
         _ => {
             // Leaf values that differ
-            if current != deployed && !path.is_empty() {
+            if current != deployed && !path.is_root() {
                 edits.push(nickel::ast_utils::FieldEdit::Modify {
-                    path: path.to_string(),
+                    path: path.clone(),
                     new_value: deployed.clone(),
                 });
             }
@@ -478,21 +522,21 @@ fn collect_field_edits(
 /// per-key decisions. Keys resolved to `Source` take the generated/source value;
 /// keys resolved to `Target` keep the deployed target value.
 ///
-/// `decisions` maps dotted key paths to the side that should win.
+/// `decisions` maps structured key paths to the side that should win.
 pub fn build_merged_json(
     source_json: &serde_json::Value,
     target_json: &serde_json::Value,
-    decisions: &std::collections::HashMap<String, KeyResolution>,
+    decisions: &std::collections::HashMap<KeyPath, KeyResolution>,
 ) -> serde_json::Value {
-    merge_values(source_json, target_json, decisions, "")
+    merge_values(source_json, target_json, decisions, &KeyPath::root())
 }
 
 /// Recursively merge two JSON values according to per-key decisions.
 fn merge_values(
     source: &serde_json::Value,
     target: &serde_json::Value,
-    decisions: &std::collections::HashMap<String, KeyResolution>,
-    path: &str,
+    decisions: &std::collections::HashMap<KeyPath, KeyResolution>,
+    path: &KeyPath,
 ) -> serde_json::Value {
     match (source, target) {
         (serde_json::Value::Object(source_obj), serde_json::Value::Object(target_obj)) => {
@@ -500,11 +544,7 @@ fn merge_values(
 
             // Start with all target keys.
             for (key, target_val) in target_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = path.child(key.clone());
 
                 if let Some(&resolution) = decisions.get(&key_path) {
                     match resolution {
@@ -535,11 +575,7 @@ fn merge_values(
                 if target_obj.contains_key(key) {
                     continue; // Already handled above
                 }
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = path.child(key.clone());
 
                 if let Some(&resolution) = decisions.get(&key_path) {
                     if resolution == KeyResolution::Source {
@@ -571,8 +607,8 @@ fn merge_values(
 
 /// Pull specific keys from deployed config back into the .ncl file.
 ///
-/// `pulled_keys` is the set of dotted key paths where Target should be applied
-/// back to Source in the .ncl rewrite.
+/// `pulled_keys` is the set of structured key paths where Target should be
+/// applied back to Source in the .ncl rewrite.
 /// `key_changes` optionally provides change type info per key to enable
 /// structure-aware insertion and deletion.
 pub fn pull_from_config_keys(
@@ -581,9 +617,9 @@ pub fn pull_from_config_keys(
     file_entry_index: usize,
     target: &Path,
     format: nickel::Format,
-    pulled_keys: &[String],
+    pulled_keys: &[KeyPath],
     dry_run: bool,
-) -> Result<bool> {
+) -> Result<PullReport> {
     pull_from_config_keys_with_changes(
         ctx,
         order_name,
@@ -604,12 +640,12 @@ pub fn pull_from_config_keys_with_changes(
     file_entry_index: usize,
     target: &Path,
     format: nickel::Format,
-    pulled_keys: &[String],
+    pulled_keys: &[KeyPath],
     key_changes: &[KeyChange],
     dry_run: bool,
-) -> Result<bool> {
+) -> Result<PullReport> {
     if pulled_keys.is_empty() {
-        return Ok(true); // nothing to pull
+        return Ok(PullReport::default()); // nothing to pull
     }
 
     let order_dir = ctx.orders_dir.join(order_name);
@@ -650,7 +686,10 @@ pub fn pull_from_config_keys_with_changes(
             pulled_keys.len(),
             ncl_path.display()
         ));
-        return Ok(true);
+        return Ok(PullReport {
+            applied: pulled_keys.to_vec(),
+            unapplied: vec![],
+        });
     }
 
     let base_indent = if let Some(first) = leaf_spans.first() {
@@ -660,24 +699,25 @@ pub fn pull_from_config_keys_with_changes(
     };
 
     // Build a change type lookup from key_changes if provided
-    let change_type_map: std::collections::HashMap<&str, &KeyChangeType> = key_changes
+    let change_type_map: std::collections::HashMap<&KeyPath, &KeyChangeType> = key_changes
         .iter()
-        .map(|kc| (kc.path.as_str(), &kc.change_type))
+        .map(|kc| (&kc.path, &kc.change_type))
         .collect();
 
     // Check if any pulled keys are insertions or deletions
     let has_structural_changes = pulled_keys.iter().any(|k| {
-        if let Some(ct) = change_type_map.get(k.as_str()) {
+        if let Some(ct) = change_type_map.get(k) {
             matches!(ct, KeyChangeType::Added | KeyChangeType::Removed)
         } else {
-            let in_cur = nickel::ast_utils::json_path_get(current_json, k).is_some();
-            let in_dep = nickel::ast_utils::json_path_get(&deployed_json, k).is_some();
+            let in_cur = nickel::ast_utils::json_get_segments(current_json, k.segments()).is_some();
+            let in_dep =
+                nickel::ast_utils::json_get_segments(&deployed_json, k.segments()).is_some();
             (in_dep && !in_cur) || (in_cur && !in_dep)
         }
     });
 
     // Try structure-aware rewrite if we have structural changes
-    let new_source = if has_structural_changes {
+    let outcome = if has_structural_changes {
         match nickel::structure_map::build_structure_map(&source, file_entry_index) {
             Ok(structure) => {
                 let edits = build_field_edits_for_keys(
@@ -697,7 +737,10 @@ pub fn pull_from_config_keys_with_changes(
             Err(_) => {
                 // Fall back: only handle modifications
                 if leaf_spans.is_empty() {
-                    return Ok(false);
+                    return Ok(PullReport {
+                        applied: vec![],
+                        unapplied: pulled_keys.to_vec(),
+                    });
                 }
                 let selective_deployed =
                     build_selective_deployed(current_json, &deployed_json, pulled_keys);
@@ -712,7 +755,10 @@ pub fn pull_from_config_keys_with_changes(
         }
     } else {
         if leaf_spans.is_empty() {
-            return Ok(false);
+            return Ok(PullReport {
+                applied: vec![],
+                unapplied: pulled_keys.to_vec(),
+            });
         }
         // Only modifications -- use existing path
         let selective_deployed =
@@ -726,13 +772,28 @@ pub fn pull_from_config_keys_with_changes(
         )?
     };
 
-    std::fs::write(&ncl_path, &new_source)
-        .with_context(|| format!("Failed to write {}", ncl_path.display()))?;
+    // Classify each pulled key against the rewrite outcome. A pulled key is
+    // applied when the rewrite touched it (or a leaf under/above it);
+    // everything else is unapplied and must NOT be reported as resolved.
+    let mut report = PullReport::default();
+    for key in pulled_keys {
+        if outcome.applied.iter().any(|p| paths_related(p, key)) {
+            report.applied.push(key.clone());
+        } else {
+            report.unapplied.push(key.clone());
+        }
+    }
+
+    if outcome.changed() {
+        std::fs::write(&ncl_path, &outcome.new_source)
+            .with_context(|| format!("Failed to write {}", ncl_path.display()))?;
+    }
 
     for field in rewrite_result.non_rewritable_fields() {
-        if pulled_keys
+        if report
+            .unapplied
             .iter()
-            .any(|k| k == &field.name || k.starts_with(&format!("{}.", field.name)))
+            .any(|k| paths_related(k, &field.path))
         {
             log::warn(&format!(
                 "Cannot apply Target -> Source for {}: {} (update order.ncl manually)",
@@ -741,27 +802,31 @@ pub fn pull_from_config_keys_with_changes(
         }
     }
 
-    Ok(true)
+    Ok(report)
 }
 
 /// Build FieldEdit list for specific pulled keys, using change type info.
 ///
-/// Uses dotted-path resolution so nested keys (e.g. `window.opacity`) are
-/// looked up through nested JSON objects.
+/// Keys are structured segment paths, so nested keys — including keys that
+/// contain literal dots or brackets — resolve unambiguously.
 fn build_field_edits_for_keys(
     current: &serde_json::Value,
     deployed: &serde_json::Value,
-    pulled_keys: &[String],
-    change_types: &std::collections::HashMap<&str, &KeyChangeType>,
+    pulled_keys: &[KeyPath],
+    change_types: &std::collections::HashMap<&KeyPath, &KeyChangeType>,
 ) -> Vec<nickel::ast_utils::FieldEdit> {
     pulled_keys
         .iter()
         .filter_map(|key| {
-            let change_type = if let Some(ct) = change_types.get(key.as_str()) {
+            let key_path = key.clone();
+
+            let change_type = if let Some(ct) = change_types.get(key) {
                 (*ct).clone()
             } else {
-                let in_cur = nickel::ast_utils::json_path_get(current, key).is_some();
-                let in_dep = nickel::ast_utils::json_path_get(deployed, key).is_some();
+                let in_cur =
+                    nickel::ast_utils::json_get_segments(current, key_path.segments()).is_some();
+                let in_dep =
+                    nickel::ast_utils::json_get_segments(deployed, key_path.segments()).is_some();
                 if in_cur && in_dep {
                     KeyChangeType::Modified
                 } else if in_dep && !in_cur {
@@ -775,21 +840,23 @@ fn build_field_edits_for_keys(
 
             match change_type {
                 KeyChangeType::Modified => {
-                    let dep_val = nickel::ast_utils::json_path_get(deployed, key)?;
+                    let dep_val =
+                        nickel::ast_utils::json_get_segments(deployed, key_path.segments())?;
                     Some(nickel::ast_utils::FieldEdit::Modify {
-                        path: key.clone(),
+                        path: key_path,
                         new_value: dep_val.clone(),
                     })
                 }
                 KeyChangeType::Removed => {
-                    let dep_val = nickel::ast_utils::json_path_get(deployed, key)?;
+                    let dep_val =
+                        nickel::ast_utils::json_get_segments(deployed, key_path.segments())?;
                     Some(nickel::ast_utils::FieldEdit::Insert {
-                        path: key.clone(),
+                        path: key_path,
                         value: dep_val.clone(),
                     })
                 }
                 KeyChangeType::Added => {
-                    Some(nickel::ast_utils::FieldEdit::Delete { path: key.clone() })
+                    Some(nickel::ast_utils::FieldEdit::Delete { path: key_path })
                 }
             }
         })
@@ -799,23 +866,23 @@ fn build_field_edits_for_keys(
 /// Build a JSON value where only selected keys take Target values;
 /// all other keys keep their current Source values.
 ///
-/// Selected keys may be dotted paths (e.g. `window.opacity`); the overlay walks
-/// both objects in lockstep and replaces the subtree at any path that matches.
+/// Selected keys are structured segment paths; the overlay walks both objects
+/// in lockstep and replaces the subtree at any path that matches.
 fn build_selective_deployed(
     current: &serde_json::Value,
     deployed: &serde_json::Value,
-    pulled_keys: &[String],
+    pulled_keys: &[KeyPath],
 ) -> serde_json::Value {
-    selective_overlay(current, deployed, pulled_keys, "")
+    selective_overlay(current, deployed, pulled_keys, &KeyPath::root())
 }
 
 fn selective_overlay(
     current: &serde_json::Value,
     deployed: &serde_json::Value,
-    pulled_keys: &[String],
-    path: &str,
+    pulled_keys: &[KeyPath],
+    path: &KeyPath,
 ) -> serde_json::Value {
-    if !path.is_empty() && pulled_keys.iter().any(|k| k == path) {
+    if !path.is_root() && pulled_keys.contains(path) {
         return deployed.clone();
     }
 
@@ -823,11 +890,7 @@ fn selective_overlay(
         (serde_json::Value::Object(cur_obj), serde_json::Value::Object(dep_obj)) => {
             let mut result = serde_json::Map::new();
             for (key, cur_val) in cur_obj {
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
+                let key_path = path.child(key.clone());
                 if let Some(dep_val) = dep_obj.get(key) {
                     result.insert(
                         key.clone(),
@@ -845,15 +908,10 @@ fn selective_overlay(
                 if cur_obj.contains_key(key) {
                     continue;
                 }
-                let key_path = if path.is_empty() {
-                    key.clone()
-                } else {
-                    format!("{path}.{key}")
-                };
-                let prefix = format!("{key_path}.");
+                let key_path = path.child(key.clone());
                 if pulled_keys
                     .iter()
-                    .any(|k| k == &key_path || k.starts_with(&prefix))
+                    .any(|k| k.segments().starts_with(key_path.segments()))
                 {
                     result.insert(key.clone(), dep_val.clone());
                 }
@@ -861,7 +919,7 @@ fn selective_overlay(
             serde_json::Value::Object(result)
         }
         _ => {
-            if !pulled_keys.is_empty() && path.is_empty() {
+            if !pulled_keys.is_empty() && path.is_root() {
                 deployed.clone()
             } else {
                 current.clone()
@@ -976,12 +1034,12 @@ pub fn compute_key_annotation(
     snapshot: Option<&serde_json::Value>,
     rendered: &serde_json::Value,
     deployed: &serde_json::Value,
-    path: &str,
+    path: &KeyPath,
 ) -> Option<KeyAnnotation> {
     let snap = snapshot?;
-    let snap_val = lookup_dotted(snap, path)?;
-    let rendered_val = lookup_dotted(rendered, path);
-    let deployed_val = lookup_dotted(deployed, path);
+    let snap_val = nickel::ast_utils::json_get_segments(snap, path.segments())?;
+    let rendered_val = nickel::ast_utils::json_get_segments(rendered, path.segments());
+    let deployed_val = nickel::ast_utils::json_get_segments(deployed, path.segments());
     let snap_eq_rendered = rendered_val.map(|v| v == snap_val).unwrap_or(false);
     let snap_eq_deployed = deployed_val.map(|v| v == snap_val).unwrap_or(false);
     Some(match (snap_eq_rendered, snap_eq_deployed) {
@@ -990,14 +1048,6 @@ pub fn compute_key_annotation(
         (false, false) => KeyAnnotation::BothChanged,
         (true, true) => return None,
     })
-}
-
-fn lookup_dotted<'a>(value: &'a serde_json::Value, path: &str) -> Option<&'a serde_json::Value> {
-    let mut cur = value;
-    for segment in path.split('.') {
-        cur = cur.as_object()?.get(segment)?;
-    }
-    Some(cur)
 }
 
 impl KeyAnnotation {
@@ -1017,6 +1067,12 @@ mod tests {
     use std::collections::{HashMap, VecDeque};
     use std::path::PathBuf;
     use tempfile::TempDir;
+
+    /// Test shorthand: build a KeyPath by splitting on '.' (only for keys
+    /// without literal-dot segments; use `KeyPath::new` otherwise).
+    fn kp(dotted: &str) -> KeyPath {
+        KeyPath::new(dotted.split('.').map(str::to_string).collect())
+    }
 
     /// Mock prompter for testing
     struct MockPrompter {
@@ -1183,7 +1239,7 @@ mod tests {
             ],
         );
         let change = KeyChange {
-            path: "key".to_string(),
+            path: kp("key"),
             change_type: KeyChangeType::Modified,
             repo_value: Some(serde_json::json!("new")),
             deployed_value: Some(serde_json::json!("old")),
@@ -1222,7 +1278,7 @@ mod tests {
             "window": {"opacity": 0.8, "decorations": "Buttonless"},
             "font": {"size": 12},
         });
-        let pulled_keys = vec!["window.opacity".to_string()];
+        let pulled_keys = vec![kp("window.opacity")];
         let result = build_selective_deployed(&current, &deployed, &pulled_keys);
         assert_eq!(
             result,
@@ -1236,13 +1292,62 @@ mod tests {
     }
 
     #[test]
+    fn test_build_selective_deployed_literal_dot_bracket_segments() {
+        use serde_json::json;
+        // Regression for the vscode sync-back bug: every segment of the
+        // pulled key is a literal key containing dots/brackets. Segment-wise
+        // matching must reach the nested value; dotted-string matching never
+        // could.
+        let current = json!({
+            "[javascript]": {
+                "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }
+            },
+            "editor": { "fontSize": 13 },
+        });
+        let deployed = json!({
+            "[javascript]": {
+                "editor.codeActionsOnSave": { "source.fixAll.eslint": "always" }
+            },
+            "editor": { "fontSize": 14 },
+        });
+        let pulled = vec![KeyPath::new(vec![
+            "[javascript]".into(),
+            "editor.codeActionsOnSave".into(),
+            "source.fixAll.eslint".into(),
+        ])];
+        let result = build_selective_deployed(&current, &deployed, &pulled);
+        assert_eq!(
+            result["[javascript]"]["editor.codeActionsOnSave"]["source.fixAll.eslint"],
+            json!("always")
+        );
+        // Unpulled keys keep the Source value.
+        assert_eq!(result["editor"]["fontSize"], json!(13));
+    }
+
+    #[test]
+    fn test_paths_related_is_segmentwise() {
+        let parent = KeyPath::new(vec![
+            "[javascript]".into(),
+            "editor.codeActionsOnSave".into(),
+        ]);
+        let leaf = parent.child("source.fixAll.eslint");
+        assert!(paths_related(&parent, &leaf));
+        assert!(paths_related(&leaf, &parent));
+        assert!(paths_related(&leaf, &leaf));
+        // Dotted-display overlap must NOT imply relatedness: "editor" is not
+        // a segment prefix of "editor.codeActionsOnSave".
+        let other = KeyPath::new(vec!["[javascript]".into(), "editor".into()]);
+        assert!(!paths_related(&parent, &other));
+    }
+
+    #[test]
     fn test_build_merged_json_all_source() {
         use serde_json::json;
         let source = json!({"a": 1, "b": 2});
         let target = json!({"a": 10, "b": 20});
         let mut decisions = HashMap::new();
-        decisions.insert("a".to_string(), KeyResolution::Source);
-        decisions.insert("b".to_string(), KeyResolution::Source);
+        decisions.insert(kp("a"), KeyResolution::Source);
+        decisions.insert(kp("b"), KeyResolution::Source);
 
         let merged = build_merged_json(&source, &target, &decisions);
         assert_eq!(merged, json!({"a": 1, "b": 2}));
@@ -1254,8 +1359,8 @@ mod tests {
         let source = json!({"a": 1, "b": 2});
         let target = json!({"a": 10, "b": 20});
         let mut decisions = HashMap::new();
-        decisions.insert("a".to_string(), KeyResolution::Target);
-        decisions.insert("b".to_string(), KeyResolution::Target);
+        decisions.insert(kp("a"), KeyResolution::Target);
+        decisions.insert(kp("b"), KeyResolution::Target);
 
         let merged = build_merged_json(&source, &target, &decisions);
         assert_eq!(merged, json!({"a": 10, "b": 20}));
@@ -1267,8 +1372,8 @@ mod tests {
         let source = json!({"a": 1, "b": 2, "c": 3});
         let target = json!({"a": 10, "b": 20, "c": 30});
         let mut decisions = HashMap::new();
-        decisions.insert("a".to_string(), KeyResolution::Source);
-        decisions.insert("b".to_string(), KeyResolution::Target);
+        decisions.insert(kp("a"), KeyResolution::Source);
+        decisions.insert(kp("b"), KeyResolution::Target);
         // c has no decision -> defaults to target for unchanged keys
 
         let merged = build_merged_json(&source, &target, &decisions);
@@ -1281,7 +1386,7 @@ mod tests {
         let source = json!({"a": 1, "new_key": "hello"});
         let target = json!({"a": 1});
         let mut decisions = HashMap::new();
-        decisions.insert("new_key".to_string(), KeyResolution::Source);
+        decisions.insert(kp("new_key"), KeyResolution::Source);
 
         let merged = build_merged_json(&source, &target, &decisions);
         assert_eq!(merged, json!({"a": 1, "new_key": "hello"}));
@@ -1293,7 +1398,7 @@ mod tests {
         let source = json!({"a": 1, "new_key": "hello"});
         let target = json!({"a": 1});
         let mut decisions = HashMap::new();
-        decisions.insert("new_key".to_string(), KeyResolution::Target);
+        decisions.insert(kp("new_key"), KeyResolution::Target);
 
         let merged = build_merged_json(&source, &target, &decisions);
         assert_eq!(merged, json!({"a": 1}));
@@ -1305,7 +1410,7 @@ mod tests {
         let source = json!({"a": 1});
         let target = json!({"a": 1, "extra": "deployed"});
         let mut decisions = HashMap::new();
-        decisions.insert("extra".to_string(), KeyResolution::Source);
+        decisions.insert(kp("extra"), KeyResolution::Source);
 
         let merged = build_merged_json(&source, &target, &decisions);
         assert_eq!(merged, json!({"a": 1}));
@@ -1317,7 +1422,7 @@ mod tests {
         let source = json!({"a": 1});
         let target = json!({"a": 1, "extra": "deployed"});
         let mut decisions = HashMap::new();
-        decisions.insert("extra".to_string(), KeyResolution::Target);
+        decisions.insert(kp("extra"), KeyResolution::Target);
 
         let merged = build_merged_json(&source, &target, &decisions);
         assert_eq!(merged, json!({"a": 1, "extra": "deployed"}));
@@ -1375,7 +1480,7 @@ mod tests {
         let rendered = json!({ "font": { "size": 14 } });
         let deployed = json!({ "font": { "size": 12 } });
         assert_eq!(
-            compute_key_annotation(Some(&snapshot), &rendered, &deployed, "font.size"),
+            compute_key_annotation(Some(&snapshot), &rendered, &deployed, &kp("font.size")),
             Some(KeyAnnotation::SourceChanged)
         );
     }
@@ -1386,7 +1491,7 @@ mod tests {
         let rendered = json!({ "font": { "size": 12 } });
         let deployed = json!({ "font": { "size": 18 } });
         assert_eq!(
-            compute_key_annotation(Some(&snapshot), &rendered, &deployed, "font.size"),
+            compute_key_annotation(Some(&snapshot), &rendered, &deployed, &kp("font.size")),
             Some(KeyAnnotation::DeployedChanged)
         );
     }
@@ -1397,7 +1502,7 @@ mod tests {
         let rendered = json!({ "font": { "size": 14 } });
         let deployed = json!({ "font": { "size": 18 } });
         assert_eq!(
-            compute_key_annotation(Some(&snapshot), &rendered, &deployed, "font.size"),
+            compute_key_annotation(Some(&snapshot), &rendered, &deployed, &kp("font.size")),
             Some(KeyAnnotation::BothChanged)
         );
     }
@@ -1407,7 +1512,7 @@ mod tests {
         let rendered = json!({ "font": { "size": 14 } });
         let deployed = json!({ "font": { "size": 18 } });
         assert_eq!(
-            compute_key_annotation(None, &rendered, &deployed, "font.size"),
+            compute_key_annotation(None, &rendered, &deployed, &kp("font.size")),
             None
         );
     }
@@ -1418,7 +1523,7 @@ mod tests {
         let rendered = json!({ "font": { "size": 14 } });
         let deployed = json!({ "font": { "size": 18 } });
         assert_eq!(
-            compute_key_annotation(Some(&snapshot), &rendered, &deployed, "font.size"),
+            compute_key_annotation(Some(&snapshot), &rendered, &deployed, &kp("font.size")),
             None
         );
     }
@@ -1442,7 +1547,7 @@ mod tests {
     fn mock_prompter_receives_key_annotation() {
         let prompter = MockPrompter::with_key_answers(vec![], vec![KeyAction::UseSource]);
         let change = KeyChange {
-            path: "font.size".into(),
+            path: kp("font.size"),
             change_type: KeyChangeType::Modified,
             repo_value: Some(serde_json::json!(14)),
             deployed_value: Some(serde_json::json!(12)),
@@ -1478,7 +1583,7 @@ mod tests {
         let rendered = serde_json::json!({ "a": { "b": { "c": 2 } } });
         let deployed = serde_json::json!({ "a": { "b": { "c": 1 } } });
         assert_eq!(
-            compute_key_annotation(Some(&snapshot), &rendered, &deployed, "a.b.c"),
+            compute_key_annotation(Some(&snapshot), &rendered, &deployed, &kp("a.b.c")),
             Some(KeyAnnotation::SourceChanged)
         );
     }

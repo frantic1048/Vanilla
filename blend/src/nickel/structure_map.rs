@@ -3,6 +3,8 @@ use std::ops::Range;
 
 use anyhow::{Context, Result};
 
+use crate::nickel::key_path::KeyPath;
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -21,8 +23,12 @@ pub struct RecordInfo {
 /// Structural information about a single field definition
 #[derive(Debug)]
 pub struct FieldInfo {
-    /// Dotted field path relative to the containing from_config (e.g., "font.size")
+    /// Dotted display path relative to the containing from_config (e.g.,
+    /// "font.size"). Display only — segments may contain literal dots.
+    #[allow(dead_code)]
     pub path: String,
+    /// Structured field path with real segment boundaries.
+    pub key_path: KeyPath,
     /// Byte range of the entire field definition (from field name to end of value,
     /// including trailing comma if present)
     pub full_range: Range<usize>,
@@ -43,7 +49,7 @@ pub struct FieldInfo {
 #[derive(Debug)]
 pub struct MergePartner {
     pub root: RecordInfo,
-    pub nested_records: HashMap<String, RecordInfo>,
+    pub nested_records: HashMap<KeyPath, RecordInfo>,
 }
 
 /// Complete structural map for a from_config entry
@@ -51,8 +57,8 @@ pub struct MergePartner {
 pub struct StructureMap {
     /// The root (LHS) record of the from_config value
     pub root: RecordInfo,
-    /// All nested records under `root`, keyed by their field path prefix
-    pub nested_records: HashMap<String, RecordInfo>,
+    /// All nested records under `root`, keyed by their structured field path
+    pub nested_records: HashMap<KeyPath, RecordInfo>,
     /// Additional literal-record operands of an outermost `&` merge
     pub merge_partners: Vec<MergePartner>,
     /// Comment byte ranges within the .ncl source.
@@ -75,30 +81,31 @@ impl StructureMap {
     ///
     /// When the path doesn't exist in the root scope, falls through to merge
     /// partners. Top-level Inserts deliberately stay on the root.
-    pub fn parent_record(&self, field_path: &str) -> Option<&RecordInfo> {
-        if let Some(dot_pos) = field_path.rfind('.') {
-            let parent_path = &field_path[..dot_pos];
-            if let Some(rec) = self.nested_records.get(parent_path) {
-                return Some(rec);
-            }
-            for partner in &self.merge_partners {
-                if let Some(rec) = partner.nested_records.get(parent_path) {
+    pub fn parent_record(&self, field_path: &KeyPath) -> Option<&RecordInfo> {
+        match field_path.parent() {
+            Some(parent_path) if !parent_path.is_root() => {
+                if let Some(rec) = self.nested_records.get(&parent_path) {
                     return Some(rec);
                 }
-                // The partner's own root is a candidate when parent_path
-                // matches no nested key but is the partner's top-level scope.
-                // (Only reachable for paths whose parent IS the partner root,
-                // i.e. fields directly inside the partner.)
+                for partner in &self.merge_partners {
+                    if let Some(rec) = partner.nested_records.get(&parent_path) {
+                        return Some(rec);
+                    }
+                    // The partner's own root is a candidate when parent_path
+                    // matches no nested key but is the partner's top-level scope.
+                    // (Only reachable for paths whose parent IS the partner root,
+                    // i.e. fields directly inside the partner.)
+                }
+                None
             }
-            None
-        } else {
-            Some(&self.root)
+            Some(_) => Some(&self.root),
+            None => None,
         }
     }
 
-    /// Find a field by its full dotted path. Searches root scope first, then
-    /// each merge partner's scope.
-    pub fn find_field(&self, field_path: &str) -> Option<&FieldInfo> {
+    /// Find a field by its full structured path. Searches root scope first,
+    /// then each merge partner's scope.
+    pub fn find_field(&self, field_path: &KeyPath) -> Option<&FieldInfo> {
         if let Some(f) = find_field_in_scope(&self.root, &self.nested_records, field_path) {
             return Some(f);
         }
@@ -114,17 +121,17 @@ impl StructureMap {
 
 fn find_field_in_scope<'a>(
     root: &'a RecordInfo,
-    nested: &'a HashMap<String, RecordInfo>,
-    field_path: &str,
+    nested: &'a HashMap<KeyPath, RecordInfo>,
+    field_path: &KeyPath,
 ) -> Option<&'a FieldInfo> {
     for field in &root.fields {
-        if field.path == field_path {
+        if field.key_path == *field_path {
             return Some(field);
         }
     }
     for record in nested.values() {
         for field in &record.fields {
-            if field.path == field_path {
+            if field.key_path == *field_path {
                 return Some(field);
             }
         }
@@ -514,12 +521,13 @@ pub fn build_structure_map(source: &str, file_entry_index: usize) -> Result<Stru
     collect_comments(root_node, &mut comments);
 
     let mut nested_records = HashMap::new();
-    let root = build_record_info(operands[0], "", source, &mut nested_records)?;
+    let root = build_record_info(operands[0], &KeyPath::root(), source, &mut nested_records)?;
 
     let mut merge_partners = Vec::new();
     for operand in &operands[1..] {
         let mut partner_nested = HashMap::new();
-        let partner_root = build_record_info(*operand, "", source, &mut partner_nested)?;
+        let partner_root =
+            build_record_info(*operand, &KeyPath::root(), source, &mut partner_nested)?;
         merge_partners.push(MergePartner {
             root: partner_root,
             nested_records: partner_nested,
@@ -537,9 +545,9 @@ pub fn build_structure_map(source: &str, file_entry_index: usize) -> Result<Stru
 /// Build RecordInfo for a record node, recursing into nested records
 fn build_record_info(
     record: tree_sitter::Node,
-    path_prefix: &str,
+    path_prefix: &KeyPath,
     source: &str,
-    nested_records: &mut HashMap<String, RecordInfo>,
+    nested_records: &mut HashMap<KeyPath, RecordInfo>,
 ) -> Result<RecordInfo> {
     let close_brace = find_close_brace(record)?;
 
@@ -572,12 +580,12 @@ fn build_record_info(
             continue;
         }
 
-        let field_name = segments.join(".");
-        let full_path = if path_prefix.is_empty() {
-            field_name.clone()
-        } else {
-            format!("{}.{}", path_prefix, field_name)
-        };
+        // Each extracted segment is one real key (a `field_decl` like
+        // `a.b = 1` yields two segments; a quoted `"a.b" = 1` yields one).
+        let mut full_segments = path_prefix.segments().to_vec();
+        full_segments.extend(segments.iter().cloned());
+        let full_key_path = KeyPath::new(full_segments);
+        let full_path = full_key_path.to_string();
 
         // Compute indentation from the first field
         if first_field {
@@ -605,7 +613,8 @@ fn build_record_info(
         }
 
         fields.push(FieldInfo {
-            path: full_path.clone(),
+            path: full_path,
+            key_path: full_key_path.clone(),
             full_range: field_start..field_end,
             value_range,
             has_trailing_comma,
@@ -615,9 +624,9 @@ fn build_record_info(
         if let Some(vn) = value_node
             && let Ok(nested_rec) = descend_to_record(vn, source)
             && let Ok(nested_info) =
-                build_record_info(nested_rec, &full_path, source, nested_records)
+                build_record_info(nested_rec, &full_key_path, source, nested_records)
         {
-            nested_records.insert(full_path, nested_info);
+            nested_records.insert(full_key_path, nested_info);
         }
     }
 
@@ -679,6 +688,12 @@ fn collect_comments(node: tree_sitter::Node, comments: &mut Vec<Range<usize>>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Test shorthand: build a KeyPath by splitting on '.' (only for keys
+    /// without literal-dot segments; use `KeyPath::new` otherwise).
+    fn kp(dotted: &str) -> KeyPath {
+        KeyPath::new(dotted.split('.').map(str::to_string).collect())
+    }
 
     // -- Helper to dump CST for debugging --
 
@@ -770,11 +785,11 @@ mod tests {
 
         // There should be a nested record at path "font"
         assert!(
-            map.nested_records.contains_key("font"),
+            map.nested_records.contains_key(&kp("font")),
             "Should have nested record for 'font'"
         );
 
-        let font_record = &map.nested_records["font"];
+        let font_record = &map.nested_records[&kp("font")];
         assert_eq!(font_record.fields.len(), 2);
         assert_eq!(font_record.fields[0].path, "font.size");
         assert_eq!(font_record.fields[1].path, "font.family");
@@ -949,10 +964,10 @@ mod tests {
 }"#;
 
         let structure = build_structure_map(source, 0).unwrap();
-        let edits = vec![FieldEdit::Delete {
-            path: "a".to_string(),
-        }];
-        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5).unwrap();
+        let edits = vec![FieldEdit::Delete { path: kp("a") }];
+        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5)
+            .unwrap()
+            .new_source;
 
         assert!(
             !result.contains("Doc comment describing field a"),
@@ -1001,10 +1016,10 @@ mod tests {
 
         // Check nested records
         assert!(
-            map.nested_records.contains_key("shell"),
+            map.nested_records.contains_key(&kp("shell")),
             "Should have nested record for 'shell'"
         );
-        let shell_record = &map.nested_records["shell"];
+        let shell_record = &map.nested_records[&kp("shell")];
         let shell_fields: Vec<&str> = shell_record
             .fields
             .iter()
@@ -1140,13 +1155,13 @@ mod tests {
         let map = build_structure_map(source, 0).unwrap();
 
         // Parent of "section.key" should be the "section" nested record
-        let parent = map.parent_record("section.key").unwrap();
+        let parent = map.parent_record(&kp("section.key")).unwrap();
         // It should be the nested record for "section"
         assert!(!parent.fields.is_empty());
         assert_eq!(parent.fields[0].path, "section.key");
 
         // Parent of "section" should be the root
-        let root_parent = map.parent_record("section").unwrap();
+        let root_parent = map.parent_record(&kp("section")).unwrap();
         assert_eq!(root_parent.fields[0].path, "section");
     }
 
@@ -1168,13 +1183,13 @@ mod tests {
   },
 }"#;
         let map = build_structure_map(source, 0).unwrap();
-        let field_a = map.find_field("a").unwrap();
+        let field_a = map.find_field(&kp("a")).unwrap();
         assert_eq!(field_a.path, "a");
 
-        let field_c = map.find_field("b.c").unwrap();
+        let field_c = map.find_field(&kp("b.c")).unwrap();
         assert_eq!(field_c.path, "b.c");
 
-        assert!(map.find_field("nonexistent").is_none());
+        assert!(map.find_field(&kp("nonexistent")).is_none());
     }
 
     // -----------------------------------------------------------------------
@@ -1210,11 +1225,11 @@ mod tests {
         assert_eq!(partner_paths, vec!["c"]);
 
         // find_field sees both scopes
-        assert!(map.find_field("a").is_some());
-        assert!(map.find_field("c").is_some());
+        assert!(map.find_field(&kp("a")).is_some());
+        assert!(map.find_field(&kp("c")).is_some());
 
         // RHS field's value range points at "3"
-        let c_field = map.find_field("c").unwrap();
+        let c_field = map.find_field(&kp("c")).unwrap();
         assert_eq!(&source[c_field.value_range.clone()], "3");
     }
 
@@ -1234,13 +1249,13 @@ mod tests {
 
         assert_eq!(map.merge_partners.len(), 1);
         // x.a lives in root scope, y.b lives in partner scope
-        let xa = map.find_field("x.a").unwrap();
+        let xa = map.find_field(&kp("x.a")).unwrap();
         assert_eq!(&source[xa.value_range.clone()], "1");
-        let yb = map.find_field("y.b").unwrap();
+        let yb = map.find_field(&kp("y.b")).unwrap();
         assert_eq!(&source[yb.value_range.clone()], "2");
 
-        // parent_record("y.b") finds the partner's "y" subrecord
-        let parent = map.parent_record("y.b").unwrap();
+        // parent_record(&kp("y.b")) finds the partner's "y" subrecord
+        let parent = map.parent_record(&kp("y.b")).unwrap();
         assert!(parent.fields.iter().any(|f| f.path == "y.b"));
     }
 
@@ -1276,7 +1291,7 @@ mod tests {
 
         // `b` is reachable via shadow walk's leaf spans, but NOT via the
         // structure map (Insert/Delete on `b` is intentionally unsupported).
-        assert!(map.find_field("b").is_none());
+        assert!(map.find_field(&kp("b")).is_none());
     }
 
     #[test]

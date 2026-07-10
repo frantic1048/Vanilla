@@ -15,6 +15,7 @@ use nickel_lang_parser::{
 };
 
 use crate::metadata::Metadata;
+use crate::nickel::key_path::KeyPath;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -70,8 +71,11 @@ impl RewriteResult {
 /// at the top level or inside a conditional branch.
 #[derive(Debug, Clone)]
 pub struct LeafSpan {
-    /// Field name (key path)
+    /// Dotted display name (for messages only — segments may contain literal
+    /// dots, so this string is ambiguous and must not be parsed).
     pub name: String,
+    /// Structured key path with real segment boundaries.
+    pub path: KeyPath,
     /// Byte offset of the leaf value (from TermPos)
     pub value_start: usize,
     /// End byte offset
@@ -83,8 +87,10 @@ pub struct LeafSpan {
 /// A field whose value cannot be auto-pulled
 #[allow(dead_code)]
 pub struct NonRewritableField {
-    /// Field name
+    /// Dotted display name (for messages only; see `LeafSpan::name`)
     pub name: String,
+    /// Structured key path with real segment boundaries.
+    pub path: KeyPath,
     /// Why it can't be rewritten
     pub reason: String,
     /// Conditions followed before reaching the non-rewritable node
@@ -486,6 +492,7 @@ fn collect_fields_from_value<'ast>(
             {
                 rewritable.push(LeafSpan {
                     name: String::new(),
+                    path: KeyPath::root(),
                     value_start,
                     value_end,
                     branch_context,
@@ -503,13 +510,19 @@ fn collect_fields_from_record<'ast>(
     rewritable: &mut Vec<LeafSpan>,
     non_rewritable: &mut Vec<NonRewritableField>,
 ) {
-    collect_fields_from_record_with_prefix(record, metadata, "", rewritable, non_rewritable);
+    collect_fields_from_record_with_prefix(
+        record,
+        metadata,
+        &KeyPath::root(),
+        rewritable,
+        non_rewritable,
+    );
 }
 
 fn collect_fields_from_record_with_prefix<'ast>(
     record: &'ast nickel_lang_parser::ast::record::Record<'ast>,
     metadata: &Metadata,
-    prefix: &str,
+    prefix: &KeyPath,
     rewritable: &mut Vec<LeafSpan>,
     non_rewritable: &mut Vec<NonRewritableField>,
 ) {
@@ -519,11 +532,10 @@ fn collect_fields_from_record_with_prefix<'ast>(
             None => continue,
         };
 
-        let full_name = if prefix.is_empty() {
-            field_name.clone()
-        } else {
-            format!("{}.{}", prefix, field_name)
-        };
+        // Real segment boundary: `field_name` is ONE key, even if it contains
+        // literal dots or brackets (e.g. "[javascript]" or "editor.fontSize").
+        let full_path = prefix.child(field_name);
+        let full_name = full_path.to_string();
 
         let value = match &fd.value {
             Some(v) => v,
@@ -537,7 +549,7 @@ fn collect_fields_from_record_with_prefix<'ast>(
             collect_fields_from_record_with_prefix(
                 nested,
                 metadata,
-                &full_name,
+                &full_path,
                 rewritable,
                 non_rewritable,
             );
@@ -554,6 +566,7 @@ fn collect_fields_from_record_with_prefix<'ast>(
             } => {
                 rewritable.push(LeafSpan {
                     name: full_name,
+                    path: full_path,
                     value_start,
                     value_end,
                     branch_context,
@@ -565,6 +578,7 @@ fn collect_fields_from_record_with_prefix<'ast>(
             } => {
                 non_rewritable.push(NonRewritableField {
                     name: full_name,
+                    path: full_path,
                     reason,
                     branch_context,
                 });
@@ -649,25 +663,16 @@ fn find_field<'a, 'ast>(
 // Surgical rewrite using LeafSpans
 // ---------------------------------------------------------------------------
 
-/// Resolve a dotted-path lookup in a JSON value.
+/// Resolve a structured segment path in a JSON value.
 ///
-/// Tries the literal path first (for keys that contain dots, e.g.
-/// `"editor.fontSize"` in VS Code settings); falls back to descending
-/// through nested objects segment by segment.
-pub fn json_path_get<'a>(
+/// Each segment is treated as one literal object key — no dot splitting, no
+/// guessing. An empty segment list resolves to the value itself.
+pub fn json_get_segments<'a>(
     value: &'a serde_json::Value,
-    path: &str,
+    segments: &[String],
 ) -> Option<&'a serde_json::Value> {
-    if path.is_empty() {
-        return Some(value);
-    }
-    if let serde_json::Value::Object(obj) = value
-        && let Some(v) = obj.get(path)
-    {
-        return Some(v);
-    }
     let mut current = value;
-    for segment in path.split('.') {
+    for segment in segments {
         match current {
             serde_json::Value::Object(obj) => {
                 current = obj.get(segment)?;
@@ -678,29 +683,71 @@ pub fn json_path_get<'a>(
     Some(current)
 }
 
+/// Outcome of a surgical rewrite: the rewritten source plus an account of
+/// which key paths were actually edited and which requested/needed edits
+/// could not be applied.
+///
+/// A leaf or edit that cannot be applied MUST land in `unapplied` — callers
+/// rely on this to avoid reporting success for a write-back that never
+/// happened.
+#[derive(Debug)]
+pub struct RewriteOutcome {
+    pub new_source: String,
+    /// Key paths whose edits were applied to `new_source` (deduplicated).
+    pub applied: Vec<KeyPath>,
+    /// Key paths that needed a change but could not be applied (deduplicated).
+    pub unapplied: Vec<KeyPath>,
+}
+
+impl RewriteOutcome {
+    pub fn changed(&self) -> bool {
+        !self.applied.is_empty()
+    }
+}
+
+fn push_unique(paths: &mut Vec<KeyPath>, path: &KeyPath) {
+    if !paths.contains(path) {
+        paths.push(path.clone());
+    }
+}
+
 /// Perform a surgical rewrite of from_config values using shadow-walk LeafSpans.
 ///
 /// Only rewrites fields that have changed between current and deployed JSON.
 /// Uses the exact byte spans from the shadow walk (which may point inside
-/// conditional branches). LeafSpan names use dotted paths for nested records,
-/// so values are resolved through `json_path_get`.
+/// conditional branches). Values are resolved through the structured segment
+/// paths on each `LeafSpan` (`json_get_segments`), so keys containing literal
+/// dots or brackets resolve unambiguously.
+///
+/// Leaves that cannot be resolved in BOTH current and deployed JSON are
+/// reported in `RewriteOutcome::unapplied` instead of being silently skipped.
 pub fn surgical_rewrite(
     source: &str,
     leaf_spans: &[LeafSpan],
     current_json: &serde_json::Value,
     deployed_json: &serde_json::Value,
     base_indent: usize,
-) -> Result<String> {
+) -> Result<RewriteOutcome> {
     let mut edits: Vec<(usize, usize, String)> = Vec::new();
+    let mut applied: Vec<KeyPath> = Vec::new();
+    let mut unapplied: Vec<KeyPath> = Vec::new();
 
     for leaf in leaf_spans {
-        let current_val = json_path_get(current_json, &leaf.name);
-        let deployed_val = json_path_get(deployed_json, &leaf.name);
-        if let (Some(cur), Some(dep)) = (current_val, deployed_val)
-            && cur != dep
-        {
-            let new_value = json_to_nickel(dep, base_indent + 1);
-            edits.push((leaf.value_start, leaf.value_end, new_value));
+        let current_val = json_get_segments(current_json, leaf.path.segments());
+        let deployed_val = json_get_segments(deployed_json, leaf.path.segments());
+        match (current_val, deployed_val) {
+            (Some(cur), Some(dep)) => {
+                if cur != dep {
+                    let new_value = json_to_nickel(dep, base_indent + 1);
+                    edits.push((leaf.value_start, leaf.value_end, new_value));
+                    push_unique(&mut applied, &leaf.path);
+                }
+            }
+            // The leaf exists in the source but cannot be resolved in one of
+            // the JSON views: a modify-only rewrite cannot handle it (it is a
+            // structural add/remove, or the path resolution is broken).
+            // Report it instead of silently skipping.
+            _ => push_unique(&mut unapplied, &leaf.path),
         }
         // Additions (key in deployed but not current) are harder with shadow walk
         // since we'd need to insert inside potentially conditional structures.
@@ -714,7 +761,11 @@ pub fn surgical_rewrite(
         result.replace_range(*start..*end, replacement);
     }
 
-    Ok(result)
+    Ok(RewriteOutcome {
+        new_source: result,
+        applied,
+        unapplied,
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -722,20 +773,34 @@ pub fn surgical_rewrite(
 // ---------------------------------------------------------------------------
 
 /// Describes an edit operation on a field in from_config.
+///
+/// Paths are structured segment paths — each segment is one literal key.
 #[derive(Debug)]
 pub enum FieldEdit {
     /// Modify an existing field's value
     Modify {
-        path: String,
+        path: KeyPath,
         new_value: serde_json::Value,
     },
     /// Insert a new field into a record
     Insert {
-        path: String,
+        path: KeyPath,
         value: serde_json::Value,
     },
     /// Delete an existing field
-    Delete { path: String },
+    Delete { path: KeyPath },
+}
+
+impl FieldEdit {
+    /// Consumed by tests today and by Stage 2's decision accounting.
+    #[allow(dead_code)]
+    pub fn path(&self) -> &KeyPath {
+        match self {
+            FieldEdit::Modify { path, .. }
+            | FieldEdit::Insert { path, .. }
+            | FieldEdit::Delete { path } => path,
+        }
+    }
 }
 
 /// Extended surgical rewrite that supports value modification, field insertion,
@@ -754,13 +819,13 @@ pub fn surgical_rewrite_with_structure(
     leaf_spans: &[LeafSpan],
     edits: &[FieldEdit],
     base_indent: usize,
-) -> Result<String> {
+) -> Result<RewriteOutcome> {
     // Build path -> new value lookup for Modify edits (the user can only pull
-    // one decision per dotted path, so this side is genuinely 1:1).
-    let modify_lookup: HashMap<&str, &serde_json::Value> = edits
+    // one decision per key path, so this side is genuinely 1:1).
+    let modify_lookup: HashMap<&KeyPath, &serde_json::Value> = edits
         .iter()
         .filter_map(|e| match e {
-            FieldEdit::Modify { path, new_value } => Some((path.as_str(), new_value)),
+            FieldEdit::Modify { path, new_value } => Some((path, new_value)),
             _ => None,
         })
         .collect();
@@ -768,19 +833,29 @@ pub fn surgical_rewrite_with_structure(
     // Collect all concrete byte-range operations as (offset, delete_count, insert_text)
     // We'll sort these by offset descending to apply from back to front.
     let mut ops: Vec<(usize, usize, String)> = Vec::new();
+    let mut applied: Vec<KeyPath> = Vec::new();
+    let mut unapplied: Vec<KeyPath> = Vec::new();
 
     // Apply Modify edits by iterating leaf_spans, NOT by deduping spans by name.
-    // A `&` merge can produce multiple spans for the same dotted path (one per
+    // A `&` merge can produce multiple spans for the same key path (one per
     // operand). Nickel requires the merged leaves agree, so rewriting only one
     // would cause the next evaluation to fail with a merge conflict.
     for leaf in leaf_spans {
-        if let Some(new_value) = modify_lookup.get(leaf.name.as_str()) {
+        if let Some(new_value) = modify_lookup.get(&leaf.path) {
             let new_text = json_to_nickel(new_value, base_indent + 1);
             ops.push((
                 leaf.value_start,
                 leaf.value_end - leaf.value_start,
                 new_text,
             ));
+            push_unique(&mut applied, &leaf.path);
+        }
+    }
+
+    // Modify edits that matched no leaf span cannot be applied.
+    for path in modify_lookup.keys() {
+        if !applied.contains(path) {
+            push_unique(&mut unapplied, path);
         }
     }
 
@@ -791,21 +866,28 @@ pub fn surgical_rewrite_with_structure(
             }
             FieldEdit::Insert { path, value } => {
                 // Determine the parent record and the field name to insert.
-                // Try to find a nested parent record first; if not found, insert
-                // at the root record with the full path as a quoted key.
-                let (parent_record, field_name) = if let Some(dot_pos) = path.rfind('.') {
-                    let parent_path = &path[..dot_pos];
-                    if let Some(rec) = structure.parent_record(path) {
-                        (rec, path[dot_pos + 1..].to_string())
-                    } else {
-                        // No nested record at parent path — insert as quoted
-                        // dotted key at root (e.g., "workbench.editor.useModal")
-                        let _ = parent_path; // suppress unused
-                        (&structure.root, path.to_string())
+                // Single-segment paths insert into the root record (the
+                // segment may contain literal dots — it stays ONE quoted key).
+                // Multi-segment paths need a literal parent record; joining
+                // the segments into one quoted key would change the structure,
+                // so a missing parent record makes the edit unapplied.
+                let (parent_record, field_name) = match (path.parent(), path.last()) {
+                    (Some(parent), Some(last)) if !parent.is_root() => {
+                        match structure.parent_record(path) {
+                            Some(rec) => (rec, last.to_string()),
+                            None => {
+                                push_unique(&mut unapplied, path);
+                                continue;
+                            }
+                        }
                     }
-                } else {
-                    (&structure.root, path.to_string())
+                    (_, Some(last)) => (&structure.root, last.to_string()),
+                    (_, None) => {
+                        push_unique(&mut unapplied, path);
+                        continue;
+                    }
                 };
+                push_unique(&mut applied, path);
 
                 let indent_str = " ".repeat(parent_record.field_indent);
                 // Determine indent level for json_to_nickel (each level = 2 spaces)
@@ -857,9 +939,13 @@ pub fn surgical_rewrite_with_structure(
                 }
             }
             FieldEdit::Delete { path } => {
-                let field = structure
-                    .find_field(path)
-                    .with_context(|| format!("Field '{}' not found in structure map", path))?;
+                let Some(field) = structure.find_field(path) else {
+                    // Previously a hard error; now reported so callers can
+                    // apply the rest and account for what was skipped.
+                    push_unique(&mut unapplied, path);
+                    continue;
+                };
+                push_unique(&mut applied, path);
 
                 // Determine what byte range to delete.
                 // We want to remove the entire field definition, including the
@@ -905,7 +991,11 @@ pub fn surgical_rewrite_with_structure(
         result.replace_range(*offset..end, insert_text);
     }
 
-    Ok(result)
+    Ok(RewriteOutcome {
+        new_source: result,
+        applied,
+        unapplied,
+    })
 }
 
 /// Determine the indentation level of a from_config block by looking at the source.
@@ -1031,6 +1121,12 @@ fn escape_nickel_string(s: &str) -> String {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+
+    /// Test shorthand: build a KeyPath by splitting on '.' (only for keys
+    /// without literal-dot segments; use `KeyPath::new` otherwise).
+    fn kp(dotted: &str) -> KeyPath {
+        KeyPath::new(dotted.split('.').map(str::to_string).collect())
+    }
 
     fn test_metadata(os: &str) -> Metadata {
         Metadata {
@@ -1377,12 +1473,14 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = vec![
             LeafSpan {
                 name: "key".to_string(),
+                path: kp("key"),
                 value_start: 29, // start of "old_value"
                 value_end: 40,   // end of "old_value"
                 branch_context: vec![],
             },
             LeafSpan {
                 name: "num".to_string(),
+                path: kp("num"),
                 value_start: 48, // start of 10
                 value_end: 50,   // end of 10
                 branch_context: vec![],
@@ -1392,7 +1490,9 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let current: serde_json::Value = json!({"key": "old_value", "num": 10});
         let deployed: serde_json::Value = json!({"key": "new_value", "num": 20});
 
-        let result = surgical_rewrite(source, &leaf_spans, &current, &deployed, 0).unwrap();
+        let result = surgical_rewrite(source, &leaf_spans, &current, &deployed, 0)
+            .unwrap()
+            .new_source;
         assert!(result.contains("\"new_value\""));
         assert!(result.contains("20"));
         assert!(result.contains("header"));
@@ -1409,18 +1509,186 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let value_end = value_start + 3;
         let leaf_spans = vec![LeafSpan {
             name: "window.opacity".to_string(),
+            path: kp("window.opacity"),
             value_start,
             value_end,
             branch_context: vec![],
         }];
         let current = json!({"window": {"opacity": 0.7}});
         let deployed = json!({"window": {"opacity": 0.8}});
-        let result = surgical_rewrite(source, &leaf_spans, &current, &deployed, 0).unwrap();
+        let result = surgical_rewrite(source, &leaf_spans, &current, &deployed, 0)
+            .unwrap()
+            .new_source;
         assert!(
             result.contains("opacity = 0.8"),
             "Nested leaf span should be rewritten. Got:\n{}",
             result
         );
+    }
+
+    #[test]
+    fn test_json_get_segments_literal_dot_and_bracket_keys() {
+        use serde_json::json;
+        let value = json!({
+            "[javascript]": {
+                "editor.codeActionsOnSave": { "source.fixAll.eslint": "always" }
+            },
+            "extensions.autoUpdate": "off",
+            "plain": { "nested": 1 }
+        });
+
+        let seg = |s: &[&str]| s.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+
+        assert_eq!(
+            json_get_segments(
+                &value,
+                &seg(&[
+                    "[javascript]",
+                    "editor.codeActionsOnSave",
+                    "source.fixAll.eslint"
+                ])
+            ),
+            Some(&json!("always"))
+        );
+        assert_eq!(
+            json_get_segments(&value, &seg(&["extensions.autoUpdate"])),
+            Some(&json!("off"))
+        );
+        assert_eq!(
+            json_get_segments(&value, &seg(&["plain", "nested"])),
+            Some(&json!(1))
+        );
+        // No dot-splitting: a lossy segmentation must NOT resolve
+        assert_eq!(
+            json_get_segments(&value, &seg(&["extensions", "autoUpdate"])),
+            None
+        );
+        // Empty path resolves to the value itself
+        assert_eq!(json_get_segments(&value, &[]), Some(&value));
+    }
+
+    #[test]
+    fn test_surgical_rewrite_literal_dot_segments_end_to_end() {
+        // Regression for the vscode sync-back bug: every path segment is a
+        // literal key containing dots/brackets. The shadow walk must produce
+        // real segments and surgical_rewrite must resolve and rewrite them.
+        use serde_json::json;
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "settings.json",
+        from_config = {
+          "[javascript]" = {
+            "editor.codeActionsOnSave" = {
+              "source.fixAll.eslint" = "explicit",
+            },
+          },
+        },
+      },
+    ],
+  },
+}"#;
+        let meta = test_metadata("darwin");
+        let rewrite = locate_from_config(source, 0, &meta).unwrap();
+        let spans = rewrite.rewritable_spans();
+        assert_eq!(spans.len(), 1);
+        assert_eq!(
+            spans[0].path.segments(),
+            [
+                "[javascript]",
+                "editor.codeActionsOnSave",
+                "source.fixAll.eslint"
+            ]
+        );
+
+        let current = json!({
+            "[javascript]": {
+                "editor.codeActionsOnSave": { "source.fixAll.eslint": "explicit" }
+            }
+        });
+        let deployed = json!({
+            "[javascript]": {
+                "editor.codeActionsOnSave": { "source.fixAll.eslint": "always" }
+            }
+        });
+
+        let outcome = surgical_rewrite(source, spans, &current, &deployed, 4).unwrap();
+        assert!(
+            outcome
+                .new_source
+                .contains("\"source.fixAll.eslint\" = \"always\""),
+            "Leaf must be rewritten to the deployed value. Got:\n{}",
+            outcome.new_source
+        );
+        assert_eq!(outcome.applied, vec![spans[0].path.clone()]);
+        assert!(outcome.unapplied.is_empty());
+    }
+
+    #[test]
+    fn test_surgical_rewrite_reports_unapplied_leaf() {
+        use serde_json::json;
+        // A leaf whose path cannot be resolved in the deployed JSON must be
+        // reported as unapplied — never silently skipped.
+        let source = "header from_config = { key = \"old\" } trailer";
+        let value_start = source.find("\"old\"").unwrap();
+        let leaf_spans = vec![LeafSpan {
+            name: "key".to_string(),
+            path: kp("key"),
+            value_start,
+            value_end: value_start + 5,
+            branch_context: vec![],
+        }];
+        let current = json!({"key": "old"});
+        let deployed = json!({}); // key missing on the deployed side
+
+        let outcome = surgical_rewrite(source, &leaf_spans, &current, &deployed, 0).unwrap();
+        assert_eq!(outcome.new_source, source);
+        assert!(outcome.applied.is_empty());
+        assert!(!outcome.changed());
+        assert_eq!(outcome.unapplied, vec![kp("key")]);
+    }
+
+    #[test]
+    fn test_structure_modify_without_matching_leaf_is_unapplied() {
+        use crate::nickel::structure_map::build_structure_map;
+        use serde_json::json;
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+          key = "old_value",
+        },
+      },
+    ],
+  },
+}"#;
+        let structure = build_structure_map(source, 0).unwrap();
+        let meta = test_metadata("darwin");
+        let rewrite = locate_from_config(source, 0, &meta).unwrap();
+        let leaf_spans = rewrite.rewritable_spans();
+
+        // "missing" has no leaf span; "key" does.
+        let edits = vec![
+            FieldEdit::Modify {
+                path: kp("key"),
+                new_value: json!("new_value"),
+            },
+            FieldEdit::Modify {
+                path: kp("missing"),
+                new_value: json!(1),
+            },
+        ];
+
+        let outcome =
+            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        assert!(outcome.new_source.contains("\"new_value\""));
+        assert_eq!(outcome.applied, vec![kp("key")]);
+        assert_eq!(outcome.unapplied, vec![kp("missing")]);
     }
 
     #[test]
@@ -1494,17 +1762,18 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
 
         let edits = vec![
             FieldEdit::Modify {
-                path: "key".to_string(),
+                path: kp("key"),
                 new_value: json!("new_value"),
             },
             FieldEdit::Modify {
-                path: "number".to_string(),
+                path: kp("number"),
                 new_value: json!(20),
             },
         ];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("\"new_value\""));
         assert!(result.contains("20"));
         assert!(!result.contains("\"old_value\""));
@@ -1534,12 +1803,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Insert {
-            path: "b".to_string(),
+            path: kp("b"),
             value: json!(2),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("a = 1"));
         assert!(result.contains("b = 2,"));
     }
@@ -1569,12 +1839,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Insert {
-            path: "font.family".to_string(),
+            path: kp("font.family"),
             value: json!("Mono"),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("size = 12"));
         assert!(result.contains("family = \"Mono\""));
     }
@@ -1601,12 +1872,11 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let rewrite = locate_from_config(source, 0, &meta).unwrap();
         let leaf_spans = rewrite.rewritable_spans();
 
-        let edits = vec![FieldEdit::Delete {
-            path: "b".to_string(),
-        }];
+        let edits = vec![FieldEdit::Delete { path: kp("b") }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("a = 1"));
         assert!(!result.contains("b = 2"));
     }
@@ -1636,11 +1906,12 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Delete {
-            path: "section.remove".to_string(),
+            path: kp("section.remove"),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("keep = \"yes\""));
         assert!(!result.contains("remove = \"no\""));
     }
@@ -1670,20 +1941,19 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
 
         let edits = vec![
             FieldEdit::Modify {
-                path: "a".to_string(),
+                path: kp("a"),
                 new_value: json!(100),
             },
-            FieldEdit::Delete {
-                path: "b".to_string(),
-            },
+            FieldEdit::Delete { path: kp("b") },
             FieldEdit::Insert {
-                path: "c".to_string(),
+                path: kp("c"),
                 value: json!("new"),
             },
         ];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("a = 100"));
         assert!(!result.contains("b = 2"));
         assert!(result.contains("c = \"new\""));
@@ -1712,12 +1982,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Insert {
-            path: "new_field".to_string(),
+            path: kp("new_field"),
             value: json!("hello"),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
 
         // The inserted field should use the same indentation as existing fields
         let lines: Vec<&str> = result.lines().collect();
@@ -1756,12 +2027,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Insert {
-            path: "b".to_string(),
+            path: kp("b"),
             value: json!(2),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         // Should have added a comma to "a = 1" and then inserted "b = 2,"
         assert!(result.contains("a = 1,") || result.contains("a = 1\n"));
         assert!(result.contains("b = 2,"));
@@ -1798,12 +2070,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
 
         // Insert a new symbol entry
         let edits = vec![FieldEdit::Insert {
-            path: "golang".to_string(),
+            path: kp("golang"),
             value: json!({"symbol": "\u{e724} "}),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         // Original entries should still be present
         assert!(result.contains("command_timeout = 10000"));
         assert!(result.contains("bun ="));
@@ -1816,9 +2089,8 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
 
     #[test]
     fn test_structure_insert_dotted_key_at_root() {
-        // When inserting a dotted path like "workbench.editor.useModal" and no
-        // nested "workbench.editor" record exists, it should insert as a quoted
-        // key at the root from_config record.
+        // A literal dotted key like "workbench.editor.useModal" is ONE
+        // segment; inserting it at the root must produce a quoted key.
         use crate::nickel::structure_map::build_structure_map;
         use serde_json::json;
 
@@ -1841,12 +2113,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Insert {
-            path: "workbench.editor.useModal".to_string(),
+            path: KeyPath::new(vec!["workbench.editor.useModal".to_string()]),
             value: json!("off"),
         }];
 
-        let result =
+        let outcome =
             surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = &outcome.new_source;
         // Should be inserted as a quoted dotted key at root level
         assert!(
             result.contains("\"workbench.editor.useModal\" = \"off\""),
@@ -1856,6 +2129,53 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         // Existing fields preserved
         assert!(result.contains("\"editor.fontSize\" = 13"));
         assert!(result.contains("\"editor.fontFamily\" = \"Mono\""));
+        assert_eq!(
+            outcome.applied,
+            vec![KeyPath::new(vec!["workbench.editor.useModal".to_string()])]
+        );
+        assert!(outcome.unapplied.is_empty());
+    }
+
+    #[test]
+    fn test_structure_insert_nested_path_without_parent_is_unapplied() {
+        // A MULTI-segment insert whose parent record does not exist in the
+        // .ncl source cannot be applied correctly (joining the segments into
+        // one quoted key would change the structure). It must be reported as
+        // unapplied, not silently mangled or dropped.
+        use crate::nickel::structure_map::build_structure_map;
+        use serde_json::json;
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "settings.json",
+        from_config = {
+          "editor.fontSize" = 13,
+        },
+      },
+    ],
+  },
+}"#;
+        let structure = build_structure_map(source, 0).unwrap();
+        let meta = test_metadata("darwin");
+        let rewrite = locate_from_config(source, 0, &meta).unwrap();
+        let leaf_spans = rewrite.rewritable_spans();
+
+        let path = KeyPath::new(vec![
+            "[javascript]".to_string(),
+            "editor.codeActionsOnSave".to_string(),
+        ]);
+        let edits = vec![FieldEdit::Insert {
+            path: path.clone(),
+            value: json!({"source.fixAll.eslint": "always"}),
+        }];
+
+        let outcome =
+            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        assert_eq!(outcome.new_source, source, "source must be unchanged");
+        assert!(outcome.applied.is_empty());
+        assert_eq!(outcome.unapplied, vec![path]);
     }
 
     #[test]
@@ -1883,11 +2203,12 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Delete {
-            path: "remove_me".to_string(),
+            path: kp("remove_me"),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("first = 1"));
         assert!(result.contains("last = 3"));
         assert!(!result.contains("remove_me"));
@@ -1923,12 +2244,13 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
         let leaf_spans = rewrite.rewritable_spans();
 
         let edits = vec![FieldEdit::Insert {
-            path: "new_key".to_string(),
+            path: kp("new_key"),
             value: json!("hello"),
         }];
 
-        let result =
-            surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3).unwrap();
+        let result = surgical_rewrite_with_structure(source, &structure, leaf_spans, &edits, 3)
+            .unwrap()
+            .new_source;
         assert!(result.contains("new_key = \"hello\""));
         // The closing brace should NOT be on the same line as the inserted field
         assert!(

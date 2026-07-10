@@ -1268,6 +1268,67 @@ fn test_sync_force_target_to_source_json_format() {
     );
 }
 
+/// Regression test for the vscode `[javascript]` sync-back bug: a nested
+/// from_config record whose path segments are all literal keys containing
+/// dots/brackets (`"[javascript]"` -> `"editor.codeActionsOnSave"` ->
+/// `"source.fixAll.eslint"`). Resolving the conflict in favor of Target must
+/// actually rewrite the Source .ncl — blend previously reported success while
+/// silently leaving order.ncl untouched, because `json_path_get` cannot
+/// resolve the dotted LeafSpan path when non-root segments contain literal
+/// dots.
+#[test]
+fn test_sync_target_to_source_literal_dotted_bracket_keys() {
+    let home = TempDir::new().unwrap();
+    let temp_orders = copy_fixture("literal-dotted-keys");
+    let orders = temp_orders.path();
+
+    // Deploy Source -> Target first
+    let output = run_blend(
+        home.path(),
+        orders,
+        &["sync", "--force-source-to-target", "literal-dotted-keys"],
+    );
+    assert!(output.status.success());
+
+    let target = home
+        .path()
+        .join(".config/literal-dotted-keys/settings.json");
+
+    // Simulate the user changing the value in the deployed Target file
+    // (VS Code writing "always" for the eslint fixAll code action).
+    let mut parsed: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&target).unwrap()).unwrap();
+    parsed["[javascript]"]["editor.codeActionsOnSave"]["source.fixAll.eslint"] =
+        serde_json::json!("always");
+    std::fs::write(&target, serde_json::to_string_pretty(&parsed).unwrap()).unwrap();
+
+    // Resolve in favor of Target (same rewrite path as picking [t]arget in
+    // the interactive per-key prompt: pull -> surgical_rewrite via segment paths).
+    let output = run_blend(
+        home.path(),
+        orders,
+        &["sync", "--force-target-to-source", "literal-dotted-keys"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "Forced target-to-source failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+
+    // The Source .ncl must actually contain the pulled Target value. If blend
+    // claimed success but left "explicit" in place, the sync-back was a
+    // silent no-op.
+    let ncl_content =
+        std::fs::read_to_string(orders_dir(orders).join("literal-dotted-keys/order.ncl")).unwrap();
+    assert!(
+        ncl_content.contains("\"always\""),
+        "order.ncl should have '[javascript].editor.codeActionsOnSave.source.fixAll.eslint' \
+         rewritten to \"always\", but the Target -> Source write-back was silently dropped:\n\
+         stdout: {stdout}\nstderr: {stderr}\norder.ncl:\n{ncl_content}"
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Ignore fields test
 // ---------------------------------------------------------------------------

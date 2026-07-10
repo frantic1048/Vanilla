@@ -1,5 +1,3 @@
-tap "wez/wezterm"
-
 cask "google-chrome"
 cask "firefox@developer-edition"
 
@@ -15,15 +13,12 @@ cask "visual-studio-code"
 # terminal emulators
 cask "alacritty"
 cask "kitty"
-cask "wezterm"
+cask "wez/wezterm/wezterm"
 cask "ghostty"
 
 # virtual machine
 cask "utm"
 
 cask "slack"
-
-# media player
-cask "vlc"
 
 cask "inkscape"

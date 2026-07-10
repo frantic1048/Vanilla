@@ -192,7 +192,7 @@ let { Order, .. } = import "../order.contract.ncl" in
             "*.sarif" = "json", # https://sarif.info/
             "*.sast" = "json", # https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
             Brewfile = "ruby", # https://github.com/Homebrew/homebrew-bundle
-            "Brewfile.{app,desktop,fonts,util,makedep}" = "ruby", # https://github.com/Homebrew/homebrew-bundle
+# https://github.com/Homebrew/homebrew-bundle
             Dangerfile = "ruby", # https://danger.systems/
             skhdrc = "shellscript",
             yabairc = "shellscript",
@@ -228,7 +228,7 @@ let { Order, .. } = import "../order.contract.ncl" in
           ],
 
           # Extensions
-          "extensions.autoUpdate" = false,
+          "extensions.autoUpdate" = "off",
           "extensions.ignoreRecommendations" = true,
           "remote.defaultExtensionsIfInstalledLocally" = [],
 
@@ -294,6 +294,16 @@ let { Order, .. } = import "../order.contract.ncl" in
           },
           "[typst]" = { "editor.defaultFormatter" = "myriad-dreamin.tinymist" },
           "[yaml]" = { "editor.defaultFormatter" = "esbenp.prettier-vscode" },
+          "json.schemaDownload.trustedDomains" = {
+            "https://developer.microsoft.com/json-schemas/" = true,
+            "https://docs.renovatebot.com/renovate-schema.json" = true,
+            "https://json-schema.org/" = true,
+            "https://json.schemastore.org/" = true,
+            "https://raw.githubusercontent.com/devcontainers/spec/" = true,
+            "https://raw.githubusercontent.com/microsoft/vscode/" = true,
+            "https://schemastore.azurewebsites.net/" = true,
+            "https://www.schemastore.org/" = true,
+          },
         },
       },
       {

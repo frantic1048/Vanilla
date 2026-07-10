@@ -1,14 +1,10 @@
-tap "nikitabobko/tap"
-
 cask "linearmouse"
 cask "nikitabobko/tap/aerospace"
 
 # Using aerospace for now
 =begin
-tap "koekeishiya/formulae"
 brew "koekeishiya/formulae/skhd"
 brew "koekeishiya/formulae/yabai"
 
-tap "felixkratz/formulae"
 brew "felixkratz/formulae/sketchybar"
 =end

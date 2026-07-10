@@ -1,5 +1,5 @@
 # libs and build tools
-brew "pkg-config"
+brew "pkgconf"
 brew "cairo"
 brew "pango"
 brew "libpng"

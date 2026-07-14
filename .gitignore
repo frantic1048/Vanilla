@@ -22,8 +22,6 @@ node_modules
 
 /.claude/
 
-# local superpowers docs
-/docs/superpowers/
 
 # machine-local shellenv override (next to shellenv.nu)
 shellenv.local.nu

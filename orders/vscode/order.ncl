@@ -192,7 +192,6 @@ let { Order, .. } = import "../order.contract.ncl" in
             "*.sarif" = "json", # https://sarif.info/
             "*.sast" = "json", # https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
             Brewfile = "ruby", # https://github.com/Homebrew/homebrew-bundle
-# https://github.com/Homebrew/homebrew-bundle
             Dangerfile = "ruby", # https://danger.systems/
             skhdrc = "shellscript",
             yabairc = "shellscript",

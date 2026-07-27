@@ -48,12 +48,27 @@ for f in "$@"; do
     EXT="${NAME##*.}"
     NAME="${NAME%.*}"
     if [[ -n "$DRYRUN" ]]; then
-        echo ffmpeg -hwaccel vaapi -hwaccel_output_format vaapi -hwaccel_device /dev/dri/renderD128 \
-            -i "$f" -c:v hevc_vaapi -c:a aac \
-            "$NAME$POSTFIX.mp4"
+        echo ffmpeg \
+            -init_hw_device vaapi=va:/dev/dri/renderD128 \
+            -filter_hw_device va \
+            -i "$f" \
+            -vf 'format=p010,hwupload' \
+            -c:v hevc_vaapi -profile:v main10 \
+             -rc_mode CQP -qp 20 \
+            -c:a aac -af "aresample=async=1:first_pts=0" \
+            "$NAME$POSTFIX.vaapi_amd_old_film.mp4"
     else
-        ffmpeg -hwaccel vaapi -hwaccel_output_format vaapi -hwaccel_device /dev/dri/renderD128 \
-            -i "$f" -c:v hevc_vaapi -c:a aac \
+             # MEMO:
+             # need newer mesa/ffmpeg
+             # -rc_mode ICQ -global_quality 22 \
+        ffmpeg \
+            -init_hw_device vaapi=va:/dev/dri/renderD128 \
+            -filter_hw_device va \
+            -i "$f" \
+            -vf 'format=p010,hwupload' \
+            -c:v hevc_vaapi -profile:v main10 \
+             -rc_mode CQP -qp 20 \
+            -c:a aac -af "aresample=async=1:first_pts=0" \
             "$NAME$POSTFIX.mp4"
     fi
 done

@@ -9,7 +9,10 @@
 [includeIf "gitdir:~/work/"]
     path = config.user.work
 [core]
+	# `helm plugin install ...` ridiculously need this off otherwise boom (°_°)
+	# https://github.com/helm/helm/issues/12125
 	fsmonitor = true
+
 	pager = "if command -v delta &>/dev/null; then delta; else less; fi"
 	precomposeunicode = true
 	quotepath = false

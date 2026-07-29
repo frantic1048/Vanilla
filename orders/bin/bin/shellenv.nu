@@ -104,7 +104,6 @@ export def compute-env []: nothing -> record {
             $"($home)/.local/bin/van"
             ...(existing $"($home)/.local/share/mise/shims")
             ...(existing $"($home)/.go/bin")
-            ...(existing $"($home)/.rd/bin")
             ...(existing $"($home)/.npm-global/bin")
             ...(existing $"($home)/.local/share/npm/bin")
             ...(existing $"($home)/.nix-profile/bin")
@@ -114,6 +113,7 @@ export def compute-env []: nothing -> record {
             ...(existing $"($home)/.local/bin")
             ...(existing $"($brew)/bin")
             ...(existing $"($brew)/sbin")
+            ...(existing $"($home)/.rd/bin")
         ]
     } else {
         # linux (arch)

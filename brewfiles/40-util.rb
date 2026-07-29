@@ -102,6 +102,11 @@ brew "azure/kubelogin/kubelogin"
 brew "kubectx"
 brew "kubernetes-cli"
 
+brew "awscli"
+
+brew "helm"
+brew "helmfile"
+
 # Android
 cask "android-platform-tools"
 

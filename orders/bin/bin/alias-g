@@ -1,0 +1,192 @@
+#!/usr/bin/env nu
+
+const date_relative = '--date=relative'
+const oneline = '--pretty=oneline'
+
+# Colors:
+# - https://git-scm.com/docs/git-config#Documentation/git-config.txt-color
+# - https://stackoverflow.com/questions/15458237/git-pretty-format-colors
+# Field names: https://git-scm.com/docs/git-for-each-ref#_field_names
+const ref_format = [
+  '--format=%(HEAD)'
+  '%(color:dim red)%(objectname:short)%(color:reset)'
+  '%(color:bold italic brightblue)%(refname:short)%(color:reset)'
+  '%(color:dim)-%(color:reset)'
+  '%(authorname)'
+  '%(color:dim)[%(color:reset)%(color:brightmagenta)%(committerdate:relative)%(color:reset)%(color:dim)]%(color:reset)'
+] | str join ' '
+
+const git_shortcuts = {
+  a: [add]
+  ap: [apply]
+  bl: [blame]
+  bll: [blame -w -C]
+  c: [commit]
+  cn: [commit -n]
+  cm: [commit -m]
+  cnm: [commit -n -m]
+  ck: [checkout]
+  ckb: [checkout -b]
+  'ck-': [checkout -]
+  ckm: [checkout master]
+  sw: [switch]
+  swc: [switch -c]
+  'sw-': [switch -]
+  cp: [cherry-pick]
+  cpc: [cherry-pick --continue]
+  cpa: [cherry-pick --abort]
+  dh: [diff HEAD]
+  dhc: [diff HEAD --cached]
+  fe: [fetch]
+  p: [push]
+  P: [push --force-with-lease --force-if-includes]
+  PP: [push --force]
+  pl: [pull]
+  pd: [push --delete origin]
+  mt: [maintenance]
+  m: [merge]
+  rb: [rebase]
+  rbo: [rebase --onto]
+  rbi: [rebase -i]
+  rbio: [rebase -i --onto]
+  rboi: [rebase -i --onto]
+  rbbi: [rebase --rebase-merges -i]
+  rba: [rebase --abort]
+  rbc: [rebase --continue]
+  rbs: [rebase --skip]
+  ama: [am --abort]
+  amc: [am --continue]
+  ams: [am --skip]
+  summary: [shortlog -sne]
+  rp: [rev-parse --show-toplevel]
+  rs: [reset]
+  rs1: [reset 'HEAD~1']
+  rsu: [reset --hard '@{u}']
+  so: [show -q $oneline]
+  tu: [status]
+  ta: [stash]
+  rl: [reflog]
+  tr: [log --graph --abbrev-commit $date_relative --decorate=short --single-worktree]
+  trr: [log --graph --abbrev-commit $date_relative --decorate=short --all]
+  to: [log --graph --abbrev-commit $date_relative --decorate=short $oneline --single-worktree]
+  too: [log --graph --abbrev-commit $date_relative --decorate=short $oneline --all]
+  lp: [log '--format=%Cgreencommit %H%Creset%n%B']
+  wt: [worktree]
+}
+
+def launch-background [command: string, args: list<string>] {
+  # Detach from alias-g itself so GUI commands also survive calls from Elvish,
+  # Bash, and Zsh wrappers.
+  ^sh -c 'nohup "$@" >/dev/null 2>&1 &' sh $command ...$args
+}
+
+def can-fast-forward [refs: list<string>]: nothing -> bool {
+  let merge_base = (^git merge-base HEAD ...$refs | str trim)
+  let head = (^git rev-parse HEAD | str trim)
+  $merge_base == $head
+}
+
+def show-working-copy [] {
+  let files = (
+    ^git status --porcelain=v1 -z
+    | split row (char nul)
+    | compact --empty
+    | where {|entry| ($entry | str length) >= 4 }
+    | each {|entry| $entry | str substring 3.. }
+    | where {|file| $file | path exists }
+    | each {|file| ls -D $file }
+    | flatten
+    | sort-by modified --reverse
+    | get name
+  )
+
+  for file in $files {
+    ^git diff -U1 -w --color HEAD -- $file
+  }
+}
+
+def run-g [args: list<string>] {
+  if ($args | is-empty) {
+    # Give a quick overview of the current branch.
+    ^git for-each-ref --sort=committerdate --color=always 'refs/heads/' $ref_format
+      | lines
+      | last 5
+      | each {|line| print $line }
+    ^git status -s
+    return
+  }
+
+  let op = $args.0
+  let rest = ($args | skip 1)
+
+  if $op in $git_shortcuts {
+    let command = ($git_shortcuts | get $op)
+    ^git ...$command ...$rest
+    return
+  }
+
+  match $op {
+    'b' => {
+      if ($rest | is-empty) {
+        ^git for-each-ref --sort=committerdate --color=always 'refs/heads/' $ref_format
+      } else {
+        ^git branch ...$rest
+      }
+    }
+    'cnmw' => {
+      ^git add .
+      if $env.LAST_EXIT_CODE == 0 {
+        ^git commit -n --allow-empty -m '[skip ci] wip'
+      }
+    }
+    'f' => {
+      let message = ($rest | str join ' ')
+      ^git commit -n --fixup $":/($message)"
+    }
+    'ff' => { ^git commit -n --fixup ...$rest }
+    'body' => {
+      let refs = if ($rest | is-empty) { [HEAD] } else { $rest }
+      ^git rev-list --max-count=1 --no-commit-header '--format=%B' ...$refs
+    }
+    'cb' => { ^git rev-parse --abbrev-ref HEAD }
+    'dt' => { ^git -c diff.external=difft diff ...$rest }
+    'wc' => { show-working-copy }
+    'g' => { launch-background git ([gui] | append $rest) }
+    'k' => { launch-background gitk $rest }
+    'ka' => { launch-background gitk ([--all] | append $rest) }
+    'loc' => {
+      let files = (^git ls-files | lines)
+      ^cloc ...$files ...$rest
+    }
+    'pu' => {
+      let branch = (^git rev-parse --abbrev-ref HEAD | str trim)
+      ^git push -u origin $branch ...$rest
+    }
+    'mf/' => { can-fast-forward $rest }
+    'mf' => {
+      if (can-fast-forward $rest) {
+        ^git merge --no-ff ...$rest
+      } else {
+        print 'outdated branch !'
+      }
+    }
+    'rbm' => { ^git rebase ...$rest master }
+    'rbim' => { ^git rebase -i ...$rest master }
+    _ => { ^git ...$args }
+  }
+}
+
+# Interactive shells import this command without starting another Nushell.
+export def --wrapped g [...args: string] {
+  run-g $args
+}
+
+# Other interactive shells call the namespaced executable through a thin `g`
+# wrapper, keeping the one-letter name out of the global executable namespace.
+def --wrapped main [...args: string] {
+  g ...$args
+  let exit_code = $env.LAST_EXIT_CODE
+  if $exit_code != 0 {
+    exit $exit_code
+  }
+}

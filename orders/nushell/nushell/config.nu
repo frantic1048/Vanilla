@@ -822,7 +822,8 @@ alias nu-n = n
 
 use ~/.cache/starship/init.nu
 use ./modules/dhd.nu
-use ./modules/alias.nu *
+const alias_module = path self modules/alias.nu
+overlay use (if $nu.is-interactive { $alias_module } else { null })
 
 # Deduplicate PATH. Nushell evaluates env.nu twice per startup (env + config
 # phases) and merges both results, so shellenv's prepended entries land twice.

@@ -18,7 +18,7 @@ fn complete-g {|@args|
         git for-each-ref 'refs/heads/' ^
           --sort="-committerdate" ^
           --format="%(refname:short)\t%(objectname:short) %(refname:short) %(authorname) %(committerdate:relative)" ^
-        | rg -v (g cb) | nl -nrz -w3 ^
+        | rg -v (git rev-parse --abbrev-ref HEAD) | nl -nrz -w3 ^
         | each {|line|
             var index candidate message = (str:split "\t" $line)
 

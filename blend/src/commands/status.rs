@@ -80,7 +80,7 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                 rows.push(format!(
                                     "{} {} {} {} {}",
                                     style(format!("{:<order_w$}", order_display)).dim(),
-                                    style(format!("{:<file_w$}", &file_entry.name)).dim(),
+                                    style(format!("{:<file_w$}", file_entry.name)).dim(),
                                     style(format!("{:<status_w$}", "skipped")).dim(),
                                     style(format!("{:<diff_w$}", "\u{00b7}")).dim(),
                                     style("(condition not met)").dim()

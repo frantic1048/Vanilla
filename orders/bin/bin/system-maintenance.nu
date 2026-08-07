@@ -85,6 +85,14 @@ def "main blend" [] {
   }
 }
 
+def "main cargo" [] {
+  in_repo {
+    print_heading "Cargo"
+    ^cargo install nickel-lang-lsp
+    ^cargo install --git https://github.com/nushell/nufmt
+  }
+}
+
 def main [] {
   print_heading "Starting system maintenance"
 
@@ -93,6 +101,7 @@ def main [] {
   main proto
   main claude
   main blend
+  main cargo
 
   print_heading "System maintenance completed"
 }

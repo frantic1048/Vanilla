@@ -193,8 +193,6 @@ let { Order, .. } = import "../order.contract.ncl" in
             "*.sast" = "json", # https://docs.gitlab.com/ee/user/application_security/sast/index.html#output
             Brewfile = "ruby", # https://github.com/Homebrew/homebrew-bundle
             Dangerfile = "ruby", # https://danger.systems/
-            skhdrc = "shellscript",
-            yabairc = "shellscript",
           },
 
           # Cursor

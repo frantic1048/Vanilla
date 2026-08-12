@@ -16,7 +16,8 @@ impl FormatRenderer for TomlRenderer {
     }
 
     fn parse(&self, content: &str) -> Result<serde_json::Value> {
-        let toml_value: ::toml::Value = content.parse().context("Failed to parse TOML")?;
+        let toml_value: ::toml::Value =
+            ::toml::from_str(content).context("Failed to parse TOML")?;
         let json = toml_to_json(&toml_value);
         Ok(json)
     }

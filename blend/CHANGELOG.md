@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.13](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.12...blend-v0.2.13) - 2026-08-12
+
+### Fixed
+- *(blend)* sync back nested keys with literal dots or brackets
+- *(blend)* parse complete TOML documents
+
+### Other
+- add more info to README
+- Update Rust to v1.97.1
+- Merge pull request #55 from frantic1048/renovate/rust-1.x
+- Update rust-dependencies
+- Merge pull request #52 from frantic1048/renovate/rust-dependencies
+- Update rust-dependencies
+
 ## [0.2.12](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.11...blend-v0.2.12) - 2026-07-03
 
 ### Added

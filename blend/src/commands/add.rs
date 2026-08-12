@@ -4,7 +4,7 @@ use anyhow::{Context as AnyhowContext, bail};
 use similar::TextDiff;
 
 use crate::cli::SymlinkMode;
-use crate::commands::create::validate_order_name;
+use crate::commands::create::{starter_source, validate_order_name};
 use crate::compose::{build_order, discover_orders};
 use crate::context::Context;
 use crate::nickel::{
@@ -26,8 +26,12 @@ pub fn cmd_add(
 
     let order_dir = ctx.orders_dir.join(order);
     let order_path = order_dir.join("order.ncl");
-    if !order_path.exists() {
-        bail!("Order '{order}' not found. Run `blend create {order}` first.");
+    let create_order = !order_dir.exists();
+    if !create_order && !order_path.exists() {
+        bail!(
+            "Order directory exists but order.ncl is missing: {}",
+            order_dir.display()
+        );
     }
 
     let target = expand_target_path(ctx, path)?;
@@ -46,16 +50,30 @@ pub fn cmd_add(
     let target_is_dir = metadata.is_dir();
     let deploy_as_symlink = symlink == Some(SymlinkMode::Preserve);
 
-    let raw_source = std::fs::read_to_string(&order_path)
-        .with_context(|| format!("Failed to read {}", order_path.display()))?;
     let evaluator = NickelEvaluator::new(&ctx.metadata);
-    let order_data = evaluator.evaluate(&order_path)?;
+    let (raw_source, order_data) = if create_order {
+        (starter_source()?, None)
+    } else {
+        let raw_source = std::fs::read_to_string(&order_path)
+            .with_context(|| format!("Failed to read {}", order_path.display()))?;
+        let order_data = evaluator.evaluate(&order_path)?;
+        (raw_source, Some(order_data))
+    };
     let structure = OrderSourceStructure::parse(&raw_source)?;
-    let prefix_plan = choose_prefix(ctx, &order_data, &structure, &target, prefix)?;
+    let global_prefix = order_data
+        .as_ref()
+        .map(Order::global_prefix)
+        .unwrap_or_default();
+    let files_empty = order_data
+        .as_ref()
+        .is_none_or(|order| order.blend.files.is_empty());
+    let prefix_plan = choose_prefix(ctx, global_prefix, files_empty, &structure, &target, prefix)?;
     let from_file = path_to_order_string(&prefix_plan.source_rel)?;
     normalize_order_source_path(&from_file)?;
 
-    ensure_no_duplicate_entry(&order_data, &from_file)?;
+    if let Some(order_data) = &order_data {
+        ensure_no_duplicate_entry(order_data, &from_file)?;
+    }
 
     let source_path = order_dir.join(&prefix_plan.source_rel);
     if source_path.exists() {
@@ -78,6 +96,9 @@ pub fn cmd_add(
         .with_context(|| format!("Failed to format {}", order_path.display()))?;
 
     if ctx.dry_run {
+        if create_order {
+            log::info(&format!("Dry run: would create order '{order}'"));
+        }
         log::info(&format!(
             "Dry run: would copy {} to {}",
             target.display(),
@@ -87,11 +108,26 @@ pub fn cmd_add(
         return Ok(());
     }
 
-    copy_target_to_source(&target, &source_path, target_is_dir)?;
-    std::fs::write(&order_path, formatted)
-        .with_context(|| format!("Failed to write {}", order_path.display()))?;
-    evaluator.evaluate(&order_path)?;
+    let result: anyhow::Result<()> = (|| {
+        copy_target_to_source(&target, &source_path, target_is_dir)?;
+        std::fs::write(&order_path, &formatted)
+            .with_context(|| format!("Failed to write {}", order_path.display()))?;
+        evaluator.evaluate(&order_path)?;
+        Ok(())
+    })();
+    if result.is_err() {
+        if create_order {
+            let _ = std::fs::remove_dir_all(&order_dir);
+        } else {
+            let _ = remove_copied_source(&source_path, target_is_dir);
+            let _ = std::fs::write(&order_path, &raw_source);
+        }
+    }
+    result?;
 
+    if create_order {
+        log::success(&format!("Created order '{order}'"));
+    }
     log::success(&format!("Added {} to order '{order}'", target.display()));
     Ok(())
 }
@@ -144,14 +180,13 @@ impl OrderSourceStructure {
 
 fn choose_prefix(
     ctx: &Context,
-    order: &Order,
+    global_prefix: &[String],
+    files_empty: bool,
     structure: &OrderSourceStructure,
     target: &Path,
     prefix: Option<&str>,
 ) -> anyhow::Result<PrefixPlan> {
-    let is_fresh_order = order.blend.files.is_empty()
-        && order.blend.prefix.is_empty()
-        && !structure.has_prefix_field;
+    let is_fresh_order = files_empty && global_prefix.is_empty() && !structure.has_prefix_field;
 
     if let Some(prefix) = prefix {
         let expanded = ctx.expand_path_str(prefix);
@@ -164,7 +199,7 @@ fn choose_prefix(
         });
     }
 
-    for existing_prefix in order.global_prefix() {
+    for existing_prefix in global_prefix {
         let expanded = ctx.expand_path_str(existing_prefix);
         if let Ok(source_rel) = strip_target_prefix(target, &expanded, existing_prefix) {
             return Ok(PrefixPlan {
@@ -176,7 +211,7 @@ fn choose_prefix(
         }
     }
 
-    if !order.global_prefix().is_empty() {
+    if !global_prefix.is_empty() {
         bail!(
             "{} is not under the order prefix. Pass --prefix to choose a Target prefix explicitly.",
             target.display()
@@ -186,7 +221,7 @@ fn choose_prefix(
     let prefix_literal = "~".to_string();
     let expanded = ctx.expand_path_str(&prefix_literal);
     let source_rel = strip_target_prefix(target, &expanded, &prefix_literal)?;
-    let promote_global_prefix = order.blend.files.is_empty() && !structure.has_prefix_field;
+    let promote_global_prefix = files_empty && !structure.has_prefix_field;
 
     Ok(PrefixPlan {
         prefix_literal,
@@ -357,6 +392,14 @@ fn copy_target_to_source(target: &Path, source: &Path, is_dir: bool) -> anyhow::
             )
         })?;
         Ok(())
+    }
+}
+
+fn remove_copied_source(source: &Path, is_dir: bool) -> std::io::Result<()> {
+    if is_dir {
+        std::fs::remove_dir_all(source)
+    } else {
+        std::fs::remove_file(source)
     }
 }
 

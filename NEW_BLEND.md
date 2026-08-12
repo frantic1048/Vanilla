@@ -338,7 +338,7 @@ blend view -a [orders...]          Show both content and diff
 blend view -s [orders...]          Short mode: omit up-to-date entries
 blend check [orders...]            Typecheck/evaluate order.ncl files
 blend create <order>               Scaffold an empty Source order
-blend add <order> <target>         Import a Target file/directory into an order
+blend add <order> <target>         Import a Target file/directory, creating the order if needed
 blend add <order> --prefix <path> <target>
                                    Strip an explicit Target prefix before import
 blend format [orders...]           Format order.ncl files

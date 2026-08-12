@@ -24,7 +24,7 @@ Inspect:
 Maintain:
   check   [read] Validate Source order definitions
   create  [source] Create a new order
-  add     [source] Add a Target file or directory to an order
+  add     [source] Add a Target file or directory to an order, creating it if needed
   format  [source] Format Source order files
   init    [source, target] Initialize or refresh Blend metadata and config
   sync    [source, target] Reconcile Source orders and Target files
@@ -139,11 +139,11 @@ pub enum MaintainCommands {
         order: String,
     },
 
-    /// [source] Add a Target file or directory to an existing order
+    /// [source] Add a Target file or directory to an order, creating it if needed
     #[command(long_about = "\
-[source] Add a Target file or directory to an existing order
+[source] Add a Target file or directory to an order, creating it if needed
 
-Copies the Target path into the order Source tree and appends a file entry to order.ncl.")]
+Creates the order when it does not exist, copies the Target path into its Source tree, and appends a file entry to order.ncl.")]
     Add {
         /// Order to add the Target path to
         order: String,

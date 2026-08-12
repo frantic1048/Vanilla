@@ -15,7 +15,7 @@ pub fn cmd_create(ctx: &Context, order: &str) -> anyhow::Result<()> {
         bail!("Order '{order}' already exists");
     }
 
-    let source = format_source(&starter_ncl())?;
+    let source = starter_source()?;
 
     if ctx.dry_run {
         log::info(&format!("Dry run: would create {}", order_path.display()));
@@ -43,13 +43,14 @@ pub fn validate_order_name(order: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn starter_ncl() -> String {
-    r#"let { Order, .. } = import "../order.contract.ncl" in
+pub(crate) fn starter_source() -> anyhow::Result<String> {
+    format_source(
+        r#"let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {
     files = [],
   },
 } | Order
-"#
-    .to_string()
+"#,
+    )
 }

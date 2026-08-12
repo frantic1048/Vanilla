@@ -20,10 +20,12 @@ jobs:
     container:
       image: ghcr.io/frantic1048/blend:0.2.12@sha256:bae278d09e86b7b0f590be8099117151279eb14c0277fe2d4cca6feec7b5f021
     steps:
-      - name: Harden the runner (Audit all outbound calls)
+      - name: Harden the runner (Block unapproved outbound calls)
         uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            github.com:443
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

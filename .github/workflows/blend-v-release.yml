@@ -171,10 +171,23 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Harden the runner (audit all outbound calls)
+      - name: Harden the runner (Block unapproved outbound calls)
         uses: step-security/harden-runner@b09bb98e06d4d774595224525879c09bc6e98c40 # v2.20.1
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            *.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
+            *.pkg.github.com:443
+            api.github.com:443
+            auth.docker.io:443
+            fulcio.sigstore.dev:443
+            ghcr.io:443
+            github.com:443
+            pkg-containers.githubusercontent.com:443
+            production.cloudfront.docker.com:443
+            registry-1.docker.io:443
+            rekor.sigstore.dev:443
 
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

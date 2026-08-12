@@ -51,20 +51,20 @@ moved to the top-level `justfile`.
 ### Current Flow
 
 ```
-1. Scaffold order:       blend create my-app
-2. Import plaintext:     blend add my-app ~/.config/my-app/config
-   2a. Or explicit root: blend add my-app --prefix ~/.config/my-app ~/.config/my-app/config
-3. For structured:       Manually transcribe TOML/JSON/YAML into Nickel from_config syntax
-4. Validate:             blend check my-app
-5. Preview:              blend view my-app
-6. Deploy:               blend sync my-app
+1. Import plaintext:     blend add my-app ~/.config/my-app/config
+   1a. Or explicit root: blend add my-app --prefix ~/.config/my-app ~/.config/my-app/config
+   (`add` creates the order when needed; use `blend create my-app` for an empty order.)
+2. For structured:       Manually transcribe TOML/JSON/YAML into Nickel from_config syntax
+3. Validate:             blend check my-app
+4. Preview:              blend view my-app
+5. Deploy:               blend sync my-app
 ```
 
 ### Friction Points
 
 | # | Issue | Severity | Detail |
 |---|-------|----------|--------|
-| 1 | **~~No scaffolding command~~** | ~~High~~ | **Resolved** — `blend create <order>` scaffolds the Source order and `blend add <order> <target>` imports existing Target files/directories |
+| 1 | **~~No scaffolding command~~** | ~~High~~ | **Resolved** — `blend create <order>` scaffolds an empty Source order, while `blend add <order> <target>` creates the order when needed and imports existing Target files/directories |
 | 2 | **Manual config transcription for structured** | High | User must hand-convert a TOML/JSON file into Nickel `from_config = { ... }` syntax. For a 200-line starship.toml, this is painful and error-prone |
 | 3 | **Must know Nickel syntax** | Medium | No inline documentation, no `blend help new-order` with examples |
 | 4 | **~~No first-class validation command~~** | ~~Low~~ | **Resolved** — `blend check [orders...]` validates Source order definitions without deploying |
@@ -72,8 +72,9 @@ moved to the top-level `justfile`.
 
 ### Improvement Ideas
 
-- ~~Order scaffolding/import~~: **Implemented** via `blend create <order>` and
-  `blend add <order> <target>` for `from_file` entries.
+- ~~Order scaffolding/import~~: **Implemented** via `blend create <order>` for
+  empty orders and `blend add <order> <target>` for auto-creating orders with
+  `from_file` entries.
 - Structured import remains future work: auto-detect a TOML/JSON/YAML Target,
   parse it, and generate `from_config` Nickel syntax using `json_to_nickel()`.
 

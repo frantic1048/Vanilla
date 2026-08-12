@@ -115,7 +115,7 @@ Maintain commands:
 - `check [orders...]` - `[read]` validate Source order definitions.
 - `create <order>` - `[source]` scaffold a new empty Source order.
 - `add <order> <target>` - `[source]` import an absolute or `~`-prefixed
-  Target file/directory into an existing Source order. Useful flags:
+  Target file/directory into a Source order, creating the order when needed. Useful flags:
   `--prefix`, `--symlink follow|preserve`, `--allow-overlap`.
 - `format [orders...]` / `fmt` - `[source]` format Source order files; use
   `--check` in CI or review validation.

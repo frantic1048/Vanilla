@@ -146,7 +146,6 @@ fn test_add_target_path_defaults_to_home_prefix() {
     let home = TempDir::new().unwrap();
     let blend_dir = TempDir::new().unwrap();
     copy_shared_order_files(blend_dir.path());
-    run_blend(home.path(), blend_dir.path(), &["create", "kitty"]);
 
     let target = home.path().join(".config/kitty/kitty.conf");
     std::fs::create_dir_all(target.parent().unwrap()).unwrap();
@@ -164,6 +163,7 @@ fn test_add_target_path_defaults_to_home_prefix() {
         output.status.success(),
         "blend add failed:\nstdout: {stdout}\nstderr: {stderr}"
     );
+    assert!(stdout.contains("Created order 'kitty'"));
     assert!(stdout.contains("Added"));
 
     let copied = orders_dir(blend_dir.path()).join("kitty/.config/kitty/kitty.conf");
@@ -192,7 +192,6 @@ fn test_add_target_path_with_explicit_prefix_strips_prefix() {
     let home = TempDir::new().unwrap();
     let blend_dir = TempDir::new().unwrap();
     copy_shared_order_files(blend_dir.path());
-    run_blend(home.path(), blend_dir.path(), &["create", "kitty"]);
 
     let target = home.path().join(".config/kitty/kitty.conf");
     std::fs::create_dir_all(target.parent().unwrap()).unwrap();
@@ -216,6 +215,7 @@ fn test_add_target_path_with_explicit_prefix_strips_prefix() {
         output.status.success(),
         "blend add --prefix failed:\nstdout: {stdout}\nstderr: {stderr}"
     );
+    assert!(stdout.contains("Created order 'kitty'"));
 
     let copied = orders_dir(blend_dir.path()).join("kitty/kitty.conf");
     assert_eq!(std::fs::read_to_string(copied).unwrap(), "font_size 13\n");
@@ -227,6 +227,59 @@ fn test_add_target_path_with_explicit_prefix_strips_prefix() {
     assert!(
         order_source.find("prefix =").unwrap() < order_source.find("files =").unwrap(),
         "promoted order prefix should be inserted before files:\n{order_source}"
+    );
+}
+
+#[test]
+fn test_add_failure_does_not_leave_new_order() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["add", "kitty", "~/.config/kitty/missing.conf"],
+    );
+
+    assert!(
+        !output.status.success(),
+        "blend add should reject a missing Target"
+    );
+    assert!(
+        !orders_dir(blend_dir.path()).join("kitty").exists(),
+        "a failed add must not leave a new order"
+    );
+}
+
+#[test]
+fn test_add_dry_run_previews_new_order_without_creating_it() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let target = home.path().join(".config/kitty/kitty.conf");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    std::fs::write(&target, "font_size 13\n").unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["--dry-run", "add", "kitty", "~/.config/kitty/kitty.conf"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "blend add --dry-run failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("Dry run: would create order 'kitty'"));
+    assert!(stdout.contains(r#"prefix = ["~"]"#));
+    assert!(stdout.contains(r#"from_file = ".config/kitty/kitty.conf""#));
+    assert!(
+        !orders_dir(blend_dir.path()).join("kitty").exists(),
+        "dry-run must not create the order"
     );
 }
 

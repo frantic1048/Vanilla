@@ -8,7 +8,7 @@ let { Order, .. } = import "../order.contract.ncl" in
       {
         name = "aerospace.toml",
         from_config = {
-          # Reference: https://github.com/i3/i3/blob/next/etc/config
+          config-version = 2,
 
           enable-normalization-flatten-containers = false,
           enable-normalization-opposite-orientation-for-nested-containers = false,
@@ -21,6 +21,7 @@ let { Order, .. } = import "../order.contract.ncl" in
             "2" = 3,
             "3" = "built-in",
           },
+          persistent-workspaces = ["1", "2", "3"],
 
           mode = {
             main = {

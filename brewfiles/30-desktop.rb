@@ -1,4 +1,3 @@
-cask "linearmouse"
 cask "nikitabobko/tap/aerospace"
 
 # Using aerospace for now

@@ -1,6 +1,8 @@
 #!/usr/bin/env nu
 
-let work_dir = ($env.CURRENT_FILE | path expand | path dirname | path dirname)
+const script_path = path self .
+# MEMO: call `path expand` to resolve symlinks first
+let work_dir = ($script_path | path expand | path dirname | path dirname | path dirname)
 
 def env_or [name: string, fallback: string]: nothing -> string {
   if $name in ($env | columns) {
@@ -95,6 +97,8 @@ def "main cargo" [] {
 
 def main [] {
   print_heading "Starting system maintenance"
+  print $work_dir
+  exit 0
 
   main homebrew
   main pacman

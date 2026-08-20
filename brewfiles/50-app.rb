@@ -1,7 +1,6 @@
 cask "google-chrome"
 cask "firefox@developer-edition"
 
-cask "karabiner-elements"
 cask "keepassxc"
 cask "keycastr"
 cask "keymapp"
@@ -15,9 +14,6 @@ cask "alacritty"
 cask "kitty"
 cask "wez/wezterm/wezterm"
 cask "ghostty"
-
-# virtual machine
-cask "utm"
 
 cask "slack"
 

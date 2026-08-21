@@ -219,16 +219,15 @@ pub fn cmd_view(
                         None
                     };
 
-                    let has_diff_output = match &diff_status {
-                        Some(dr) => dr.has_changes,
-                        None if show_diff => !result.target.exists(),
-                        _ => false,
-                    };
+                    let target_missing = !result.target.exists();
+                    let has_diff_output = diff_status
+                        .as_ref()
+                        .is_some_and(|diff_result| diff_result.has_changes);
 
-                    if has_diff_output || show_content {
+                    if target_missing || has_diff_output || show_content {
                         if !show_diff {
                             println!("{}", file_header);
-                        } else if !result.target.exists() {
+                        } else if target_missing {
                             println!("{} {}", file_header, style("(not deployed)").yellow());
                             has_changes = true;
                         } else {

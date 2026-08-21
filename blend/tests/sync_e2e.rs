@@ -701,6 +701,34 @@ fn test_view_shows_diffs() {
 }
 
 #[test]
+fn test_view_marks_missing_structured_target_not_deployed() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    for args in [
+        &["view", "toml-basic"][..],
+        &["view", "--short", "toml-basic"][..],
+    ] {
+        let output = run_blend(home.path(), &orders, args);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+
+        assert!(
+            output.status.success(),
+            "view failed:\nstdout: {stdout}\nstderr: {stderr}"
+        );
+        assert!(
+            stdout.contains("(not deployed)"),
+            "missing structured target should be reported as not deployed:\n{stdout}"
+        );
+        assert!(
+            !stdout.contains("(no changes)") && !stdout.contains("All orders are up to date"),
+            "missing structured target must not be reported as up to date:\n{stdout}"
+        );
+    }
+}
+
+#[test]
 fn test_status_shows_orders() {
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();

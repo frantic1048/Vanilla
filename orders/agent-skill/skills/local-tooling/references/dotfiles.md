@@ -32,11 +32,11 @@ blend view nushell
 - `blend view` without an order name lists all discovered orders and their source-to-target relationships.
 - `blend view <order-name>` focuses one order.
 - The output shows target paths, symlink status, no-change status, and source/target diffs.
-- In Codex sandboxed sessions, `blend view` may print a sandbox initialization warning and still exit successfully with useful output. Treat this as a warning, not a failure, when the command exit code is zero.
+- In managed sandboxed sessions, `blend view` may print a sandbox initialization warning and still exit successfully with useful output. Treat this as a warning, not a failure, when the command exit code is zero.
 
 ## Safety Boundary
 
-Use only `blend view` for routine Codex inspection.
+Use only `blend view` for routine inspection.
 
 Do not run other Blend commands unless the user explicitly asks, because other commands may write to target config, update state, create snapshots, sync, or otherwise mutate the system.
 

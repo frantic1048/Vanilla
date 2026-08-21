@@ -36,7 +36,7 @@ Do not treat these versions as permanent. Re-read the file before making version
 
 - Avoid Homebrew/pacman-sourced language tools for version-sensitive work. They are harder to manage consistently and can have side effects with other package-manager packages.
 - Package-manager CLIs are fine for platform utilities and OS packages, but prefer proto or repo-local pins for language runtimes and package managers.
-- If PATH or runtime selection looks weird, tell the user. The user prefers fixing the shared environment source over accumulating Codex-specific workarounds.
+- If PATH or runtime selection looks weird, tell the user. The user prefers fixing the shared environment source over accumulating session-specific workarounds.
 
 ## Repository-Specific Pins
 

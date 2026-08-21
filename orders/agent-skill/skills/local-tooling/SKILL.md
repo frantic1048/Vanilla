@@ -1,6 +1,6 @@
 ---
 name: local-tooling
-description: Use when Codex needs to choose, inspect, or troubleshoot this user's local shell behavior, Vanilla dotfiles and Blend-managed config, filesystem search tools, language runtimes, package managers, PATH/toolchain issues, platform CLIs, or sandbox and secure-store restrictions affecting those tools on their macOS arm64 and Arch Linux x86_64 machines. Trigger for questions or tasks involving elvish, nushell, zsh/bash/sh availability, Vanilla dotfiles, blend view, proto, rust/cargo paths, Homebrew/pacman language tools, gh, glab, twg, pup, sentry, ripgrep, fd, or machine-specific command selection.
+description: Use for tasks that require choosing, inspecting, or troubleshooting this user's local shell behavior, Vanilla dotfiles and Blend-managed config, filesystem search tools, language runtimes, package managers, PATH/toolchain issues, platform CLIs, or sandbox and secure-store restrictions affecting those tools on their macOS arm64 and Arch Linux x86_64 machines. Trigger for questions or tasks involving elvish, nushell, zsh/bash/sh availability, Vanilla dotfiles, blend view, proto, rust/cargo paths, Homebrew/pacman language tools, gh, glab, twg, pup, sentry, ripgrep, fd, or machine-specific command selection.
 ---
 
 # Local Tooling

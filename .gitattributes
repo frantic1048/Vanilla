@@ -4,7 +4,8 @@
 # Linguist overrides
 /screenshots/** linguist-documentation
 /Brewfile* linguist-language=Ruby
-/*.json linguist-language=JSON
+*.nu linguist-language=Nushell
+*.elv linguist-language=Elvish
 
 # Binary stuff
 *.png filter=lfs diff=lfs merge=lfs -text

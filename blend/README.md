@@ -143,8 +143,6 @@ tests/
 - **End-to-end** tests in `tests/sync_e2e.rs` drive the compiled binary
   against tempdir fixtures — Source -> Target / Target -> Source sync,
   view/status flows, symlink redeploy, snapshots, and per-key interactive sync.
-- The `e2e/` directory at the crate root is **legacy** (pre-migration
-  stow-based fixtures) and is not wired into Cargo.
 
 ## Adding a new command
 

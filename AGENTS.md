@@ -159,7 +159,6 @@ For blend code changes, start here:
 - Status table: `blend/src/commands/status.rs`.
 
 Tests live in `blend/tests/sync_e2e.rs` and inline `#[cfg(test)]` modules.
-The crate-level `blend/e2e/` directory is legacy and not wired into Cargo.
 
 ## CI And Release
 

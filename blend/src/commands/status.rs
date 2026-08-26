@@ -157,7 +157,7 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                     )
                                 }
                             } else if target.exists() || target.symlink_metadata().is_ok() {
-                                // Check for unexpected symlink (stow leftover).
+                                // Check for an unexpected target symlink.
                                 // For directory entries, also walk the source dir
                                 // and detect per-file symlinks within the target,
                                 // since the directory itself can be a real dir

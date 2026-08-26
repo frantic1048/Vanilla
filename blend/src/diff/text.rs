@@ -167,45 +167,6 @@ fn base_line_at<'a>(base_lines: &'a [&str], index: Option<usize>) -> &'a str {
         .trim_end()
 }
 
-/// Create a compact diff showing only changed lines with context
-#[allow(dead_code)]
-pub fn compact_diff(generated: &str, deployed: &str, context_lines: usize) -> DiffResult {
-    if generated == deployed {
-        return DiffResult::no_changes();
-    }
-
-    let diff = TextDiff::from_lines(deployed, generated);
-    let mut output = Vec::new();
-
-    for hunk in diff
-        .unified_diff()
-        .context_radius(context_lines)
-        .iter_hunks()
-    {
-        output.push(format!("{}", style(hunk.header().to_string()).dim()));
-        for change in hunk.iter_changes() {
-            let line = change.value().trim_end();
-            match change.tag() {
-                ChangeTag::Delete => {
-                    output.push(format!("{}", style(format!(">> Target: {line}")).magenta()));
-                }
-                ChangeTag::Insert => {
-                    output.push(format!("{}", style(format!("<< Source: {line}")).blue()));
-                }
-                ChangeTag::Equal => {
-                    output.push(format!(" {}", line));
-                }
-            }
-        }
-    }
-
-    if output.is_empty() {
-        DiffResult::no_changes()
-    } else {
-        DiffResult::with_changes(output.join("\n"))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -242,15 +203,5 @@ mod tests {
         let ignore = vec!["^tree_view".to_string(), "^color_scheme".to_string()];
         let result = text_diff(generated, deployed, &ignore);
         assert!(!result.has_changes);
-    }
-
-    #[test]
-    fn test_compact_diff() {
-        let old = "line1\nline2\nline3\nline4\nline5";
-        let new = "line1\nmodified\nline3\nline4\nline5";
-        let result = compact_diff(new, old, 1);
-        assert!(result.has_changes);
-        assert!(result.output.contains(">> Target: line2"));
-        assert!(result.output.contains("<< Source: modified"));
     }
 }

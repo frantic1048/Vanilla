@@ -1560,26 +1560,39 @@ fn create_symlink(target: &Path, link: &Path) {
     std::os::unix::fs::symlink(target, link).unwrap();
 }
 
+/// Replace an existing file with an unexpected symlink to identical content.
+/// The returned TempDir keeps the backing file alive for the test duration.
+#[cfg(unix)]
+fn replace_with_unexpected_symlink(target: &Path) -> (TempDir, PathBuf, String) {
+    let content = std::fs::read_to_string(target).unwrap();
+    let backing_dir = TempDir::new().unwrap();
+    let backing_file = backing_dir.path().join(target.file_name().unwrap());
+    std::fs::write(&backing_file, &content).unwrap();
+    std::fs::remove_file(target).unwrap();
+    create_symlink(&backing_file, target);
+    (backing_dir, backing_file, content)
+}
+
 #[test]
 #[cfg(unix)]
 fn test_sync_force_source_to_target_replaces_symlink_with_real_file() {
-    // Simulate a stow-style symlink: target is a symlink to a file with matching content.
+    // The target is an unexpected symlink to a file with matching content.
     // `blend sync --force-source-to-target` should replace the symlink with a real file.
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
 
     // First, create a real file elsewhere with the same content that blend would deploy
-    let stow_dir = TempDir::new().unwrap();
-    let stow_file = stow_dir.path().join("config.txt");
+    let backing_dir = TempDir::new().unwrap();
+    let backing_file = backing_dir.path().join("config.txt");
 
     // Read the source file content to know what blend would deploy
     let source_content =
         std::fs::read_to_string(fixtures_dir().join("orders/plaintext-single/config.txt")).unwrap();
-    std::fs::write(&stow_file, &source_content).unwrap();
+    std::fs::write(&backing_file, &source_content).unwrap();
 
-    // Create a symlink at the target location pointing to the stow file
+    // Create a symlink at the target location pointing to the backing file.
     let target = home.path().join(".config/plaintext-single/config.txt");
-    create_symlink(&stow_file, &target);
+    create_symlink(&backing_file, &target);
 
     // Verify it's a symlink with matching content
     assert!(target.symlink_metadata().unwrap().file_type().is_symlink());
@@ -1617,10 +1630,8 @@ fn test_sync_force_source_to_target_replaces_symlink_with_real_file() {
 
 #[test]
 #[cfg(unix)]
-fn test_sync_force_source_to_target_replaces_symlinked_directory() {
-    // Test that a symlinked directory target also gets replaced with a real directory.
-    // We use test-file which has a from_file entry pointing to a single file,
-    // but we need to test with a from_config entry too.
+fn test_sync_force_source_to_target_replaces_structured_file_symlink() {
+    // Structured from_config entries must obey the same real-file invariant.
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
 
@@ -1636,12 +1647,7 @@ fn test_sync_force_source_to_target_replaces_symlinked_directory() {
     let target = home.path().join(".config/toml-basic/config.toml");
     let expected_content = std::fs::read_to_string(&target).unwrap();
 
-    // Now remove the target and replace with a symlink to a file with same content
-    let stow_dir = TempDir::new().unwrap();
-    let stow_file = stow_dir.path().join("config.toml");
-    std::fs::write(&stow_file, &expected_content).unwrap();
-    std::fs::remove_file(&target).unwrap();
-    create_symlink(&stow_file, &target);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
     assert!(target.symlink_metadata().unwrap().file_type().is_symlink());
 
@@ -1683,14 +1689,7 @@ fn test_view_shows_symlink_annotation() {
     );
 
     let target = home.path().join(".config/plaintext-single/config.txt");
-    let content = std::fs::read_to_string(&target).unwrap();
-
-    // Replace with a symlink to a file with same content
-    let stow_dir = TempDir::new().unwrap();
-    let stow_file = stow_dir.path().join("config.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&target).unwrap();
-    create_symlink(&stow_file, &target);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
     // View should show the symlink annotation
     let output = run_blend(home.path(), &orders, &["view", "plaintext-single"]);
@@ -1724,14 +1723,7 @@ fn test_sync_interactive_replaces_symlink_automatically() {
     );
 
     let target = home.path().join(".config/plaintext-single/config.txt");
-    let content = std::fs::read_to_string(&target).unwrap();
-
-    // Replace with symlink
-    let stow_dir = TempDir::new().unwrap();
-    let stow_file = stow_dir.path().join("config.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&target).unwrap();
-    create_symlink(&stow_file, &target);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
     // Run sync without --force-source-to-target (interactive mode), but since there's no content
     // diff, the symlink replacement should happen automatically without prompting.
@@ -1767,14 +1759,7 @@ fn test_sync_dry_run_detects_symlink_but_does_not_replace() {
     );
 
     let target = home.path().join(".config/plaintext-single/config.txt");
-    let content = std::fs::read_to_string(&target).unwrap();
-
-    // Replace with symlink
-    let stow_dir = TempDir::new().unwrap();
-    let stow_file = stow_dir.path().join("config.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&target).unwrap();
-    create_symlink(&stow_file, &target);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
     // Dry run should detect but not modify
     let output = run_blend(
@@ -1798,7 +1783,7 @@ fn test_sync_dry_run_detects_symlink_but_does_not_replace() {
 }
 
 /// Inner-file leftover scenario: the deployed *directory* is a real dir,
-/// but one file inside it is still a stow-style symlink. Status, view, and
+/// but one file inside it is an unexpected symlink. Status, view, and
 /// sync must all surface and replace it — these were silent before.
 #[test]
 #[cfg(unix)]
@@ -1815,14 +1800,7 @@ fn test_status_shows_symlinked_for_inner_file_symlink() {
     assert!(deploy.status.success());
 
     let inner = home.path().join(".config/plaintext-dir/conf/file1.txt");
-    let content = std::fs::read_to_string(&inner).unwrap();
-
-    // Replace just file1.txt with a symlink to identical content
-    let stow = TempDir::new().unwrap();
-    let stow_file = stow.path().join("file1.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&inner).unwrap();
-    create_symlink(&stow_file, &inner);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&inner);
     assert!(inner.symlink_metadata().unwrap().file_type().is_symlink());
 
     let output = run_blend(home.path(), &orders, &[]);
@@ -1846,12 +1824,7 @@ fn test_view_annotates_inner_file_symlink() {
     );
 
     let inner = home.path().join(".config/plaintext-dir/conf/file1.txt");
-    let content = std::fs::read_to_string(&inner).unwrap();
-    let stow = TempDir::new().unwrap();
-    let stow_file = stow.path().join("file1.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&inner).unwrap();
-    create_symlink(&stow_file, &inner);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&inner);
 
     let output = run_blend(home.path(), &orders, &["view", "plaintext-dir"]);
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -1880,12 +1853,7 @@ fn test_sync_interactive_auto_replaces_inner_file_symlink() {
     );
 
     let inner = home.path().join(".config/plaintext-dir/conf/file1.txt");
-    let content = std::fs::read_to_string(&inner).unwrap();
-    let stow = TempDir::new().unwrap();
-    let stow_file = stow.path().join("file1.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&inner).unwrap();
-    create_symlink(&stow_file, &inner);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&inner);
 
     // Interactive sync (no --force-source-to-target) — must NOT prompt because there's no
     // content diff, only a structural symlink mismatch.
@@ -1909,12 +1877,7 @@ fn test_sync_force_source_to_target_replaces_inner_file_symlink() {
     );
 
     let inner = home.path().join(".config/plaintext-dir/conf/file1.txt");
-    let content = std::fs::read_to_string(&inner).unwrap();
-    let stow = TempDir::new().unwrap();
-    let stow_file = stow.path().join("file1.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&inner).unwrap();
-    create_symlink(&stow_file, &inner);
+    let (_backing_dir, backing_file, content) = replace_with_unexpected_symlink(&inner);
     assert!(inner.symlink_metadata().unwrap().file_type().is_symlink());
 
     let output = run_blend(
@@ -1927,37 +1890,37 @@ fn test_sync_force_source_to_target_replaces_inner_file_symlink() {
         !inner.symlink_metadata().unwrap().file_type().is_symlink(),
         "Inner file must be a real file after forced source-to-target"
     );
-    // Stow source must remain untouched (forced source-to-target must not write through the symlink)
-    assert_eq!(std::fs::read_to_string(&stow_file).unwrap(), content);
+    // The backing file must remain untouched: sync must not write through the symlink.
+    assert_eq!(std::fs::read_to_string(&backing_file).unwrap(), content);
 }
 
 #[test]
 #[cfg(unix)]
 fn test_view_annotates_symlink_when_content_also_differs() {
     // Real-world ncdu shape: parent directory of the target is a symlink
-    // to a legacy stow tree, AND the resolved file content differs from
+    // to a backing tree, AND the resolved file content differs from
     // the source. View must show BOTH the diff and the symlink annotation,
     // not just the diff (otherwise the user can't tell that a redeploy
     // is needed to restructure the path).
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
 
-    // Build the stow-style tree at a path outside home, then symlink
+    // Build a backing tree outside home, then symlink
     // the parent directory in.
-    let stow = TempDir::new().unwrap();
-    let stow_order = stow.path().join("plaintext-single");
-    std::fs::create_dir_all(&stow_order).unwrap();
-    std::fs::write(stow_order.join("config.txt"), "old stow content\n").unwrap();
+    let backing = TempDir::new().unwrap();
+    let backing_order = backing.path().join("plaintext-single");
+    std::fs::create_dir_all(&backing_order).unwrap();
+    std::fs::write(backing_order.join("config.txt"), "old backing content\n").unwrap();
 
     let parent = home.path().join(".config/plaintext-single");
     std::fs::create_dir_all(parent.parent().unwrap()).unwrap();
-    create_symlink(&stow_order, &parent);
+    create_symlink(&backing_order, &parent);
 
     // Sanity: target resolves through the symlink to differing content.
     let target = parent.join("config.txt");
     assert_eq!(
         std::fs::read_to_string(&target).unwrap(),
-        "old stow content\n"
+        "old backing content\n"
     );
     assert!(
         parent.symlink_metadata().unwrap().file_type().is_symlink(),
@@ -1973,7 +1936,7 @@ fn test_view_annotates_symlink_when_content_also_differs() {
     );
     // And the content diff must still be shown
     assert!(
-        stdout.contains("old stow content"),
+        stdout.contains("old backing content"),
         "view must still show the content diff:\n{stdout}"
     );
 }
@@ -1992,14 +1955,7 @@ fn test_status_shows_symlink_mismatch() {
     );
 
     let target = home.path().join(".config/plaintext-single/config.txt");
-    let content = std::fs::read_to_string(&target).unwrap();
-
-    // Replace with symlink
-    let stow_dir = TempDir::new().unwrap();
-    let stow_file = stow_dir.path().join("config.txt");
-    std::fs::write(&stow_file, &content).unwrap();
-    std::fs::remove_file(&target).unwrap();
-    create_symlink(&stow_file, &target);
+    let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
     // Status should show "symlinked" status
     let output = run_blend(home.path(), &orders, &[]);

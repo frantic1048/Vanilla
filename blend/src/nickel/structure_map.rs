@@ -23,10 +23,6 @@ pub struct RecordInfo {
 /// Structural information about a single field definition
 #[derive(Debug)]
 pub struct FieldInfo {
-    /// Dotted display path relative to the containing from_config (e.g.,
-    /// "font.size"). Display only — segments may contain literal dots.
-    #[allow(dead_code)]
-    pub path: String,
     /// Structured field path with real segment boundaries.
     pub key_path: KeyPath,
     /// Byte range of the entire field definition (from field name to end of value,
@@ -61,14 +57,8 @@ pub struct StructureMap {
     pub nested_records: HashMap<KeyPath, RecordInfo>,
     /// Additional literal-record operands of an outermost `&` merge
     pub merge_partners: Vec<MergePartner>,
-    /// Comment byte ranges within the .ncl source.
-    ///
-    /// TODO: Insert/Delete in `surgical_rewrite_with_structure` does not yet
-    /// consult these ranges, so deleting a field leaves its leading doc
-    /// comment orphaned. See `test_delete_field_should_remove_leading_doc_comment`
-    /// (an inverted `#[should_panic]` test) for the concrete gap this field
-    /// is meant to close.
-    #[allow(dead_code)]
+    /// Comment byte ranges used to remove a deleted field's contiguous leading
+    /// documentation without disturbing comments for adjacent fields.
     pub comments: Vec<Range<usize>>,
 }
 
@@ -585,8 +575,6 @@ fn build_record_info(
         let mut full_segments = path_prefix.segments().to_vec();
         full_segments.extend(segments.iter().cloned());
         let full_key_path = KeyPath::new(full_segments);
-        let full_path = full_key_path.to_string();
-
         // Compute indentation from the first field
         if first_field {
             field_indent = compute_indent(source, field_decl.start_byte());
@@ -613,7 +601,6 @@ fn build_record_info(
         }
 
         fields.push(FieldInfo {
-            path: full_path,
             key_path: full_key_path.clone(),
             full_range: field_start..field_end,
             value_range,
@@ -695,31 +682,6 @@ mod tests {
         KeyPath::new(dotted.split('.').map(str::to_string).collect())
     }
 
-    // -- Helper to dump CST for debugging --
-
-    #[allow(dead_code)]
-    fn dump_cst(node: tree_sitter::Node, source: &str, indent: usize) {
-        let prefix = "  ".repeat(indent);
-        let text = &source[node.start_byte()..node.end_byte()];
-        let display = if text.len() > 60 {
-            format!("{}...", &text[..57])
-        } else {
-            text.to_string()
-        };
-        eprintln!(
-            "{}{} [{}-{}] {:?}",
-            prefix,
-            node.kind(),
-            node.start_byte(),
-            node.end_byte(),
-            display
-        );
-        let mut cursor = node.walk();
-        for child in node.children(&mut cursor) {
-            dump_cst(child, source, indent + 1);
-        }
-    }
-
     // -----------------------------------------------------------------------
     // a. Basic record extraction
     // -----------------------------------------------------------------------
@@ -745,8 +707,8 @@ mod tests {
         assert_eq!(map.root.fields.len(), 2);
 
         // Check field paths
-        assert_eq!(map.root.fields[0].path, "a");
-        assert_eq!(map.root.fields[1].path, "b");
+        assert_eq!(map.root.fields[0].key_path, kp("a"));
+        assert_eq!(map.root.fields[1].key_path, kp("b"));
 
         // Check value ranges point to actual values
         let a_val = &source[map.root.fields[0].value_range.clone()];
@@ -781,7 +743,7 @@ mod tests {
 
         // Root should have one field: "font"
         assert_eq!(map.root.fields.len(), 1);
-        assert_eq!(map.root.fields[0].path, "font");
+        assert_eq!(map.root.fields[0].key_path, kp("font"));
 
         // There should be a nested record at path "font"
         assert!(
@@ -791,8 +753,8 @@ mod tests {
 
         let font_record = &map.nested_records[&kp("font")];
         assert_eq!(font_record.fields.len(), 2);
-        assert_eq!(font_record.fields[0].path, "font.size");
-        assert_eq!(font_record.fields[1].path, "font.family");
+        assert_eq!(font_record.fields[0].key_path, kp("font.size"));
+        assert_eq!(font_record.fields[1].key_path, kp("font.family"));
 
         // Verify nested value ranges
         let size_val = &source[font_record.fields[0].value_range.clone()];
@@ -824,7 +786,7 @@ mod tests {
 
         // The field should have path "font.size" (joined segments)
         assert_eq!(map.root.fields.len(), 1);
-        assert_eq!(map.root.fields[0].path, "font.size");
+        assert_eq!(map.root.fields[0].key_path, kp("font.size"));
     }
 
     // -----------------------------------------------------------------------
@@ -848,7 +810,7 @@ mod tests {
         let map = build_structure_map(source, 0).unwrap();
 
         assert_eq!(map.root.fields.len(), 1);
-        assert_eq!(map.root.fields[0].path, "$schema");
+        assert_eq!(map.root.fields[0].key_path, kp("$schema"));
     }
 
     // -----------------------------------------------------------------------
@@ -929,23 +891,8 @@ mod tests {
         assert!(has_field_comment, "Should find 'Field comment'");
     }
 
-    /// Pins the gap that `StructureMap::comments` exists to close.
-    ///
-    /// `surgical_rewrite_with_structure` deletes a field by removing the byte
-    /// range from line-start to the next newline. A doc comment immediately
-    /// above the deleted field survives — but it now misleadingly precedes
-    /// the next field. The intended fix is for the rewrite path to consult
-    /// `structure.comments`, detect comments attached to the field being
-    /// deleted, and remove them too.
-    ///
-    /// Inverted-status test: marked `#[should_panic]` so the suite "passes"
-    /// while the gap exists. The day the safety check lands, the inner
-    /// `assert!` will succeed, the test will stop panicking, and
-    /// `should_panic` will fail loudly — at which point flip this to a
-    /// regular `#[test]` that asserts the desired behavior directly.
     #[test]
-    #[should_panic(expected = "Doc comment for deleted field should be removed too")]
-    fn test_delete_field_should_remove_leading_doc_comment() {
+    fn delete_field_removes_contiguous_leading_doc_comments() {
         use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
 
         let source = r#"{
@@ -975,71 +922,36 @@ mod tests {
         );
     }
 
-    // -----------------------------------------------------------------------
-    // g. Real order file: starship
-    // -----------------------------------------------------------------------
-
     #[test]
-    fn test_real_starship_order() {
-        let orders_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
+    fn delete_field_preserves_comments_separated_by_a_blank_line() {
+        use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+          # Record-level note
+
+          # Field-specific note
+          a = 1,
+          b = 2,
+        },
+      },
+    ],
+  },
+}"#;
+
+        let structure = build_structure_map(source, 0).unwrap();
+        let edits = vec![FieldEdit::Delete { path: kp("a") }];
+        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5)
             .unwrap()
-            .join("orders");
-        let starship_path = orders_dir.join("starship/order.ncl");
-        if !starship_path.exists() {
-            eprintln!("Skipping real order test: {:?} not found", starship_path);
-            return;
-        }
+            .new_source;
 
-        let source = std::fs::read_to_string(&starship_path).unwrap();
-        let map = build_structure_map(&source, 0).unwrap();
-
-        // Starship has known fields
-        let field_paths: Vec<&str> = map.root.fields.iter().map(|f| f.path.as_str()).collect();
-        assert!(
-            field_paths.contains(&"$schema"),
-            "Starship should have $schema field, found: {:?}",
-            field_paths
-        );
-        assert!(
-            field_paths.contains(&"command_timeout"),
-            "Starship should have command_timeout field"
-        );
-        assert!(
-            field_paths.contains(&"git_branch"),
-            "Starship should have git_branch field"
-        );
-        assert!(
-            field_paths.contains(&"shell"),
-            "Starship should have shell field"
-        );
-
-        // Check nested records
-        assert!(
-            map.nested_records.contains_key(&kp("shell")),
-            "Should have nested record for 'shell'"
-        );
-        let shell_record = &map.nested_records[&kp("shell")];
-        let shell_fields: Vec<&str> = shell_record
-            .fields
-            .iter()
-            .map(|f| f.path.as_str())
-            .collect();
-        assert!(
-            shell_fields.contains(&"shell.disabled"),
-            "shell should have disabled field, found: {:?}",
-            shell_fields
-        );
-
-        // Verify comment collection (starship has Nerd Fonts comment)
-        let has_nerd_comment = map
-            .comments
-            .iter()
-            .any(|r| source[r.clone()].contains("Nerd Fonts"));
-        assert!(has_nerd_comment, "Should find Nerd Fonts comment");
-
-        // Field indent should be reasonable (likely 10 spaces for starship)
-        assert!(map.root.field_indent > 0, "Field indent should be non-zero");
+        assert!(result.contains("Record-level note"));
+        assert!(!result.contains("Field-specific note"));
+        assert!(result.contains("b = 2"));
     }
 
     // -----------------------------------------------------------------------
@@ -1097,13 +1009,13 @@ mod tests {
         // Map the first entry
         let map0 = build_structure_map(source, 0).unwrap();
         assert_eq!(map0.root.fields.len(), 1);
-        assert_eq!(map0.root.fields[0].path, "x");
+        assert_eq!(map0.root.fields[0].key_path, kp("x"));
 
         // Map the second entry
         let map1 = build_structure_map(source, 1).unwrap();
         assert_eq!(map1.root.fields.len(), 2);
-        assert_eq!(map1.root.fields[0].path, "y");
-        assert_eq!(map1.root.fields[1].path, "z");
+        assert_eq!(map1.root.fields[0].key_path, kp("y"));
+        assert_eq!(map1.root.fields[1].key_path, kp("z"));
     }
 
     // -----------------------------------------------------------------------
@@ -1158,11 +1070,11 @@ mod tests {
         let parent = map.parent_record(&kp("section.key")).unwrap();
         // It should be the nested record for "section"
         assert!(!parent.fields.is_empty());
-        assert_eq!(parent.fields[0].path, "section.key");
+        assert_eq!(parent.fields[0].key_path, kp("section.key"));
 
         // Parent of "section" should be the root
         let root_parent = map.parent_record(&kp("section")).unwrap();
-        assert_eq!(root_parent.fields[0].path, "section");
+        assert_eq!(root_parent.fields[0].key_path, kp("section"));
     }
 
     #[test]
@@ -1184,10 +1096,10 @@ mod tests {
 }"#;
         let map = build_structure_map(source, 0).unwrap();
         let field_a = map.find_field(&kp("a")).unwrap();
-        assert_eq!(field_a.path, "a");
+        assert_eq!(field_a.key_path, kp("a"));
 
         let field_c = map.find_field(&kp("b.c")).unwrap();
-        assert_eq!(field_c.path, "b.c");
+        assert_eq!(field_c.key_path, kp("b.c"));
 
         assert!(map.find_field(&kp("nonexistent")).is_none());
     }
@@ -1211,18 +1123,23 @@ mod tests {
         let map = build_structure_map(source, 0).unwrap();
 
         // Root (LHS) has a, b
-        let root_paths: Vec<&str> = map.root.fields.iter().map(|f| f.path.as_str()).collect();
-        assert_eq!(root_paths, vec!["a", "b"]);
-
-        // Partner (RHS) has c
-        assert_eq!(map.merge_partners.len(), 1);
-        let partner_paths: Vec<&str> = map.merge_partners[0]
+        let root_paths: Vec<KeyPath> = map
             .root
             .fields
             .iter()
-            .map(|f| f.path.as_str())
+            .map(|field| field.key_path.clone())
             .collect();
-        assert_eq!(partner_paths, vec!["c"]);
+        assert_eq!(root_paths, vec![kp("a"), kp("b")]);
+
+        // Partner (RHS) has c
+        assert_eq!(map.merge_partners.len(), 1);
+        let partner_paths: Vec<KeyPath> = map.merge_partners[0]
+            .root
+            .fields
+            .iter()
+            .map(|field| field.key_path.clone())
+            .collect();
+        assert_eq!(partner_paths, vec![kp("c")]);
 
         // find_field sees both scopes
         assert!(map.find_field(&kp("a")).is_some());
@@ -1256,7 +1173,12 @@ mod tests {
 
         // parent_record(&kp("y.b")) finds the partner's "y" subrecord
         let parent = map.parent_record(&kp("y.b")).unwrap();
-        assert!(parent.fields.iter().any(|f| f.path == "y.b"));
+        assert!(
+            parent
+                .fields
+                .iter()
+                .any(|field| field.key_path == kp("y.b"))
+        );
     }
 
     #[test]
@@ -1286,33 +1208,16 @@ mod tests {
 
         // Only LHS is captured structurally.
         assert!(map.merge_partners.is_empty());
-        let root_paths: Vec<&str> = map.root.fields.iter().map(|f| f.path.as_str()).collect();
-        assert_eq!(root_paths, vec!["a"]);
+        let root_paths: Vec<KeyPath> = map
+            .root
+            .fields
+            .iter()
+            .map(|field| field.key_path.clone())
+            .collect();
+        assert_eq!(root_paths, vec![kp("a")]);
 
         // `b` is reachable via shadow walk's leaf spans, but NOT via the
         // structure map (Insert/Delete on `b` is intentionally unsupported).
         assert!(map.find_field(&kp("b")).is_none());
-    }
-
-    #[test]
-    fn test_merge_real_alacritty_order() {
-        let orders_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .parent()
-            .unwrap()
-            .join("orders");
-        let path = orders_dir.join("alacritty/order.ncl");
-        if !path.exists() {
-            eprintln!("Skipping real alacritty test: {:?} not found", path);
-            return;
-        }
-        let source = std::fs::read_to_string(&path).unwrap();
-        let map = build_structure_map(&source, 0).unwrap();
-
-        // alacritty's from_config is `{ window=..., font=... } & (match ...)`.
-        // We expect window/font to live on root and merge_partners to be empty.
-        let root_paths: Vec<&str> = map.root.fields.iter().map(|f| f.path.as_str()).collect();
-        assert!(root_paths.contains(&"window"));
-        assert!(root_paths.contains(&"font"));
-        assert!(map.merge_partners.is_empty());
     }
 }

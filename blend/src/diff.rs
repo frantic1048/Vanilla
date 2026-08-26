@@ -1,7 +1,6 @@
 mod semantic;
 mod text;
 
-#[allow(unused_imports)]
 pub use semantic::{
     KeyChange, KeyChangeType, key_change_with_base_display, semantic_diff, semantic_diff_keys,
     semantic_diff_with_base,
@@ -52,7 +51,7 @@ pub struct FileDiffResult {
     /// Whether the file only exists in the source (not yet deployed)
     pub source_only: bool,
     /// Whether the deployed target is a symlink. Set even when resolved
-    /// content matches the source, so callers can flag legacy stow leftovers
+    /// content matches the source, so callers can flag unexpected symlinks
     /// that need to be replaced with a real file on the next sync.
     pub target_is_symlink: bool,
 }
@@ -407,7 +406,7 @@ mod tests {
         assert!(results[0].source_only);
     }
 
-    /// Legacy stow leftover: target file is a symlink whose resolved content
+    /// Unexpected target symlink whose resolved content
     /// matches the source. Even though contents agree, the deployed file's
     /// type is wrong and a redeploy is required.
     #[cfg(unix)]

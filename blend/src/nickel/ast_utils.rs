@@ -22,7 +22,6 @@ use crate::nickel::key_path::KeyPath;
 // ---------------------------------------------------------------------------
 
 /// Result of analyzing a from_config value for rewritability
-#[allow(dead_code)]
 pub enum RewriteResult {
     /// All fields reach rewritable leaf values
     Rewritable { leaf_spans: Vec<LeafSpan> },
@@ -85,7 +84,6 @@ pub struct LeafSpan {
 }
 
 /// A field whose value cannot be auto-pulled
-#[allow(dead_code)]
 pub struct NonRewritableField {
     /// Dotted display name (for messages only; see `LeafSpan::name`)
     pub name: String,
@@ -93,8 +91,6 @@ pub struct NonRewritableField {
     pub path: KeyPath,
     /// Why it can't be rewritten
     pub reason: String,
-    /// Conditions followed before reaching the non-rewritable node
-    pub branch_context: Vec<String>,
 }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +118,6 @@ fn find_rewritable_value<'ast>(
             } else {
                 SingleFieldResult::NotRewritable {
                     reason: "no source position".to_string(),
-                    branch_context: context.clone(),
                 }
             }
         }
@@ -140,13 +135,11 @@ fn find_rewritable_value<'ast>(
                 } else {
                     SingleFieldResult::NotRewritable {
                         reason: "no source position".to_string(),
-                        branch_context: context.clone(),
                     }
                 }
             } else {
                 SingleFieldResult::NotRewritable {
                     reason: "string with interpolation".to_string(),
-                    branch_context: context.clone(),
                 }
             }
         }
@@ -163,7 +156,6 @@ fn find_rewritable_value<'ast>(
             } else {
                 SingleFieldResult::NotRewritable {
                     reason: "no source position".to_string(),
-                    branch_context: context.clone(),
                 }
             }
         }
@@ -184,18 +176,15 @@ fn find_rewritable_value<'ast>(
                         }
                         SingleFieldResult::NotRewritable {
                             reason: format!("no match branch for value \"{}\"", resolved),
-                            branch_context: context.clone(),
                         }
                     } else {
                         SingleFieldResult::NotRewritable {
                             reason: "cannot resolve match argument against metadata".to_string(),
-                            branch_context: context.clone(),
                         }
                     }
                 } else {
                     SingleFieldResult::NotRewritable {
                         reason: "match applied without argument".to_string(),
-                        branch_context: context.clone(),
                     }
                 }
             } else {
@@ -218,7 +207,6 @@ fn find_rewritable_value<'ast>(
             } else {
                 SingleFieldResult::NotRewritable {
                     reason: "cannot evaluate if condition".to_string(),
-                    branch_context: context.clone(),
                 }
             }
         }
@@ -226,7 +214,6 @@ fn find_rewritable_value<'ast>(
         // Everything else: not rewritable
         _ => SingleFieldResult::NotRewritable {
             reason: "unsupported expression type".to_string(),
-            branch_context: context.clone(),
         },
     }
 }
@@ -240,7 +227,6 @@ enum SingleFieldResult {
     },
     NotRewritable {
         reason: String,
-        branch_context: Vec<String>,
     },
 }
 
@@ -572,15 +558,11 @@ fn collect_fields_from_record_with_prefix<'ast>(
                     branch_context,
                 });
             }
-            SingleFieldResult::NotRewritable {
-                reason,
-                branch_context,
-            } => {
+            SingleFieldResult::NotRewritable { reason } => {
                 non_rewritable.push(NonRewritableField {
                     name: full_name,
                     path: full_path,
                     reason,
-                    branch_context,
                 });
             }
         }
@@ -791,18 +773,6 @@ pub enum FieldEdit {
     Delete { path: KeyPath },
 }
 
-impl FieldEdit {
-    /// Consumed by tests today and by Stage 2's decision accounting.
-    #[allow(dead_code)]
-    pub fn path(&self) -> &KeyPath {
-        match self {
-            FieldEdit::Modify { path, .. }
-            | FieldEdit::Insert { path, .. }
-            | FieldEdit::Delete { path } => path,
-        }
-    }
-}
-
 /// Extended surgical rewrite that supports value modification, field insertion,
 /// and field deletion.
 ///
@@ -959,7 +929,12 @@ pub fn surgical_rewrite_with_structure(
                     .map(|pos| pos + 1) // skip the \n itself
                     .unwrap_or(field.full_range.start);
 
-                let delete_start = line_start;
+                let delete_start = leading_comment_block_start(
+                    source,
+                    &structure.comments,
+                    line_start,
+                    field.full_range.start,
+                );
                 let mut delete_end = field.full_range.end;
 
                 // Also consume trailing whitespace and newline after the field
@@ -996,6 +971,44 @@ pub fn surgical_rewrite_with_structure(
         applied,
         unapplied,
     })
+}
+
+/// Include a contiguous block of standalone comments immediately above a
+/// deleted field. Blank lines and inline comments form a boundary so comments
+/// belonging to the surrounding record or previous field are preserved.
+fn leading_comment_block_start(
+    source: &str,
+    comments: &[std::ops::Range<usize>],
+    field_line_start: usize,
+    field_start: usize,
+) -> usize {
+    let field_indent = &source[field_line_start..field_start];
+    let mut delete_start = field_line_start;
+
+    while let Some(comment) = comments
+        .iter()
+        .filter(|comment| comment.end <= delete_start)
+        .max_by_key(|comment| comment.end)
+    {
+        let between = &source[comment.end..delete_start];
+        if !between.chars().all(char::is_whitespace)
+            || between.bytes().filter(|byte| *byte == b'\n').count() != 1
+        {
+            break;
+        }
+
+        let comment_line_start = source[..comment.start]
+            .rfind('\n')
+            .map(|pos| pos + 1)
+            .unwrap_or(0);
+        if &source[comment_line_start..comment.start] != field_indent {
+            break;
+        }
+
+        delete_start = comment_line_start;
+    }
+
+    delete_start
 }
 
 /// Determine the indentation level of a from_config block by looking at the source.

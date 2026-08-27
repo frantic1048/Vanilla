@@ -3,6 +3,7 @@ mod json;
 mod jsonc;
 mod plaintext;
 mod toml;
+mod yaml;
 
 use anyhow::Result;
 
@@ -13,6 +14,7 @@ pub use self::json::JsonRenderer;
 pub use self::jsonc::JsoncRenderer;
 pub use self::plaintext::PlaintextRenderer;
 pub use self::toml::TomlRenderer;
+pub use self::yaml::YamlRenderer;
 
 use crate::nickel::Format;
 
@@ -30,7 +32,7 @@ pub fn get_renderer(format: Format) -> Box<dyn FormatRenderer> {
     match format {
         Format::Toml => Box::new(TomlRenderer),
         Format::Json => Box::new(JsonRenderer),
-        Format::Yaml => Box::new(JsonRenderer), // YAML uses JSON-compatible structure
+        Format::Yaml => Box::new(YamlRenderer),
         Format::SpacePairLines => Box::new(SpacePairLinesRenderer),
         Format::SpaceRecordLines => Box::new(SpaceRecordLinesRenderer),
         Format::EqualsRecordLines => Box::new(EqualsRecordLinesRenderer),

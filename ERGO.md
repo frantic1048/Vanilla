@@ -208,7 +208,7 @@ Features that were in "Improvement Ideas" and are now implemented:
 - **Context-aware shadow walk** — follows active match/if branches using runtime metadata
 - **`--no-rewrite` flag** — disables Target -> Source rewrite for review-only mode
 - **`--dry-run` flag** — preview sync actions without changes
-- **Semantic diffing** — format-aware structured comparison for TOML/JSON/JSONC and JSON-subset YAML
+- **Semantic diffing** — format-aware structured comparison for TOML/JSON/JSONC and YAML 1.2
 - **Per-key interactive sync** — `[s]ource [t]arget s[k]ip [a]ll-source a[l]l-target [q]uit` per changed key for `from_config` entries
 - **Snapshot-backed 3-way prompts** — diffs show `<< Source`, `>> Target`, and `|| Base` when a Base snapshot exists
 - **tree-sitter StructureMap** — CST-based record boundary and field range extraction enabling key insertion/deletion in `.ncl` files

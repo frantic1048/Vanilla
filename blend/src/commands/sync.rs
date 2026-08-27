@@ -216,31 +216,69 @@ pub fn cmd_sync(
 
             // For from_config entries in interactive mode, use per-key flow
             let is_from_config = !result.is_plaintext && !result.is_symlink;
-            // Per-key only works if the deployed file can be semantically parsed
-            let deployed_parseable = if is_from_config {
-                let format = result.format;
-                std::fs::read_to_string(&result.target)
-                    .ok()
-                    .and_then(|s| get_renderer(format).parse(&s).ok())
-                    .is_some()
-            } else {
-                false
-            };
+            // Malformed Target data cannot participate in a semantic merge, but
+            // whole-file interactive mode can still repair it from Source.
             let use_per_key = is_from_config
                 && matches!(mode, SyncMode::Interactive)
                 && !ctx.dry_run
                 && can_pull
-                && deployed_parseable;
+                && std::fs::read_to_string(&result.target)
+                    .ok()
+                    .is_some_and(|content| get_renderer(result.format).parse(&content).is_ok());
 
             if use_per_key {
                 // Per-key interactive sync for from_config entries
                 let format = result.format;
-                let key_changes = semantic_diff_keys(
+                let format_renderer = get_renderer(format);
+                let deployed_content = match std::fs::read_to_string(&result.target) {
+                    Ok(content) => content,
+                    Err(error) => {
+                        log::error(&format!(
+                            "Could not read Target for semantic merge of {}:{}: {}",
+                            order_name, result.name, error
+                        ));
+                        build_errors += 1;
+                        continue;
+                    }
+                };
+                let source_json = match format_renderer.parse(&result.content) {
+                    Ok(value) => value,
+                    Err(error) => {
+                        log::error(&format!(
+                            "Could not parse generated {:?} for semantic merge of {}:{}: {}",
+                            format, order_name, result.name, error
+                        ));
+                        build_errors += 1;
+                        continue;
+                    }
+                };
+                let target_json = match format_renderer.parse(&deployed_content) {
+                    Ok(value) => value,
+                    Err(error) => {
+                        log::error(&format!(
+                            "Could not parse Target {:?} for semantic merge of {}:{}: {}",
+                            format, order_name, result.name, error
+                        ));
+                        build_errors += 1;
+                        continue;
+                    }
+                };
+                let key_changes = match semantic_diff_keys(
                     format,
                     &result.content,
-                    &std::fs::read_to_string(&result.target).unwrap_or_default(),
+                    &deployed_content,
                     &result.ignore_keys,
-                );
+                ) {
+                    Ok(changes) => changes,
+                    Err(error) => {
+                        log::error(&format!(
+                            "Could not compute semantic merge for {}:{}: {}",
+                            order_name, result.name, error
+                        ));
+                        build_errors += 1;
+                        continue;
+                    }
+                };
 
                 if key_changes.is_empty() {
                     if ctx.verbose {
@@ -281,15 +319,6 @@ pub fn cmd_sync(
                         None
                     }
                 };
-                let rendered_json_for_annot: serde_json::Value = get_renderer(format)
-                    .parse(&result.content)
-                    .unwrap_or_default();
-                let deployed_json_for_annot: serde_json::Value =
-                    std::fs::read_to_string(&result.target)
-                        .ok()
-                        .and_then(|s| get_renderer(format).parse(&s).ok())
-                        .unwrap_or_default();
-
                 // Display file header
                 let target_display = sync::shorten_path(&result.target, &ctx.home_dir);
                 println!(
@@ -313,8 +342,8 @@ pub fn cmd_sync(
                     } else {
                         let key_annotation = sync::compute_key_annotation(
                             snapshot_json.as_ref(),
-                            &rendered_json_for_annot,
-                            &deployed_json_for_annot,
+                            &source_json,
+                            &target_json,
                             &change.path,
                         );
                         let prompt_change =
@@ -416,14 +445,6 @@ pub fn cmd_sync(
                     skipped += 1;
                     continue;
                 }
-
-                let format_renderer = get_renderer(format);
-                let source_json: serde_json::Value =
-                    format_renderer.parse(&result.content).unwrap_or_default();
-                let target_json: serde_json::Value = std::fs::read_to_string(&result.target)
-                    .ok()
-                    .and_then(|s| format_renderer.parse(&s).ok())
-                    .unwrap_or_default();
 
                 // Build merged JSON from the decisions that actually applied
                 let merged = sync::build_merged_json(&source_json, &target_json, &decisions);

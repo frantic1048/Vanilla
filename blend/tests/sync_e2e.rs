@@ -3,8 +3,9 @@
 //! These tests exercise the full sync flow (build → diff → forced source-to-target
 //! and target-to-source modes) without interactive prompts.
 
+use std::io::Write;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Stdio};
 use tempfile::TempDir;
 
 fn blend_binary() -> PathBuf {
@@ -30,6 +31,32 @@ fn run_blend(home: &Path, blend_dir: &Path, args: &[&str]) -> std::process::Outp
         .arg(blend_dir)
         .output()
         .expect("Failed to execute blend")
+}
+
+fn run_blend_with_stdin(
+    home: &Path,
+    blend_dir: &Path,
+    args: &[&str],
+    input: &str,
+) -> std::process::Output {
+    let mut child = Command::new(blend_binary())
+        .args(args)
+        .arg("--home")
+        .arg(home)
+        .arg("--blend-dir")
+        .arg(blend_dir)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .expect("Failed to execute blend");
+    child
+        .stdin
+        .take()
+        .unwrap()
+        .write_all(input.as_bytes())
+        .unwrap();
+    child.wait_with_output().unwrap()
 }
 
 fn run_blend_in_cwd(home: &Path, cwd: &Path, args: &[&str]) -> std::process::Output {
@@ -1347,6 +1374,112 @@ fn test_sync_force_target_to_source_json_format() {
         ncl_content.contains("16"),
         "order.ncl should have updated fontSize to 16:\n{ncl_content}"
     );
+}
+
+// ---------------------------------------------------------------------------
+// YAML format tests
+// ---------------------------------------------------------------------------
+
+#[test]
+fn test_sync_force_source_to_target_yaml_format() {
+    let home = TempDir::new().unwrap();
+    let orders = fixtures_dir();
+
+    let target = home.path().join(".config/yaml-format/settings.yaml");
+    let output = run_blend(
+        home.path(),
+        &orders,
+        &["sync", "--force-source-to-target", "yaml-format"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+
+    assert!(
+        output.status.success(),
+        "YAML source-to-target sync failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert_eq!(
+        std::fs::read_to_string(target).unwrap(),
+        "enabled: true\nmessage: hello\nnested:\n  count: 2\nports:\n  - 8080\n  - 8443\n"
+    );
+}
+
+#[test]
+fn test_sync_force_target_to_source_accepts_yaml_anchors_and_merge() {
+    let home = TempDir::new().unwrap();
+    let temp_orders = copy_fixture("yaml-format");
+    let orders = temp_orders.path();
+
+    let initial = run_blend(
+        home.path(),
+        orders,
+        &["sync", "--force-source-to-target", "yaml-format"],
+    );
+    assert!(initial.status.success());
+
+    let target = home.path().join(".config/yaml-format/settings.yaml");
+    std::fs::write(
+        &target,
+        "defaults: &defaults\n  count: 3\nenabled: true\nmessage: hello\nnested:\n  <<: *defaults\nports: [8080, 8443]\n",
+    )
+    .unwrap();
+
+    let output = run_blend(
+        home.path(),
+        orders,
+        &["sync", "--force-target-to-source", "yaml-format"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "YAML target-to-source sync failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+
+    let source = std::fs::read_to_string(orders_dir(orders).join("yaml-format/order.ncl")).unwrap();
+    assert!(
+        source.contains("count = 3"),
+        "updated YAML was not pulled:\n{source}"
+    );
+    assert!(
+        source.contains("defaults"),
+        "merged YAML key was not pulled:\n{source}"
+    );
+}
+
+#[test]
+fn test_sync_interactive_can_restore_malformed_yaml_target_from_source() {
+    let home = TempDir::new().unwrap();
+    let temp_orders = copy_fixture("yaml-format");
+    let orders = temp_orders.path();
+
+    let initial = run_blend(
+        home.path(),
+        orders,
+        &["sync", "--force-source-to-target", "yaml-format"],
+    );
+    assert!(initial.status.success());
+
+    let target = home.path().join(".config/yaml-format/settings.yaml");
+    let expected = std::fs::read_to_string(&target).unwrap();
+    std::fs::write(&target, "enabled: [\n").unwrap();
+
+    let output = run_blend_with_stdin(home.path(), orders, &["sync", "yaml-format"], "s\n");
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "interactive YAML repair failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        stdout.contains("[s]ource -> target"),
+        "whole-file repair prompt was not shown:\n{stdout}"
+    );
+    assert!(
+        format!("{stdout}\n{stderr}").contains("showing textual diff"),
+        "YAML parse fallback warning was not visible:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert_eq!(std::fs::read_to_string(target).unwrap(), expected);
 }
 
 /// Regression test for the vscode `[javascript]` sync-back bug: a nested

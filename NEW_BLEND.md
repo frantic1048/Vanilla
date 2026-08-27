@@ -7,7 +7,7 @@ blend is a cross-platform dotfiles manager that uses Nickel DSL to define, build
 **Key properties:**
 - Configs defined in Nickel (`.ncl` files) under `orders/`
 - Platform conditionals via Nickel's native `match`/`if` expressions with runtime metadata injection
-- Format-aware rendering: Nickel data evaluates to JSON, then renders to TOML/JSON/JSON-subset-YAML/delimited formats
+- Format-aware rendering: Nickel data evaluates to JSON, then renders to TOML/JSON/YAML 1.2/delimited formats
 - Bidirectional sync: apply Source (`orders/`) to Target files, or apply Target changes back to Source
 - Semantic diffing: structured formats are compared by parsed values, not text
 
@@ -24,7 +24,7 @@ orders/<order>/order.ncl   Nickel source (data + optional logic)
   NickelEvaluator          Injects metadata, evaluates to JSON
         │
         ▼
-  FormatRenderer           Renders JSON → TOML/JSON/JSONC/YAML-subset/delimited/plaintext
+  FormatRenderer           Renders JSON → TOML/JSON/JSONC/YAML 1.2/delimited/plaintext
         │
         ▼
   ~/.config/<app>/file     Deployed config file
@@ -210,7 +210,7 @@ Format is inferred from `name` extension when `format` is not set:
 | `.toml` | Toml |
 | `.jsonc` | Jsonc |
 | `.json` | Json (auto-falls back to JSONC parsing if strict JSON fails) |
-| `.yaml`, `.yml` | Yaml (currently JSON-subset rendering/parsing) |
+| `.yaml`, `.yml` | Yaml (YAML 1.2 Core Schema within Blend's JSON value model) |
 | anything else | Plaintext |
 
 Explicit `format` values: `"toml"`, `"json"`, `"jsonc"`, `"yaml"`, `"space_pair_lines"`, `"space_record_lines"`, `"equals_record_lines"`, `"plaintext"`.
@@ -297,7 +297,7 @@ font_size = metadata.os |> match {
 
 | Format | Diff strategy | How it works |
 |--------|--------------|--------------|
-| TOML, JSON, JSON-subset YAML | Semantic diff | Parse both sides to JSON values, compare by key/value |
+| TOML, JSON, YAML 1.2 | Semantic diff | Parse both sides to JSON values, compare by key/value |
 | SpaceRecordLines, EqualsRecordLines | Semantic diff | Parse to key-value map, compare |
 | SpacePairLines, Plaintext | Text diff | Line-by-line unified diff |
 
@@ -358,7 +358,7 @@ blend init                         Generate/refresh orders contract + metadata f
 | `Toml` | `TomlRenderer` | starship, aerospace, alacritty | JSON → TOML via `toml` crate | TOML → JSON |
 | `Json` | `JsonRenderer` | vscode settings | JSON → pretty JSON | JSON → JSON (auto-falls back to JSONC) |
 | `Jsonc` | `JsoncRenderer` | JSONC files | JSON → pretty JSON | Strips comments + trailing commas → JSON |
-| `Yaml` | `JsonRenderer` | pueue | JSON output, valid as YAML 1.2 subset | JSON/JSONC parser only |
+| `Yaml` | `YamlRenderer` | pueue, rancher-desktop | Deterministic block-style YAML 1.2 | YAML 1.2 Core Schema; anchors and merge keys expand to JSON values |
 | `SpacePairLines` | `SpacePairLinesRenderer` | kitty | Array of `[key, val]` → `key val\n` lines | Lines → pairs |
 | `SpaceRecordLines` | `SpaceRecordLinesRenderer` | ncdu | Object → `key val\n` lines | Lines → object |
 | `EqualsRecordLines` | `EqualsRecordLinesRenderer` | npm | Object → `key=val\n` lines | Lines → object |
@@ -405,7 +405,7 @@ Detected at startup and injected by wrapping the canonical
 | **Template syntax embedded in target files** | No | Sometimes | Yes | Yes | **No** |
 | **Structured config as source** | No | No | Partial | Partial | **Yes** |
 | **Native conditionals** | No | File variants | Template logic | Template logic | **Nickel `match` / `if`** |
-| **Format-aware rendering** | No | No | Mostly text templates | Template-driven | **TOML / JSON / JSONC / JSON-subset YAML / delimited** |
+| **Format-aware rendering** | No | No | Mostly text templates | Template-driven | **TOML / JSON / JSONC / YAML 1.2 / delimited** |
 | **Semantic diff** | No | No | Limited | Limited | **Yes** |
 | **Reverse sync for generated configs** | N/A via symlinks | Weak | Partial/manual | Strongest among peers | **Partial, context-aware** |
 | **Good fit for GUI-mutated configs** | Only while symlinks stay healthy | Mixed | Mixed | Better | **Good, with partial automatic source rewrite and manual fallback for non-rewritable logic** |
@@ -445,7 +445,7 @@ The explicit build model enables all three, at the cost of needing the shadow wa
 ### Diff ignore strategy
 
 Single `ignore` field, interpreted based on format:
-- Structured formats (TOML/JSON/JSON-subset YAML): key paths filtered recursively from JSON values before comparison
+- Structured formats (TOML/JSON/YAML 1.2): key paths filtered recursively from JSON values before comparison
 - Text formats (Plaintext, SpacePairLines): regex patterns filtering lines
 
 ### Non-ASCII handling
@@ -467,5 +467,4 @@ In `.ncl` files, use `\u{xxxx}` escape sequences for non-ASCII characters (e.g.,
 - **Secrets management** — integration with system keychains or sops
 - **INI format renderer** — for git config and similar `[section]` formats
 - **`--no-rewrite` info display** — show branch context and Nickel snippets when Target -> Source rewrite is disabled
-- **Full YAML parser/renderer** — current `Yaml` uses JSON-compatible output and JSON/JSONC parsing
 - **Watch mode** — auto-sync on source file changes

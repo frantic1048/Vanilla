@@ -5,6 +5,7 @@ use crate::formats::get_renderer;
 use crate::nickel::Format;
 use crate::nickel::ast_utils::json_get_segments;
 use crate::nickel::key_path::{KeyPath, display_segment};
+use crate::output::log;
 
 use super::DiffResult;
 
@@ -45,25 +46,17 @@ pub fn semantic_diff_keys(
     generated: &str,
     deployed: &str,
     ignore_keys: &[String],
-) -> Vec<KeyChange> {
+) -> anyhow::Result<Vec<KeyChange>> {
     let renderer = get_renderer(format);
-
-    let gen_value = match renderer.parse(generated) {
-        Ok(v) => v,
-        Err(_) => return vec![],
-    };
-
-    let dep_value = match renderer.parse(deployed) {
-        Ok(v) => v,
-        Err(_) => return vec![],
-    };
+    let gen_value = renderer.parse(generated)?;
+    let dep_value = renderer.parse(deployed)?;
 
     let gen_filtered = filter_keys(&gen_value, ignore_keys);
     let dep_filtered = filter_keys(&dep_value, ignore_keys);
 
     let mut changes = Vec::new();
     collect_key_changes(&gen_filtered, &dep_filtered, &KeyPath::root(), &mut changes);
-    changes
+    Ok(changes)
 }
 
 /// Recursively collect per-key changes between two JSON values.
@@ -211,12 +204,22 @@ pub fn semantic_diff(
 
     let gen_value = match renderer.parse(generated) {
         Ok(v) => v,
-        Err(_) => return super::text::text_diff(generated, deployed, &[]),
+        Err(error) => {
+            log::warn(&format!(
+                "Could not parse generated {format:?} for semantic diff: {error}; showing textual diff"
+            ));
+            return super::text::text_diff(generated, deployed, &[]);
+        }
     };
 
     let dep_value = match renderer.parse(deployed) {
         Ok(v) => v,
-        Err(_) => return super::text::text_diff(generated, deployed, &[]),
+        Err(error) => {
+            log::warn(&format!(
+                "Could not parse deployed {format:?} for semantic diff: {error}; showing textual diff"
+            ));
+            return super::text::text_diff(generated, deployed, &[]);
+        }
     };
 
     // Filter out ignored keys
@@ -247,17 +250,32 @@ pub fn semantic_diff_with_base(
 
     let gen_value = match renderer.parse(generated) {
         Ok(v) => v,
-        Err(_) => return super::text::text_diff_with_base(generated, deployed, base, &[]),
+        Err(error) => {
+            log::warn(&format!(
+                "Could not parse generated {format:?} for semantic diff: {error}; showing textual diff"
+            ));
+            return super::text::text_diff_with_base(generated, deployed, base, &[]);
+        }
     };
 
     let dep_value = match renderer.parse(deployed) {
         Ok(v) => v,
-        Err(_) => return super::text::text_diff_with_base(generated, deployed, base, &[]),
+        Err(error) => {
+            log::warn(&format!(
+                "Could not parse deployed {format:?} for semantic diff: {error}; showing textual diff"
+            ));
+            return super::text::text_diff_with_base(generated, deployed, base, &[]);
+        }
     };
 
     let base_value = match renderer.parse(base) {
         Ok(v) => v,
-        Err(_) => return semantic_diff(format, generated, deployed, ignore_keys),
+        Err(error) => {
+            log::warn(&format!(
+                "Could not parse snapshot {format:?} for semantic diff: {error}; showing two-way diff"
+            ));
+            return semantic_diff(format, generated, deployed, ignore_keys);
+        }
     };
 
     let gen_filtered = filter_keys(&gen_value, ignore_keys);
@@ -600,15 +618,22 @@ mod tests {
     #[test]
     fn test_semantic_diff_keys_no_changes() {
         let config = r#"{"key": "value"}"#;
-        let changes = semantic_diff_keys(Format::Json, config, config, &[]);
+        let changes = semantic_diff_keys(Format::Json, config, config, &[]).unwrap();
         assert!(changes.is_empty());
+    }
+
+    #[test]
+    fn test_semantic_diff_keys_propagates_parse_failures() {
+        let error = semantic_diff_keys(Format::Yaml, "valid: true\n", "invalid: [\n", &[])
+            .expect_err("invalid YAML must not become an empty change list");
+        assert!(error.to_string().contains("Failed to parse YAML"));
     }
 
     #[test]
     fn test_semantic_diff_keys_modified() {
         let generated = r#"{"key": "new", "other": 1}"#;
         let deployed = r#"{"key": "old", "other": 1}"#;
-        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
+        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]).unwrap();
         assert_eq!(changes.len(), 1);
         assert_eq!(changes[0].path.to_string(), "key");
         assert_eq!(changes[0].change_type, KeyChangeType::Modified);
@@ -622,7 +647,7 @@ mod tests {
     fn test_key_change_with_base_display_shows_base_side() {
         let generated = r#"{"key": "new"}"#;
         let deployed = r#"{"key": "old"}"#;
-        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
+        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]).unwrap();
         let base = json!({"key": "original"});
         let change = key_change_with_base_display(&changes[0], Some(&base));
         assert!(change.display.contains("<< Source: \"new\""));
@@ -634,7 +659,7 @@ mod tests {
     fn test_semantic_diff_keys_added_and_removed() {
         let generated = r#"{"repo_only": 1, "shared": true}"#;
         let deployed = r#"{"deployed_only": 2, "shared": true}"#;
-        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
+        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]).unwrap();
         assert_eq!(changes.len(), 2);
 
         let added = changes
@@ -656,7 +681,7 @@ mod tests {
     fn test_semantic_diff_keys_nested() {
         let generated = r#"{"section": {"a": 1, "b": 2}}"#;
         let deployed = r#"{"section": {"a": 1, "b": 3}}"#;
-        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
+        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]).unwrap();
         assert_eq!(changes.len(), 1);
         assert_eq!(changes[0].path.to_string(), "section.b");
         assert_eq!(changes[0].path.segments(), ["section", "b"]);
@@ -669,7 +694,7 @@ mod tests {
         let generated = r#"{"[javascript]": {"editor.codeActionsOnSave": {"source.fixAll.eslint": "explicit"}}}"#;
         let deployed =
             r#"{"[javascript]": {"editor.codeActionsOnSave": {"source.fixAll.eslint": "always"}}}"#;
-        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]);
+        let changes = semantic_diff_keys(Format::Json, generated, deployed, &[]).unwrap();
         assert_eq!(changes.len(), 1);
         assert_eq!(
             changes[0].path.segments(),
@@ -690,7 +715,8 @@ mod tests {
     fn test_semantic_diff_keys_ignores_keys() {
         let generated = r#"{"keep": "new", "skip": "new"}"#;
         let deployed = r#"{"keep": "old", "skip": "old"}"#;
-        let changes = semantic_diff_keys(Format::Json, generated, deployed, &["skip".to_string()]);
+        let changes =
+            semantic_diff_keys(Format::Json, generated, deployed, &["skip".to_string()]).unwrap();
         assert_eq!(changes.len(), 1);
         assert_eq!(changes[0].path.to_string(), "keep");
     }

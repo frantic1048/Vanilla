@@ -46,9 +46,6 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
-[diff "lockb"]
-	textconv = bun
-	binary = true
 
 # external tools
 [delta]

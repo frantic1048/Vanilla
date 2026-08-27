@@ -21,4 +21,6 @@ Thumbs.db
 
 # Node.js
 node_modules
+
+# Claude
 **/.claude/settings.local.json

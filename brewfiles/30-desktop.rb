@@ -1,4 +1,4 @@
-cask "nikitabobko/tap/aerospace"
+cask "nikitabobko/tap/aerospace", trusted: true
 
 # Using aerospace for now
 =begin

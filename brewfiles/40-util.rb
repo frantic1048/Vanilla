@@ -32,7 +32,6 @@ brew "gnu-time"
 brew "htop"
 brew "hyperfine"
 brew "inxi"
-brew "jless"
 brew "jq"
 brew "mtr"
 brew "ncdu"
@@ -84,18 +83,16 @@ brew "caddy"
 brew "cloudflared"
 brew "ipcalc"
 brew "ldns"
-brew "netbirdio/tap/netbird"
+brew "netbirdio/tap/netbird", trusted: true
 brew "nmap"
 brew "s3cmd"
 brew "tailscale"
-brew "tilt"
-brew "hashicorp/tap/terraform"
-brew "vectordotdev/brew/vector"
-brew "vultr/vultr-cli/vultr-cli"
+brew "hashicorp/tap/terraform", trusted: true
+brew "vectordotdev/brew/vector", trusted: true
 cask "ngrok"
 
 # Kubernetes
-brew "azure/kubelogin/kubelogin"
+brew "azure/kubelogin/kubelogin", trusted: true
 brew "kubectx"
 brew "kubernetes-cli"
 
@@ -119,14 +116,14 @@ brew "ykman"
 
 # Identity
 # https://kanidm.github.io/kanidm/stable/installing_client_tools.html
-brew "kanidm/kanidm/kanidm"
+brew "kanidm/kanidm/kanidm", trusted: true
 
 # Platform CLIs
 brew "gh"
 brew "glab"
-brew "datadog-labs/pack/pup"
-brew "getsentry/tools/sentry"
-brew "buildkite/buildkite/bk@3"
+brew "datadog-labs/pack/pup", trusted: true
+brew "getsentry/tools/sentry", trusted: true
+brew "buildkite/buildkite/bk@3", trusted: true
 
 # Atlassian CLI
 # upstream changed to installation script ... (°_°)

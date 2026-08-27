@@ -12,7 +12,7 @@ cask "visual-studio-code"
 # terminal emulators
 cask "alacritty"
 cask "kitty"
-cask "wez/wezterm/wezterm"
+cask "wez/wezterm/wezterm", trusted: true
 cask "ghostty"
 
 cask "slack"

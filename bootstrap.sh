@@ -77,7 +77,15 @@ export PROTO_HOME="$HOME/.proto"
 export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
 
 # Install essential toolchains and generate shims
-proto install rust node npm pnpm deno bun go python uv
+proto install --pin global rust
+proto install --pin global node
+proto install --pin global npm
+proto install --pin global pnpm
+proto install --pin global deno
+proto install --pin global bun
+proto install --pin global go
+proto install --pin global python
+proto install --pin global uv
 
 # ─── Stage 2: Build & deploy via just ───────────────────────────────────────────
 

@@ -25,22 +25,19 @@ pub struct StateStore {
 }
 
 impl StateStore {
-    /// Resolve the snapshots root from the environment.
-    /// Honors `XDG_STATE_HOME`; falls back to `$HOME/.local/state` on every
-    /// platform (including macOS, where `dirs::state_dir()` returns `None`).
-    #[cfg(test)]
-    pub fn from_env() -> Self {
-        let home = std::env::var_os("HOME")
-            .map(PathBuf::from)
-            .expect("HOME must be set");
-        Self::from_env_for_home(&home)
-    }
-
     /// Resolve the state store from the environment, falling back under the
     /// supplied home directory when `XDG_STATE_HOME` is unset.
     pub fn from_env_for_home(home: &Path) -> Self {
-        let base = std::env::var_os("XDG_STATE_HOME")
-            .map(PathBuf::from)
+        let state_home = std::env::var_os("XDG_STATE_HOME").map(PathBuf::from);
+        Self::for_home_and_state_home(home, state_home.as_deref())
+    }
+
+    /// Resolve the state store from explicit inputs. This keeps callers that
+    /// already know their home/state roots independent of process-global
+    /// environment state.
+    pub fn for_home_and_state_home(home: &Path, state_home: Option<&Path>) -> Self {
+        let base = state_home
+            .map(Path::to_path_buf)
             .unwrap_or_else(|| home.join(".local/state"));
         Self {
             snapshots_root: base.join("blend").join("snapshots"),
@@ -225,72 +222,24 @@ mod tests {
     }
 
     #[test]
-    fn from_env_uses_xdg_state_home_when_set() {
-        // SAFETY: tests in this module are not parallelized over this var.
-        // Use a fresh, unique value to avoid clobbering.
-        let prev = std::env::var_os("XDG_STATE_HOME");
-        // SAFETY: single-threaded test scope.
-        unsafe { std::env::set_var("XDG_STATE_HOME", "/tmp/xdg-state-test") };
-        let store = StateStore::from_env();
+    fn explicit_state_home_takes_precedence() {
+        let store = StateStore::for_home_and_state_home(
+            Path::new("/home/test-user"),
+            Some(Path::new("/tmp/xdg-state-test")),
+        );
         assert_eq!(
             store.snapshots_root,
             PathBuf::from("/tmp/xdg-state-test/blend/snapshots")
         );
-        // SAFETY: restore prior env.
-        unsafe {
-            match prev {
-                Some(v) => std::env::set_var("XDG_STATE_HOME", v),
-                None => std::env::remove_var("XDG_STATE_HOME"),
-            }
-        }
     }
 
     #[test]
-    fn from_env_falls_back_to_home_local_state() {
-        let prev_xdg = std::env::var_os("XDG_STATE_HOME");
-        let prev_home = std::env::var_os("HOME");
-        // SAFETY: single-threaded test scope.
-        unsafe {
-            std::env::remove_var("XDG_STATE_HOME");
-            std::env::set_var("HOME", "/home/test-user");
-        }
-        let store = StateStore::from_env();
+    fn explicit_resolution_falls_back_to_home_local_state() {
+        let store = StateStore::for_home_and_state_home(Path::new("/home/test-user"), None);
         assert_eq!(
             store.snapshots_root,
             PathBuf::from("/home/test-user/.local/state/blend/snapshots")
         );
-        // SAFETY: restore prior env.
-        unsafe {
-            match prev_xdg {
-                Some(v) => std::env::set_var("XDG_STATE_HOME", v),
-                None => std::env::remove_var("XDG_STATE_HOME"),
-            }
-            match prev_home {
-                Some(v) => std::env::set_var("HOME", v),
-                None => std::env::remove_var("HOME"),
-            }
-        }
-    }
-
-    #[test]
-    fn from_env_for_home_falls_back_to_supplied_home() {
-        let prev_xdg = std::env::var_os("XDG_STATE_HOME");
-        // SAFETY: single-threaded test scope.
-        unsafe {
-            std::env::remove_var("XDG_STATE_HOME");
-        }
-        let store = StateStore::from_env_for_home(Path::new("/tmp/blend-home"));
-        assert_eq!(
-            store.snapshots_root,
-            PathBuf::from("/tmp/blend-home/.local/state/blend/snapshots")
-        );
-        // SAFETY: restore prior env.
-        unsafe {
-            match prev_xdg {
-                Some(v) => std::env::set_var("XDG_STATE_HOME", v),
-                None => std::env::remove_var("XDG_STATE_HOME"),
-            }
-        }
     }
 
     #[test]

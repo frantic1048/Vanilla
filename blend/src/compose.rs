@@ -236,7 +236,7 @@ fn build_file_entry(
 ///
 /// Walks up from the target path to find any path component that is a symlink
 /// (broken or otherwise) and removes it before calling `create_dir_all`.
-/// This handles the case where old stow/symlink deployments left behind symlinks
+/// This handles the case where previous deployments left behind symlinks
 /// at directories that blend now needs to create as real directories.
 fn ensure_dir(path: &Path) -> Result<()> {
     for ancestor in path.ancestors() {

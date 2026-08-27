@@ -21,7 +21,6 @@ pub enum KeyChangeType {
 
 /// A single key-level change between Source and Target configs
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub struct KeyChange {
     /// Structured key path; each segment is one literal key (segments may
     /// contain dots or brackets). `Display` joins with '.' for UI only.

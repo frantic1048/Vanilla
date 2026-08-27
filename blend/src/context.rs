@@ -25,7 +25,10 @@ impl Context {
     pub fn new(cli: &Cli) -> Result<Self> {
         let home_dir = home_dir_from_cli(cli);
         let state = StateStore::from_env_for_home(&home_dir);
+        Self::new_with_home_and_state(cli, home_dir, state)
+    }
 
+    fn new_with_home_and_state(cli: &Cli, home_dir: PathBuf, state: StateStore) -> Result<Self> {
         let blend_dir_choice = resolve_blend_dir(cli, &state)?;
         let blend_dir = blend_dir_choice.path;
         let orders_dir = blend_dir.join("orders");
@@ -228,12 +231,9 @@ mod tests {
     use tempfile::TempDir;
 
     #[test]
-    fn context_carries_a_state_store_resolved_from_env() {
+    fn context_carries_an_explicit_state_store() {
         let tmp = TempDir::new().unwrap();
-        let xdg = TempDir::new().unwrap();
-        // SAFETY: serial test setup; restore via guard after.
-        let prev_xdg = std::env::var_os("XDG_STATE_HOME");
-        unsafe { std::env::set_var("XDG_STATE_HOME", xdg.path()) };
+        let state_home = TempDir::new().unwrap();
 
         let cli = Cli::parse_from([
             "blend",
@@ -242,7 +242,8 @@ mod tests {
             "--home",
             tmp.path().to_str().unwrap(),
         ]);
-        let ctx = Context::new(&cli).unwrap();
+        let state = StateStore::with_root(state_home.path().join("blend/snapshots"));
+        let ctx = Context::new_with_home_and_state(&cli, tmp.path().to_path_buf(), state).unwrap();
         assert_eq!(ctx.blend_dir, tmp.path());
         assert_eq!(ctx.orders_dir, tmp.path().join("orders"));
 
@@ -252,21 +253,14 @@ mod tests {
         let got = ctx.state.read("order_name", &target).unwrap().unwrap();
         assert_eq!(got, b"hello");
 
-        // Snapshot should land under the XDG override, not the user's real state dir.
+        // Snapshot should land under the explicit state root.
         let p = ctx.state.snapshot_path("order_name", &target).unwrap();
         assert!(
-            p.starts_with(xdg.path()),
+            p.starts_with(state_home.path()),
             "expected snapshot under {} but got {}",
-            xdg.path().display(),
+            state_home.path().display(),
             p.display()
         );
-
-        unsafe {
-            match prev_xdg {
-                Some(v) => std::env::set_var("XDG_STATE_HOME", v),
-                None => std::env::remove_var("XDG_STATE_HOME"),
-            }
-        }
     }
 
     #[test]

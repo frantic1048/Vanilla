@@ -17,7 +17,7 @@ pub fn select_orders(ctx: &Context, orders: &[String]) -> Vec<String> {
 
 /// For directory-style entries: walk the source dir and check whether any
 /// per-file target is itself a symlink. Returns true even when resolved
-/// content matches, so callers can flag legacy stow leftovers within an
+/// content matches, so callers can flag unexpected symlinks within an
 /// otherwise in-sync directory.
 pub fn dir_has_inner_symlinks(source_dir: &std::path::Path, target_dir: &std::path::Path) -> bool {
     diff_directory(source_dir, target_dir, &[])

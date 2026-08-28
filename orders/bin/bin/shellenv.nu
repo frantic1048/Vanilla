@@ -113,6 +113,7 @@ export def compute-env []: nothing -> record {
             ...(existing $"($home)/.local/bin")
             ...(existing $"($brew)/bin")
             ...(existing $"($brew)/sbin")
+            ...(existing "/usr/local/bin")
             ...(existing $"($home)/.rd/bin")
         ]
     } else {

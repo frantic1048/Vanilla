@@ -97,8 +97,6 @@ def "main cargo" [] {
 
 def main [] {
   print_heading "Starting system maintenance"
-  print $work_dir
-  exit 0
 
   main homebrew
   main pacman

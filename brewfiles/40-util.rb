@@ -73,7 +73,6 @@ brew "graphviz"
 brew "imagemagick"
 brew "optipng"
 brew "sevenzip"
-brew "tesseract"
 brew "webp"
 brew "yt-dlp"
 

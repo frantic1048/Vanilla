@@ -33,7 +33,7 @@ return {
     },
 
     font = wezterm.font 'JetBrains Mono',
-    window_background_opacity = 0.64,
+    window_background_opacity = 0.7,
 --    enable_tab_bar = false,
     hide_tab_bar_if_only_one_tab = true
 }

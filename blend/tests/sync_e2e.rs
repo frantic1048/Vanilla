@@ -1693,6 +1693,11 @@ fn create_symlink(target: &Path, link: &Path) {
     std::os::unix::fs::symlink(target, link).unwrap();
 }
 
+#[cfg(unix)]
+fn create_broken_symlink(link: &Path) {
+    create_symlink(Path::new("missing-target"), link);
+}
+
 /// Replace an existing file with an unexpected symlink to identical content.
 /// The returned TempDir keeps the backing file alive for the test duration.
 #[cfg(unix)]
@@ -1754,10 +1759,10 @@ fn test_sync_force_source_to_target_replaces_symlink_with_real_file() {
     // Content should still match
     assert_eq!(std::fs::read_to_string(&target).unwrap(), source_content);
 
-    // Output should mention re-deployment
+    // Output should report the explicit Source -> Target resolution.
     assert!(
-        stdout.contains("Re-deployed") || stdout.contains("replaced symlink"),
-        "Should mention re-deployment in output:\n{stdout}"
+        stdout.contains("Applied Source -> Target"),
+        "Should mention Source -> Target in output:\n{stdout}"
     );
 }
 
@@ -1809,8 +1814,8 @@ fn test_sync_force_source_to_target_replaces_structured_file_symlink() {
 #[test]
 #[cfg(unix)]
 fn test_view_shows_symlink_annotation() {
-    // When a target is a symlink but the order doesn't specify symlink=true,
-    // `blend view` should show a "(symlinked, needs re-deploy)" annotation.
+    // When a target is a symlink but the order expects a regular file,
+    // `blend view` should report a generic node-type mismatch.
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
 
@@ -1835,16 +1840,16 @@ fn test_view_shows_symlink_annotation() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(
-        stdout.contains("symlinked, needs re-deploy"),
-        "Should show symlink annotation in view output:\n{stdout}"
+        stdout.contains("type mismatch: expected file, found symlink"),
+        "Should show type mismatch in view output:\n{stdout}"
     );
 }
 
 #[test]
 #[cfg(unix)]
-fn test_sync_interactive_replaces_symlink_automatically() {
-    // In interactive mode with no content changes, unexpected symlinks should
-    // be auto-redeployed without prompting.
+fn test_sync_interactive_does_not_replace_symlink_automatically() {
+    // An existing node-type mismatch requires an explicit Source -> Target
+    // decision even when the symlink referent has matching content.
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
 
@@ -1858,10 +1863,7 @@ fn test_sync_interactive_replaces_symlink_automatically() {
     let target = home.path().join(".config/plaintext-single/config.txt");
     let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
-    // Run sync without --force-source-to-target (interactive mode), but since there's no content
-    // diff, the symlink replacement should happen automatically without prompting.
-    // (No stdin needed because we don't reach the prompt.)
-    let output = run_blend(home.path(), &orders, &["sync", "plaintext-single"]);
+    let output = run_blend_with_stdin(home.path(), &orders, &["sync", "plaintext-single"], "k\n");
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     assert!(
@@ -1871,10 +1873,10 @@ fn test_sync_interactive_replaces_symlink_automatically() {
         String::from_utf8_lossy(&output.stderr)
     );
 
-    // Should now be a real file
+    // Skip must preserve the exact target symlink.
     assert!(
-        !target.symlink_metadata().unwrap().file_type().is_symlink(),
-        "Target should no longer be a symlink after interactive sync"
+        target.symlink_metadata().unwrap().file_type().is_symlink(),
+        "Target symlink must remain after skipping the conflict"
     );
 }
 
@@ -1904,8 +1906,8 @@ fn test_sync_dry_run_detects_symlink_but_does_not_replace() {
 
     assert!(output.status.success());
     assert!(
-        stdout.contains("symlinked") || stdout.contains("re-deploy"),
-        "Dry run should mention symlink mismatch:\n{stdout}"
+        stdout.contains("type mismatch: expected file, found symlink"),
+        "Dry run should mention the type mismatch:\n{stdout}"
     );
 
     // Should still be a symlink
@@ -1915,9 +1917,310 @@ fn test_sync_dry_run_detects_symlink_but_does_not_replace() {
     );
 }
 
-/// Inner-file leftover scenario: the deployed *directory* is a real dir,
-/// but one file inside it is an unexpected symlink. Status, view, and
-/// sync must all surface and replace it — these were silent before.
+#[test]
+#[cfg(unix)]
+fn test_broken_symlink_is_existing_type_mismatch_and_requires_explicit_source() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("plaintext-single");
+    let target = home.path().join(".config/plaintext-single/config.txt");
+    create_broken_symlink(&target);
+
+    let status = run_blend(home.path(), blend_dir.path(), &[]);
+    let status_stdout = String::from_utf8_lossy(&status.stdout);
+    assert!(status.status.success());
+    assert!(status_stdout.contains("mismatch"));
+    assert!(!status_stdout.contains("plaintext-single     config.txt           pending"));
+
+    let view = run_blend(home.path(), blend_dir.path(), &["view", "plaintext-single"]);
+    let view_stdout = String::from_utf8_lossy(&view.stdout);
+    assert!(view_stdout.contains("type mismatch: expected file, found symlink"));
+    assert!(!view_stdout.contains("not deployed"));
+
+    let source = orders_dir(blend_dir.path()).join("plaintext-single/config.txt");
+    let source_before = std::fs::read_to_string(&source).unwrap();
+    let pull = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-target-to-source", "plaintext-single"],
+    );
+    let pull_stdout = String::from_utf8_lossy(&pull.stdout);
+    assert!(pull.status.success());
+    assert!(pull_stdout.contains("target structure does not match Source"));
+    assert_eq!(std::fs::read_to_string(&source).unwrap(), source_before);
+    assert!(target.symlink_metadata().unwrap().file_type().is_symlink());
+
+    let push = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "plaintext-single"],
+    );
+    assert!(push.status.success());
+    assert!(!target.symlink_metadata().unwrap().file_type().is_symlink());
+    assert_eq!(std::fs::read_to_string(&target).unwrap(), source_before);
+}
+
+#[test]
+#[cfg(unix)]
+fn test_force_target_to_source_does_not_follow_unexpected_symlink() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("plaintext-single");
+    let source = orders_dir(blend_dir.path()).join("plaintext-single/config.txt");
+    let source_before = std::fs::read_to_string(&source).unwrap();
+    let backing = TempDir::new().unwrap();
+    let backing_file = backing.path().join("config.txt");
+    std::fs::write(&backing_file, "content from outside Blend\n").unwrap();
+    let target = home.path().join(".config/plaintext-single/config.txt");
+    create_symlink(&backing_file, &target);
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-target-to-source", "plaintext-single"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success());
+    assert!(stdout.contains("target structure does not match Source"));
+    assert_eq!(std::fs::read_to_string(&source).unwrap(), source_before);
+    assert_eq!(
+        std::fs::read_to_string(&backing_file).unwrap(),
+        "content from outside Blend\n"
+    );
+    assert!(target.symlink_metadata().unwrap().file_type().is_symlink());
+}
+
+#[test]
+#[cfg(unix)]
+fn test_intended_symlink_uses_explicit_reconciliation_for_existing_mismatches() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    let order_dir = orders_dir(blend_dir.path()).join("symlink-entry");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    let source = order_dir.join("source.txt");
+    std::fs::write(&source, "source content\n").unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"{
+  blend = {
+    prefix = ["~/.config/symlink-entry/"],
+    files = [{ name = "config.txt", from_file = "source.txt", symlink = true }],
+  },
+}
+"#,
+    )
+    .unwrap();
+
+    let target = home.path().join(".config/symlink-entry/config.txt");
+    let initial = run_blend(home.path(), blend_dir.path(), &["sync", "symlink-entry"]);
+    assert!(initial.status.success());
+    assert_eq!(
+        std::fs::read_link(&target).unwrap(),
+        source.canonicalize().unwrap()
+    );
+
+    std::fs::remove_file(&target).unwrap();
+    create_symlink(Path::new("wrong-target"), &target);
+    let skipped = run_blend_with_stdin(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "symlink-entry"],
+        "k\n",
+    );
+    assert!(skipped.status.success());
+    assert_eq!(
+        std::fs::read_link(&target).unwrap(),
+        PathBuf::from("wrong-target")
+    );
+
+    let pull = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-target-to-source", "symlink-entry"],
+    );
+    let pull_stdout = String::from_utf8_lossy(&pull.stdout);
+    assert!(pull.status.success());
+    assert!(pull_stdout.contains("target structure does not match Source"));
+    assert_eq!(
+        std::fs::read_link(&target).unwrap(),
+        PathBuf::from("wrong-target")
+    );
+
+    let pushed = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "symlink-entry"],
+    );
+    assert!(pushed.status.success());
+    assert_eq!(
+        std::fs::read_link(&target).unwrap(),
+        source.canonicalize().unwrap()
+    );
+
+    std::fs::remove_file(&target).unwrap();
+    std::fs::write(&target, "regular target\n").unwrap();
+    let view = run_blend(home.path(), blend_dir.path(), &["view", "symlink-entry"]);
+    let view_stdout = String::from_utf8_lossy(&view.stdout);
+    assert!(view_stdout.contains("type mismatch: expected symlink, found file"));
+    assert_eq!(
+        std::fs::read_to_string(&target).unwrap(),
+        "regular target\n"
+    );
+}
+
+#[test]
+#[cfg(unix)]
+fn test_directory_backed_symlink_does_not_inspect_children_through_wrong_link() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    let order_dir = orders_dir(blend_dir.path()).join("symlink-directory");
+    let source = order_dir.join("source");
+    std::fs::create_dir_all(&source).unwrap();
+    std::fs::write(source.join("managed.txt"), "managed content\n").unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"{
+  blend = {
+    prefix = ["~/.config/symlink-directory/"],
+    files = [{ name = "config", from_file = "source", symlink = true }],
+  },
+}
+"#,
+    )
+    .unwrap();
+
+    let wrong_target = home.path().join("wrong-target.txt");
+    std::fs::write(&wrong_target, "not a directory\n").unwrap();
+    let target = home.path().join(".config/symlink-directory/config");
+    create_symlink(&wrong_target, &target);
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "symlink-directory"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "sync failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(
+        !stdout.contains("errors"),
+        "unexpected sync error:\n{stdout}"
+    );
+    assert_eq!(
+        std::fs::read_link(&target).unwrap(),
+        source.canonicalize().unwrap()
+    );
+}
+
+#[test]
+fn test_status_compares_local_overlay_content_from_effective_inventory() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    let order_dir = orders_dir(blend_dir.path()).join("local-overlay-status");
+    let source = order_dir.join("source");
+    let local = order_dir.join("local");
+    std::fs::create_dir_all(&source).unwrap();
+    std::fs::create_dir_all(&local).unwrap();
+    std::fs::write(source.join("tracked.txt"), "tracked content\n").unwrap();
+    std::fs::write(local.join("local.txt"), "local content\n").unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"{
+  blend = {
+    prefix = ["~/.config/local-overlay-status/"],
+    files = [{ name = "config", from_file = "source", local = "local" }],
+  },
+}
+"#,
+    )
+    .unwrap();
+
+    let deploy = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "local-overlay-status"],
+    );
+    assert!(deploy.status.success());
+
+    let local_target = home
+        .path()
+        .join(".config/local-overlay-status/config/local.txt");
+    std::fs::write(&local_target, "drifted local content\n").unwrap();
+
+    let status = run_blend(home.path(), blend_dir.path(), &["status"]);
+    let stdout = String::from_utf8_lossy(&status.stdout);
+    let stderr = String::from_utf8_lossy(&status.stderr);
+    assert!(
+        status.status.success(),
+        "status failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+    assert!(stdout.contains("deployed"));
+    assert!(
+        stdout.contains("\u{2260}"),
+        "local overlay drift must be reported:\n{stdout}"
+    );
+}
+
+#[test]
+fn test_regular_file_and_directory_type_mismatches_share_reconciliation() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("plaintext-single");
+    let file_target = home.path().join(".config/plaintext-single/config.txt");
+    std::fs::create_dir_all(&file_target).unwrap();
+    std::fs::write(
+        file_target.join("unmanaged.txt"),
+        "keep until explicit push",
+    )
+    .unwrap();
+
+    let view = run_blend(home.path(), blend_dir.path(), &["view", "plaintext-single"]);
+    assert!(
+        String::from_utf8_lossy(&view.stdout)
+            .contains("type mismatch: expected file, found directory")
+    );
+
+    let skipped = run_blend_with_stdin(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "plaintext-single"],
+        "k\n",
+    );
+    assert!(skipped.status.success());
+    assert!(file_target.is_dir());
+
+    let pushed = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "plaintext-single"],
+    );
+    assert!(pushed.status.success());
+    assert!(file_target.is_file());
+
+    let dir_blend = copy_fixture("plaintext-dir");
+    let dir_target = home.path().join(".config/plaintext-dir/conf");
+    std::fs::create_dir_all(dir_target.parent().unwrap()).unwrap();
+    std::fs::write(&dir_target, "wrong node type\n").unwrap();
+    let dir_view = run_blend(home.path(), dir_blend.path(), &["view", "plaintext-dir"]);
+    assert!(
+        String::from_utf8_lossy(&dir_view.stdout)
+            .contains("type mismatch: expected directory, found file")
+    );
+    let dir_push = run_blend(
+        home.path(),
+        dir_blend.path(),
+        &["sync", "--force-source-to-target", "plaintext-dir"],
+    );
+    assert!(dir_push.status.success());
+    assert!(dir_target.is_dir());
+    assert!(dir_target.join("file1.txt").is_file());
+}
+
+/// A directory entry owns its managed children, so each child uses the same
+/// generic node-type comparison as a top-level target.
 #[test]
 #[cfg(unix)]
 fn test_status_shows_symlinked_for_inner_file_symlink() {
@@ -1940,8 +2243,8 @@ fn test_status_shows_symlinked_for_inner_file_symlink() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(output.status.success());
     assert!(
-        stdout.contains("symlinked"),
-        "Status must show 'symlinked' when an inner file in a directory entry is a symlink:\n{stdout}"
+        stdout.contains("mismatch"),
+        "Status must show a mismatch for an inner file symlink:\n{stdout}"
     );
 }
 
@@ -1963,8 +2266,8 @@ fn test_view_annotates_inner_file_symlink() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(output.status.success());
     assert!(
-        stdout.contains("unexpected symlink"),
-        "View must annotate inner-file symlink:\n{stdout}"
+        stdout.contains("type mismatch: expected file, found symlink"),
+        "View must annotate the inner-file type mismatch:\n{stdout}"
     );
     assert!(
         stdout.contains("file1.txt"),
@@ -1974,9 +2277,7 @@ fn test_view_annotates_inner_file_symlink() {
 
 #[test]
 #[cfg(unix)]
-fn test_sync_interactive_auto_replaces_inner_file_symlink() {
-    // Pure-symlink-no-content-diff case for an inner file. Interactive sync
-    // should auto-redeploy (no prompt), matching the top-level symlink UX.
+fn test_sync_interactive_does_not_replace_inner_file_symlink_automatically() {
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
     run_blend(
@@ -1988,13 +2289,11 @@ fn test_sync_interactive_auto_replaces_inner_file_symlink() {
     let inner = home.path().join(".config/plaintext-dir/conf/file1.txt");
     let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&inner);
 
-    // Interactive sync (no --force-source-to-target) — must NOT prompt because there's no
-    // content diff, only a structural symlink mismatch.
-    let output = run_blend(home.path(), &orders, &["sync", "plaintext-dir"]);
+    let output = run_blend_with_stdin(home.path(), &orders, &["sync", "plaintext-dir"], "k\n");
     assert!(output.status.success());
     assert!(
-        !inner.symlink_metadata().unwrap().file_type().is_symlink(),
-        "Inner-file symlink must be auto-replaced in interactive mode when content matches"
+        inner.symlink_metadata().unwrap().file_type().is_symlink(),
+        "Inner-file symlink must remain after skipping the type mismatch"
     );
 }
 
@@ -2029,12 +2328,105 @@ fn test_sync_force_source_to_target_replaces_inner_file_symlink() {
 
 #[test]
 #[cfg(unix)]
-fn test_view_annotates_symlink_when_content_also_differs() {
-    // Real-world ncdu shape: parent directory of the target is a symlink
-    // to a backing tree, AND the resolved file content differs from
-    // the source. View must show BOTH the diff and the symlink annotation,
-    // not just the diff (otherwise the user can't tell that a redeploy
-    // is needed to restructure the path).
+fn test_force_target_to_source_does_not_follow_inner_file_symlink() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("plaintext-dir");
+    run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "plaintext-dir"],
+    );
+
+    let source = orders_dir(blend_dir.path()).join("plaintext-dir/conf/file1.txt");
+    let source_before = std::fs::read_to_string(&source).unwrap();
+    let inner = home.path().join(".config/plaintext-dir/conf/file1.txt");
+    let backing = TempDir::new().unwrap();
+    let backing_file = backing.path().join("file1.txt");
+    std::fs::write(&backing_file, "external content\n").unwrap();
+    std::fs::remove_file(&inner).unwrap();
+    create_symlink(&backing_file, &inner);
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-target-to-source", "plaintext-dir"],
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success());
+    assert!(stdout.contains("target structure does not match Source"));
+    assert_eq!(std::fs::read_to_string(&source).unwrap(), source_before);
+    assert_eq!(
+        std::fs::read_to_string(&backing_file).unwrap(),
+        "external content\n"
+    );
+    assert!(inner.symlink_metadata().unwrap().file_type().is_symlink());
+}
+
+#[test]
+#[cfg(unix)]
+fn test_managed_child_directory_symlink_uses_generic_type_reconciliation() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("plaintext-dir");
+    let source_nested = orders_dir(blend_dir.path()).join("plaintext-dir/conf/nested/config.txt");
+    std::fs::create_dir_all(source_nested.parent().unwrap()).unwrap();
+    std::fs::write(&source_nested, "managed nested content\n").unwrap();
+    run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "plaintext-dir"],
+    );
+
+    let target_nested = home.path().join(".config/plaintext-dir/conf/nested");
+    std::fs::remove_dir_all(&target_nested).unwrap();
+    let backing = TempDir::new().unwrap();
+    std::fs::write(
+        backing.path().join("config.txt"),
+        "managed nested content\n",
+    )
+    .unwrap();
+    create_symlink(backing.path(), &target_nested);
+
+    let view = run_blend(home.path(), blend_dir.path(), &["view", "plaintext-dir"]);
+    let view_stdout = String::from_utf8_lossy(&view.stdout);
+    assert!(view_stdout.contains("type mismatch: expected directory, found symlink"));
+
+    let skipped = run_blend_with_stdin(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "plaintext-dir"],
+        "k\n",
+    );
+    assert!(skipped.status.success());
+    assert!(
+        target_nested
+            .symlink_metadata()
+            .unwrap()
+            .file_type()
+            .is_symlink()
+    );
+
+    let pushed = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "plaintext-dir"],
+    );
+    assert!(pushed.status.success());
+    assert!(target_nested.symlink_metadata().unwrap().is_dir());
+    assert_eq!(
+        std::fs::read_to_string(target_nested.join("config.txt")).unwrap(),
+        "managed nested content\n"
+    );
+    assert_eq!(
+        std::fs::read_to_string(backing.path().join("config.txt")).unwrap(),
+        "managed nested content\n"
+    );
+}
+
+#[test]
+#[cfg(unix)]
+fn test_view_ignores_parent_symlink_and_compares_target_content() {
+    // Parent components are path-resolution infrastructure. The managed leaf
+    // is a regular file, so view should report only its content difference.
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
 
@@ -2064,14 +2456,25 @@ fn test_view_annotates_symlink_when_content_also_differs() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(output.status.success());
     assert!(
-        stdout.contains("symlinked, needs re-deploy"),
-        "view must annotate symlink even when content also differs:\n{stdout}"
+        !stdout.contains("type mismatch"),
+        "view must not report the parent symlink as a target mismatch:\n{stdout}"
     );
     // And the content diff must still be shown
     assert!(
         stdout.contains("old backing content"),
         "view must still show the content diff:\n{stdout}"
     );
+
+    let sync = run_blend(
+        home.path(),
+        &orders,
+        &["sync", "--force-source-to-target", "plaintext-single"],
+    );
+    assert!(sync.status.success());
+    assert!(parent.symlink_metadata().unwrap().file_type().is_symlink());
+    let source_content =
+        std::fs::read_to_string(fixtures_dir().join("orders/plaintext-single/config.txt")).unwrap();
+    assert_eq!(std::fs::read_to_string(&target).unwrap(), source_content);
 }
 
 #[test]
@@ -2090,14 +2493,14 @@ fn test_status_shows_symlink_mismatch() {
     let target = home.path().join(".config/plaintext-single/config.txt");
     let (_backing_dir, _backing_file, _) = replace_with_unexpected_symlink(&target);
 
-    // Status should show "symlinked" status
+    // Status should show a generic node-type mismatch.
     let output = run_blend(home.path(), &orders, &[]);
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     assert!(output.status.success());
     assert!(
-        stdout.contains("symlinked"),
-        "Status should show 'symlinked' for unexpected symlink target:\n{stdout}"
+        stdout.contains("mismatch"),
+        "Status should show a mismatch for the symlink target:\n{stdout}"
     );
 }
 

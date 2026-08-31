@@ -1,12 +1,11 @@
-use crate::commands::helpers::{
-    compute_diff_for_result, only_structural_symlink_changes, target_is_unexpected_symlink,
-};
+use crate::commands::helpers::{compute_diff_for_result, result_has_type_mismatch};
 use crate::compose::{
     self, BuildResult, build_glob_set, collect_merged_files, discover_orders, write_result,
 };
 use crate::context::Context;
 use crate::diff::{diff_configs_with_base, key_change_with_base_display, semantic_diff_keys};
 use crate::formats::get_renderer;
+use crate::fs_node::node_kind;
 use crate::nickel;
 use crate::nickel::generated;
 use crate::nickel::key_path::KeyPath;
@@ -77,42 +76,19 @@ pub fn cmd_sync(
 
     for (order_name, results) in &built {
         for (result, file_entry_index) in results {
-            // Symlink entries: ensure the symlink exists and points to the right place
-            if result.is_symlink {
-                let needs_update = match std::fs::read_link(&result.target) {
-                    Ok(existing) => result.canonical_source.as_deref() != Some(existing.as_path()),
-                    Err(_) => true, // not a symlink or doesn't exist
-                };
-
-                if needs_update {
-                    match write_result(result, ctx.dry_run) {
-                        Ok(()) => {
-                            if !ctx.dry_run {
-                                log::success(&format!(
-                                    "Linked {}:{} -> {}",
-                                    order_name,
-                                    result.name,
-                                    result.target.display()
-                                ));
-                                source_to_target += 1;
-                            }
-                        }
-                        Err(e) => {
-                            log::error(&format!(
-                                "Failed to link {}:{}: {}",
-                                order_name, result.name, e
-                            ));
-                            build_errors += 1;
-                        }
-                    }
-                } else if ctx.verbose {
-                    log::info(&format!("{}:{} already linked", order_name, result.name));
-                }
-                continue;
-            }
-
             // New target file — always apply Source -> Target.
-            if !result.target.exists() {
+            let target_kind = match node_kind(&result.target) {
+                Ok(kind) => kind,
+                Err(error) => {
+                    log::error(&format!(
+                        "Failed to inspect target for {}:{}: {}",
+                        order_name, result.name, error
+                    ));
+                    build_errors += 1;
+                    continue;
+                }
+            };
+            if target_kind.is_none() {
                 let snapshot = ctx
                     .state
                     .read(order_name, &result.target)
@@ -163,43 +139,30 @@ pub fn cmd_sync(
             }
 
             // Compute diff
-            let diff_result = compute_diff_for_result(result);
-
-            // Auto-redeploy when Source -> Target will only change file types (replace
-            // unexpected symlinks with real files), no content edits. Two
-            // shapes: top-level symlink with matching content, OR a
-            // directory entry whose only drift is inner-file symlinks.
-            let top_level_symlink = !diff_result.has_changes
-                && target_is_unexpected_symlink(&result.target, result.is_symlink);
-            let inner_symlink_only = only_structural_symlink_changes(result);
-
-            if top_level_symlink || inner_symlink_only {
-                if ctx.dry_run {
-                    log::info_important(&format!(
-                        "[dry-run] {}:{} content matches but target is a symlink — would re-deploy",
-                        order_name, result.name
+            let diff_result = match compute_diff_for_result(result) {
+                Ok(diff) => diff,
+                Err(error) => {
+                    log::error(&format!(
+                        "Failed to compare target for {}:{}: {}",
+                        order_name, result.name, error
                     ));
-                } else {
-                    match write_result(result, false) {
-                        Ok(()) => {
-                            log::success(&format!(
-                                "Re-deployed {}:{} (replaced symlink with real file/directory)",
-                                order_name, result.name
-                            ));
-                            source_to_target += 1;
-                            refresh_snapshot_for_result(ctx, order_name, result);
-                        }
-                        Err(e) => {
-                            log::error(&format!(
-                                "Failed to re-deploy {}:{}: {}",
-                                order_name, result.name, e
-                            ));
-                            build_errors += 1;
-                        }
-                    }
+                    build_errors += 1;
+                    continue;
                 }
-                continue;
-            }
+            };
+
+            let has_type_mismatch = match result_has_type_mismatch(result) {
+                Ok(mismatch) => mismatch,
+                Err(error) => {
+                    log::error(&format!(
+                        "Failed to compare target for {}:{}: {}",
+                        order_name, result.name, error
+                    ));
+                    build_errors += 1;
+                    continue;
+                }
+            };
+            let structural_mismatch = result.is_symlink || has_type_mismatch;
 
             if !diff_result.has_changes {
                 if !ctx.dry_run {
@@ -212,7 +175,9 @@ pub fn cmd_sync(
             }
 
             // Determine if Target -> Source is possible for this entry.
-            let can_pull = !no_rewrite && can_auto_pull(ctx, order_name, result, *file_entry_index);
+            let can_pull = !structural_mismatch
+                && !no_rewrite
+                && can_auto_pull(ctx, order_name, result, *file_entry_index);
 
             // For from_config entries in interactive mode, use per-key flow
             let is_from_config = !result.is_plaintext && !result.is_symlink;
@@ -508,7 +473,11 @@ pub fn cmd_sync(
                         ));
                         None
                     });
-                let diff_with_base = compute_diff_with_base_for_result(result, snapshot.as_deref());
+                let diff_with_base = compute_diff_with_base_for_result(
+                    result,
+                    snapshot.as_deref(),
+                    structural_mismatch,
+                );
                 let prompt_diff = diff_with_base.as_ref().unwrap_or(&diff_result);
 
                 // Display the diff
@@ -527,9 +496,14 @@ pub fn cmd_sync(
                         if can_pull {
                             SyncAction::ApplyTargetToSource
                         } else {
+                            let reason = if structural_mismatch {
+                                "target structure does not match Source"
+                            } else {
+                                "from_config contains logic"
+                            };
                             log::warn(&format!(
-                                "Cannot apply target to source for {}:{} (from_config contains logic), skipping",
-                                order_name, result.name
+                                "Cannot apply Target -> Source for {}:{} ({}), skipping",
+                                order_name, result.name, reason
                             ));
                             SyncAction::Skip
                         }
@@ -544,12 +518,17 @@ pub fn cmd_sync(
                             log::info_important(&format!("[dry-run] would prompt{}", pull_note));
                             SyncAction::Skip
                         } else {
-                            let deployed_bytes = std::fs::read(&result.target).unwrap_or_default();
-                            let annotation = sync::compute_file_annotation(
-                                snapshot.as_deref(),
-                                result.content.as_bytes(),
-                                &deployed_bytes,
-                            );
+                            let annotation = if structural_mismatch {
+                                None
+                            } else {
+                                let deployed_bytes =
+                                    std::fs::read(&result.target).unwrap_or_default();
+                                sync::compute_file_annotation(
+                                    snapshot.as_deref(),
+                                    result.content.as_bytes(),
+                                    &deployed_bytes,
+                                )
+                            };
                             prompter.ask_sync_action(
                                 order_name,
                                 &result.name,
@@ -694,10 +673,11 @@ pub fn cmd_sync(
 fn compute_diff_with_base_for_result(
     result: &BuildResult,
     snapshot: Option<&[u8]>,
+    structural_mismatch: bool,
 ) -> Option<crate::diff::DiffResult> {
     let base = std::str::from_utf8(snapshot?).ok()?;
 
-    if result.is_symlink || !result.target.exists() {
+    if structural_mismatch {
         return None;
     }
 

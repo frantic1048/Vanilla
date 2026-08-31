@@ -7,6 +7,7 @@ use walkdir::WalkDir;
 
 use crate::context::Context;
 use crate::formats::get_renderer;
+use crate::fs_node::{NodeKind, node_kind};
 use crate::immutable;
 use crate::nickel::{FileEntry, Format, NickelEvaluator, Order};
 use crate::output::log;
@@ -230,53 +231,47 @@ fn build_file_entry(
     ))
 }
 
-/// If the target path is a symlink, remove it so we write a regular file
-/// instead of writing through the symlink to its target.
-/// Ensure a directory exists at the given path, removing any symlink that blocks it.
-///
-/// Walks up from the target path to find any path component that is a symlink
-/// (broken or otherwise) and removes it before calling `create_dir_all`.
-/// This handles the case where previous deployments left behind symlinks
-/// at directories that blend now needs to create as real directories.
 fn ensure_dir(path: &Path) -> Result<()> {
-    for ancestor in path.ancestors() {
-        if ancestor == Path::new("") || ancestor == Path::new("/") {
-            break;
-        }
-        match std::fs::symlink_metadata(ancestor) {
-            Ok(meta) if meta.file_type().is_symlink() => {
-                std::fs::remove_file(ancestor).with_context(|| {
-                    format!(
-                        "Failed to remove symlink blocking directory creation: {}",
-                        ancestor.display()
-                    )
-                })?;
-                break;
-            }
-            Ok(_) => {
-                break;
-            }
-            Err(_) => {
-                continue;
-            }
-        }
-    }
     std::fs::create_dir_all(path)
         .with_context(|| format!("Failed to create directory {}", path.display()))?;
     Ok(())
 }
 
-fn remove_symlink_if_exists(path: &Path, dry_run: bool) -> Result<()> {
-    match std::fs::symlink_metadata(path) {
-        Ok(meta) if meta.file_type().is_symlink() => {
-            if dry_run {
-                log::info(&format!("Would remove symlink {}", path.display()));
-                return Ok(());
-            }
-            std::fs::remove_file(path)
-                .with_context(|| format!("Failed to remove symlink {}", path.display()))?;
+fn remove_exact_node(path: &Path, dry_run: bool) -> Result<()> {
+    let Some(kind) = node_kind(path)? else {
+        return Ok(());
+    };
+    if dry_run {
+        log::info(&format!("Would remove {kind} {}", path.display()));
+        return Ok(());
+    }
+    if kind == NodeKind::Directory {
+        std::fs::remove_dir_all(path)
+            .with_context(|| format!("Failed to remove directory {}", path.display()))?;
+    } else {
+        std::fs::remove_file(path)
+            .with_context(|| format!("Failed to remove {kind} {}", path.display()))?;
+    }
+    Ok(())
+}
+
+fn prepare_exact_node(path: &Path, expected: NodeKind, dry_run: bool) -> Result<()> {
+    if let Some(actual) = node_kind(path)?
+        && actual != expected
+    {
+        remove_exact_node(path, dry_run)?;
+    }
+    Ok(())
+}
+
+fn prepare_managed_parent_dirs(root: &Path, relative: &Path, dry_run: bool) -> Result<()> {
+    let mut current = root.to_path_buf();
+    for component in relative.components() {
+        current.push(component);
+        prepare_exact_node(&current, NodeKind::Directory, dry_run)?;
+        if !dry_run {
+            ensure_dir(&current)?;
         }
-        _ => {}
     }
     Ok(())
 }
@@ -316,12 +311,6 @@ fn remove_immutable_flag_recursive(dir: &Path, warn_on_failure: bool) -> Result<
     Ok(())
 }
 
-fn target_is_real_dir(path: &Path) -> bool {
-    std::fs::symlink_metadata(path)
-        .map(|meta| meta.is_dir() && !meta.file_type().is_symlink())
-        .unwrap_or(false)
-}
-
 /// Write build result to target
 pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
     if result.is_symlink {
@@ -342,7 +331,8 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
             .as_ref()
             .is_some_and(|source_path| source_path.is_dir());
 
-    if result.target.exists() && !is_plaintext_dir {
+    let existing_kind = node_kind(&result.target)?;
+    if existing_kind.is_some() && !is_plaintext_dir {
         if dry_run {
             if result.immutable {
                 log::info(&format!(
@@ -350,9 +340,9 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
                     result.target.display()
                 ));
             }
-        } else if target_is_real_dir(&result.target) {
+        } else if existing_kind == Some(NodeKind::Directory) {
             remove_immutable_flag_recursive(&result.target, result.immutable)?;
-        } else {
+        } else if existing_kind == Some(NodeKind::File) {
             remove_immutable_flag(&result.target, result.immutable)?;
         }
     }
@@ -375,7 +365,7 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
         }
     } else {
         if dry_run {
-            remove_symlink_if_exists(&result.target, true)?;
+            prepare_exact_node(&result.target, NodeKind::File, true)?;
             log::info(&format!("Would write to {}", result.target.display()));
             if result.immutable {
                 log::info(&format!(
@@ -391,7 +381,7 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
             ensure_dir(parent)?;
         }
 
-        remove_symlink_if_exists(&result.target, false)?;
+        prepare_exact_node(&result.target, NodeKind::File, false)?;
         std::fs::write(&result.target, &result.content)
             .with_context(|| format!("Failed to write {}", result.target.display()))?;
     }
@@ -410,6 +400,7 @@ pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
 
 /// Create a symlink at target pointing to source
 fn create_symlink(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
+    remove_exact_node(target, dry_run)?;
     if dry_run {
         log::info(&format!(
             "Would symlink {} -> {}",
@@ -422,17 +413,6 @@ fn create_symlink(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
     // Ensure parent directory exists
     if let Some(parent) = target.parent() {
         ensure_dir(parent)?;
-    }
-
-    // Remove existing file, symlink, or directory at target
-    if let Ok(meta) = std::fs::symlink_metadata(target) {
-        if meta.is_dir() && !meta.file_type().is_symlink() {
-            std::fs::remove_dir_all(target)
-                .with_context(|| format!("Failed to remove directory {}", target.display()))?;
-        } else {
-            std::fs::remove_file(target)
-                .with_context(|| format!("Failed to remove {}", target.display()))?;
-        }
     }
 
     #[cfg(unix)]
@@ -455,7 +435,7 @@ fn create_symlink(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
 /// Copy a single file to target
 fn copy_file(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
     if dry_run {
-        remove_symlink_if_exists(target, true)?;
+        prepare_exact_node(target, NodeKind::File, true)?;
         log::info(&format!(
             "Would copy {} to {}",
             source.display(),
@@ -469,7 +449,7 @@ fn copy_file(source: &Path, target: &Path, dry_run: bool) -> Result<()> {
         ensure_dir(parent)?;
     }
 
-    remove_symlink_if_exists(target, false)?;
+    prepare_exact_node(target, NodeKind::File, false)?;
     std::fs::copy(source, target).with_context(|| {
         format!(
             "Failed to copy {} to {}",
@@ -593,8 +573,10 @@ fn copy_directory(
         ));
     }
 
-    // If the top-level target is a symlink, remove it first
-    remove_symlink_if_exists(target, dry_run)?;
+    prepare_exact_node(target, NodeKind::Directory, dry_run)?;
+    if !dry_run {
+        ensure_dir(target)?;
+    }
 
     let merged = collect_merged_files(source, local_dir, exclude)?;
 
@@ -611,13 +593,13 @@ fn copy_directory(
             continue;
         }
 
-        if let Some(parent) = target_path.parent() {
-            ensure_dir(parent)?;
+        if let Some(relative_parent) = mf.rel_path.parent() {
+            prepare_managed_parent_dirs(target, relative_parent, false)?;
         }
-        if target_path.exists() {
+        if node_kind(&target_path)? == Some(NodeKind::File) {
             remove_immutable_flag(&target_path, immutable)?;
         }
-        remove_symlink_if_exists(&target_path, false)?;
+        prepare_exact_node(&target_path, NodeKind::File, false)?;
         std::fs::copy(&mf.source, &target_path)?;
         if immutable {
             set_immutable_flag(&target_path)?;
@@ -867,6 +849,71 @@ mod tests {
             std::fs::read_to_string(target.join("extra.txt")).unwrap(),
             "local-only"
         );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn test_write_result_preserves_symlinked_ancestor() {
+        let temp = TempDir::new().unwrap();
+        let backing = temp.path().join("backing");
+        let linked_parent = temp.path().join("linked-parent");
+        std::fs::create_dir_all(&backing).unwrap();
+        std::os::unix::fs::symlink(&backing, &linked_parent).unwrap();
+
+        let result = BuildResult {
+            target: linked_parent.join("config.txt"),
+            content: "new content\n".to_string(),
+            is_plaintext: false,
+            source_path: None,
+            name: "config.txt".to_string(),
+            format: Format::Plaintext,
+            ignore_keys: vec![],
+            is_symlink: false,
+            canonical_source: None,
+            exclude_patterns: vec![],
+            local_dir: None,
+            immutable: false,
+        };
+
+        write_result(&result, false).unwrap();
+        assert!(
+            linked_parent
+                .symlink_metadata()
+                .unwrap()
+                .file_type()
+                .is_symlink()
+        );
+        assert_eq!(
+            std::fs::read_to_string(backing.join("config.txt")).unwrap(),
+            "new content\n"
+        );
+    }
+
+    #[test]
+    fn test_write_result_replaces_exact_directory_with_file() {
+        let temp = TempDir::new().unwrap();
+        let target = temp.path().join("config.txt");
+        std::fs::create_dir_all(&target).unwrap();
+        std::fs::write(target.join("old.txt"), "old").unwrap();
+
+        let result = BuildResult {
+            target: target.clone(),
+            content: "new content\n".to_string(),
+            is_plaintext: false,
+            source_path: None,
+            name: "config.txt".to_string(),
+            format: Format::Plaintext,
+            ignore_keys: vec![],
+            is_symlink: false,
+            canonical_source: None,
+            exclude_patterns: vec![],
+            local_dir: None,
+            immutable: false,
+        };
+
+        write_result(&result, false).unwrap();
+        assert_eq!(node_kind(&target).unwrap(), Some(NodeKind::File));
+        assert_eq!(std::fs::read_to_string(&target).unwrap(), "new content\n");
     }
 
     #[cfg(any(target_os = "macos", target_os = "linux"))]

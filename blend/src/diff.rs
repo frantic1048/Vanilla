@@ -7,11 +7,13 @@ pub use semantic::{
 };
 pub use text::{text_diff, text_diff_with_base};
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use walkdir::WalkDir;
 
 use crate::formats::get_renderer;
+use crate::fs_node::{NodeKind, node_kind};
 use crate::nickel::{FileEntry, Format};
 
 /// Result of comparing two configs
@@ -50,10 +52,17 @@ pub struct FileDiffResult {
     pub diff_output: String,
     /// Whether the file only exists in the source (not yet deployed)
     pub source_only: bool,
-    /// Whether the deployed target is a symlink. Set even when resolved
-    /// content matches the source, so callers can flag unexpected symlinks
-    /// that need to be replaced with a real file on the next sync.
-    pub target_is_symlink: bool,
+    /// Expected type for this managed node.
+    pub expected_kind: NodeKind,
+    /// Deployed node type, observed without following the final component.
+    pub target_kind: Option<NodeKind>,
+}
+
+impl FileDiffResult {
+    pub fn has_type_mismatch(&self) -> bool {
+        self.target_kind
+            .is_some_and(|target_kind| target_kind != self.expected_kind)
+    }
 }
 
 /// Enumerate files in the source directory and compare each against the target.
@@ -65,58 +74,112 @@ pub fn diff_directory(
     source_dir: &Path,
     target_dir: &Path,
     ignore_patterns: &[String],
-) -> Vec<FileDiffResult> {
-    let mut results = Vec::new();
-
+) -> std::io::Result<Vec<FileDiffResult>> {
     if !source_dir.is_dir() {
-        return results;
+        return Ok(Vec::new());
     }
 
+    let mut managed_files = Vec::new();
     for entry in WalkDir::new(source_dir).min_depth(1).sort_by_file_name() {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
+        let entry = entry.map_err(std::io::Error::other)?;
         if entry.file_type().is_dir() {
             continue;
         }
-        let rel_path = match entry.path().strip_prefix(source_dir) {
-            Ok(r) => r.to_path_buf(),
-            Err(_) => continue,
-        };
+        let rel_path = entry
+            .path()
+            .strip_prefix(source_dir)
+            .map_err(std::io::Error::other)?
+            .to_path_buf();
+        managed_files.push((entry.path().to_path_buf(), rel_path));
+    }
 
+    diff_managed_files(&managed_files, target_dir, ignore_patterns)
+}
+
+/// Compare the exact file inventory Blend will deploy for a directory entry.
+/// Parent directories implied by each file are managed nodes too.
+pub fn diff_managed_files(
+    managed_files: &[(PathBuf, PathBuf)],
+    target_dir: &Path,
+    ignore_patterns: &[String],
+) -> std::io::Result<Vec<FileDiffResult>> {
+    let mut nodes: BTreeMap<PathBuf, (NodeKind, Option<&Path>)> = BTreeMap::new();
+    for (source, rel_path) in managed_files {
+        if let Some(parent) = rel_path.parent() {
+            let mut current = PathBuf::new();
+            for component in parent.components() {
+                current.push(component);
+                nodes
+                    .entry(current.clone())
+                    .or_insert((NodeKind::Directory, None));
+            }
+        }
+        nodes.insert(rel_path.clone(), (NodeKind::File, Some(source.as_path())));
+    }
+
+    let mut results = Vec::new();
+    let mut mismatched_directories = Vec::new();
+    for (rel_path, (expected_kind, source_path)) in nodes {
+        if mismatched_directories
+            .iter()
+            .any(|parent: &PathBuf| rel_path.starts_with(parent))
+        {
+            continue;
+        }
         let target_file = target_dir.join(&rel_path);
-        if !target_file.exists() {
+        let target_kind = node_kind(&target_file)?;
+
+        if target_kind.is_none() {
+            // Missing directories are created as needed while copying their
+            // managed children. Missing files are the actionable diff.
+            if expected_kind == NodeKind::Directory {
+                continue;
+            }
             results.push(FileDiffResult {
                 rel_path,
                 has_changes: true,
                 diff_output: String::new(),
                 source_only: true,
-                target_is_symlink: false,
+                expected_kind,
+                target_kind,
             });
             continue;
         }
 
-        // Inspect the target file type without following symlinks. A target
-        // that is a symlink is structurally wrong (orders deploy real files)
-        // and must be flagged for redeploy regardless of resolved content.
-        let target_is_symlink = std::fs::symlink_metadata(&target_file)
-            .map(|m| m.file_type().is_symlink())
-            .unwrap_or(false);
+        if target_kind != Some(expected_kind) {
+            if expected_kind == NodeKind::Directory {
+                mismatched_directories.push(rel_path.clone());
+            }
+            results.push(FileDiffResult {
+                rel_path,
+                has_changes: true,
+                diff_output: String::new(),
+                source_only: false,
+                expected_kind,
+                target_kind,
+            });
+            continue;
+        }
+
+        if expected_kind == NodeKind::Directory {
+            continue;
+        }
 
         // Both exist: compare contents
-        let source_content = match std::fs::read_to_string(entry.path()) {
+        let source_path = source_path.expect("file nodes have a source path");
+        let source_content = match std::fs::read_to_string(source_path) {
             Ok(c) => c,
             Err(_) => {
                 // Binary file — compare raw bytes
-                let source_bytes = std::fs::read(entry.path()).unwrap_or_default();
+                let source_bytes = std::fs::read(source_path).unwrap_or_default();
                 let target_bytes = std::fs::read(&target_file).unwrap_or_default();
                 results.push(FileDiffResult {
                     rel_path,
-                    has_changes: target_is_symlink || source_bytes != target_bytes,
+                    has_changes: source_bytes != target_bytes,
                     diff_output: String::new(),
                     source_only: false,
-                    target_is_symlink,
+                    expected_kind,
+                    target_kind,
                 });
                 continue;
             }
@@ -130,7 +193,8 @@ pub fn diff_directory(
                     has_changes: true,
                     diff_output: String::new(),
                     source_only: false,
-                    target_is_symlink,
+                    expected_kind,
+                    target_kind,
                 });
                 continue;
             }
@@ -139,14 +203,15 @@ pub fn diff_directory(
         let diff = text_diff(&source_content, &target_content, ignore_patterns);
         results.push(FileDiffResult {
             rel_path,
-            has_changes: target_is_symlink || diff.has_changes,
+            has_changes: diff.has_changes,
             diff_output: diff.output,
             source_only: false,
-            target_is_symlink,
+            expected_kind,
+            target_kind,
         });
     }
 
-    results
+    Ok(results)
 }
 
 /// Check whether a deployed target file is in sync with its source.
@@ -160,13 +225,13 @@ pub fn check_file_sync(
     file_entry: &FileEntry,
     target: &Path,
     global_ignore: &[String],
-) -> Option<bool> {
+) -> std::io::Result<Option<bool>> {
     if file_entry.symlink {
-        return None; // Symlinks are checked separately in cmd_status
+        return Ok(None); // Symlinks are checked separately in cmd_status
     }
 
     if !target.exists() {
-        return None;
+        return Ok(None);
     }
 
     let mut ignore_keys: Vec<String> = global_ignore.to_vec();
@@ -177,30 +242,32 @@ pub fn check_file_sync(
         let source_path = order_dir.join(file);
         if source_path.is_dir() {
             // For directories, check all files within
-            let file_diffs = diff_directory(&source_path, target, &ignore_keys);
+            let file_diffs = diff_directory(&source_path, target, &ignore_keys)?;
             if file_diffs.is_empty() {
-                return None;
+                return Ok(None);
             }
             let all_in_sync = file_diffs.iter().all(|f| !f.has_changes);
-            return Some(all_in_sync);
+            return Ok(Some(all_in_sync));
         }
-        let source_content = std::fs::read_to_string(&source_path).ok()?;
-        let deployed = std::fs::read_to_string(target).ok()?;
+        let source_content = std::fs::read_to_string(&source_path)?;
+        let deployed = std::fs::read_to_string(target)?;
         let result = diff_configs(Format::Plaintext, &source_content, &deployed, &ignore_keys);
-        return Some(!result.has_changes);
+        return Ok(Some(!result.has_changes));
     }
 
-    let deployed = std::fs::read_to_string(target).ok()?;
+    let deployed = std::fs::read_to_string(target)?;
 
     if let Some(config) = &file_entry.from_config {
         // Structured config rendered from nickel
         let format = file_entry.effective_format();
-        let rendered = get_renderer(format).render(config).ok()?;
+        let rendered = get_renderer(format)
+            .render(config)
+            .map_err(std::io::Error::other)?;
         let result = diff_configs(format, &rendered, &deployed, &ignore_keys);
-        return Some(!result.has_changes);
+        return Ok(Some(!result.has_changes));
     }
 
-    None
+    Ok(None)
 }
 
 /// Diff two configs based on format
@@ -265,7 +332,7 @@ mod tests {
         write_file(source.path(), "b.txt", "world\n");
         write_file(target.path(), "a.txt", "hello\n");
         write_file(target.path(), "b.txt", "world\n");
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 2);
         for r in &results {
             assert!(!r.has_changes);
@@ -280,7 +347,7 @@ mod tests {
         write_file(source.path(), "only_in_source.txt", "data\n");
         write_file(source.path(), "shared.txt", "same\n");
         write_file(target.path(), "shared.txt", "same\n");
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 2);
         let source_only = results
             .iter()
@@ -299,7 +366,7 @@ mod tests {
         write_file(source.path(), "shared.txt", "same\n");
         write_file(target.path(), "shared.txt", "same\n");
         write_file(target.path(), "only_in_target.txt", "extra\n");
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].rel_path.as_path(), Path::new("shared.txt"));
         assert!(!results[0].has_changes);
@@ -311,7 +378,7 @@ mod tests {
         let target = TempDir::new().unwrap();
         write_file(source.path(), "config.txt", "key=new_value\n");
         write_file(target.path(), "config.txt", "key=old_value\n");
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
         assert!(results[0].has_changes);
         assert!(!results[0].diff_output.is_empty());
@@ -325,7 +392,7 @@ mod tests {
         write_file(source.path(), "a/d.txt", "shallow\n");
         write_file(target.path(), "a/b/c.txt", "deep\n");
         write_file(target.path(), "a/d.txt", "different\n");
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 2);
         let deep = results
             .iter()
@@ -340,12 +407,26 @@ mod tests {
     }
 
     #[test]
+    fn test_diff_directory_stops_below_known_directory_type_mismatch() {
+        let source = TempDir::new().unwrap();
+        let target = TempDir::new().unwrap();
+        write_file(source.path(), "nested/config", "managed\n");
+        write_file(target.path(), "nested", "not a directory\n");
+
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].rel_path, Path::new("nested"));
+        assert_eq!(results[0].expected_kind, NodeKind::Directory);
+        assert_eq!(results[0].target_kind, Some(NodeKind::File));
+    }
+
+    #[test]
     fn test_diff_directory_empty_directories() {
         let source = TempDir::new().unwrap();
         let target = TempDir::new().unwrap();
         std::fs::create_dir_all(source.path().join("empty_sub")).unwrap();
         std::fs::create_dir_all(target.path().join("empty_sub")).unwrap();
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert!(results.is_empty());
     }
 
@@ -355,7 +436,7 @@ mod tests {
         let target = TempDir::new().unwrap();
         std::fs::write(source.path().join("image.bin"), [0x00, 0xFF, 0x80, 0x01]).unwrap();
         std::fs::write(target.path().join("image.bin"), [0x00, 0xFF, 0x80, 0x02]).unwrap();
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
         assert!(results[0].has_changes);
         assert!(results[0].diff_output.is_empty());
@@ -368,7 +449,7 @@ mod tests {
         let bytes = [0x00, 0xFF, 0x80, 0x01];
         std::fs::write(source.path().join("data.bin"), bytes).unwrap();
         std::fs::write(target.path().join("data.bin"), bytes).unwrap();
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
         assert!(!results[0].has_changes);
     }
@@ -379,9 +460,10 @@ mod tests {
         let target = TempDir::new().unwrap();
         write_file(source.path(), "conf", "stable=1\nvolatile=aaa\n");
         write_file(target.path(), "conf", "stable=1\nvolatile=zzz\n");
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert!(results[0].has_changes);
-        let results = diff_directory(source.path(), target.path(), &["^volatile".to_string()]);
+        let results =
+            diff_directory(source.path(), target.path(), &["^volatile".to_string()]).unwrap();
         assert!(!results[0].has_changes);
     }
 
@@ -392,7 +474,7 @@ mod tests {
         let target = TempDir::new().unwrap();
         write_file(target.path(), "a.txt", "hello\n");
         let fake_source = target.path().join("nonexistent");
-        let results = diff_directory(&fake_source, target.path(), &[]);
+        let results = diff_directory(&fake_source, target.path(), &[]).unwrap();
         assert!(results.is_empty());
     }
 
@@ -401,7 +483,7 @@ mod tests {
         let source = TempDir::new().unwrap();
         write_file(source.path(), "a.txt", "hello\n");
         let fake_target = source.path().join("nonexistent");
-        let results = diff_directory(source.path(), &fake_target, &[]);
+        let results = diff_directory(source.path(), &fake_target, &[]).unwrap();
         assert_eq!(results.len(), 1);
         assert!(results[0].source_only);
     }
@@ -420,12 +502,11 @@ mod tests {
         std::os::unix::fs::symlink(backing.path().join("config"), target.path().join("config"))
             .unwrap();
 
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
-        assert!(
-            results[0].target_is_symlink,
-            "target file is a symlink — must be flagged"
-        );
+        assert_eq!(results[0].expected_kind, NodeKind::File);
+        assert_eq!(results[0].target_kind, Some(NodeKind::Symlink));
+        assert!(results[0].has_type_mismatch());
         assert!(
             results[0].has_changes,
             "symlink target must be reported as needing redeploy even if resolved content matches"
@@ -443,10 +524,12 @@ mod tests {
         std::os::unix::fs::symlink(backing.path().join("config"), target.path().join("config"))
             .unwrap();
 
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
-        assert!(results[0].target_is_symlink);
+        assert_eq!(results[0].target_kind, Some(NodeKind::Symlink));
+        assert!(results[0].has_type_mismatch());
         assert!(results[0].has_changes);
+        assert!(results[0].diff_output.is_empty());
     }
 
     #[cfg(unix)]
@@ -457,9 +540,10 @@ mod tests {
         write_file(source.path(), "config", "key=value\n");
         write_file(target.path(), "config", "key=value\n");
 
-        let results = diff_directory(source.path(), target.path(), &[]);
+        let results = diff_directory(source.path(), target.path(), &[]).unwrap();
         assert_eq!(results.len(), 1);
-        assert!(!results[0].target_is_symlink);
+        assert_eq!(results[0].target_kind, Some(NodeKind::File));
+        assert!(!results[0].has_type_mismatch());
         assert!(!results[0].has_changes);
     }
 }

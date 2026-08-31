@@ -4,6 +4,7 @@ mod compose;
 mod context;
 mod diff;
 mod formats;
+mod fs_node;
 mod immutable;
 mod metadata;
 mod migration;

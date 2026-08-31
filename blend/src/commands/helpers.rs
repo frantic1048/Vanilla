@@ -1,8 +1,10 @@
+use anyhow::{Context as _, Result};
 use console::style;
 
-use crate::compose::{BuildResult, discover_orders};
+use crate::compose::{BuildResult, build_glob_set, collect_merged_files, discover_orders};
 use crate::context::Context;
-use crate::diff::{DiffResult, FileDiffResult, diff_configs, diff_directory};
+use crate::diff::{DiffResult, FileDiffResult, diff_configs, diff_managed_files};
+use crate::fs_node::{NodeKind, node_kind};
 use crate::nickel;
 
 pub fn select_orders(ctx: &Context, orders: &[String]) -> Vec<String> {
@@ -15,125 +17,135 @@ pub fn select_orders(ctx: &Context, orders: &[String]) -> Vec<String> {
     selected
 }
 
-/// For directory-style entries: walk the source dir and check whether any
-/// per-file target is itself a symlink. Returns true even when resolved
-/// content matches, so callers can flag unexpected symlinks within an
-/// otherwise in-sync directory.
-pub fn dir_has_inner_symlinks(source_dir: &std::path::Path, target_dir: &std::path::Path) -> bool {
-    diff_directory(source_dir, target_dir, &[])
-        .iter()
-        .any(|f| f.target_is_symlink)
-}
-
-/// True when the only differences in a directory entry are inner-file
-/// symlinks with matching resolved content. Push under this condition
-/// rewrites file types only — no content changes — so sync should
-/// auto-redeploy rather than prompt the user.
-pub fn only_structural_symlink_changes(result: &BuildResult) -> bool {
-    let Some(src) = result.source_path.as_ref() else {
-        return false;
-    };
-    if !src.is_dir() {
-        return false;
-    }
-    let file_diffs = compute_dir_file_diffs(result);
-    if file_diffs.is_empty() {
-        return false;
-    }
-    let mut saw_symlink = false;
-    for f in &file_diffs {
-        if !f.has_changes {
-            continue;
-        }
-        if f.source_only || !f.target_is_symlink || !f.diff_output.is_empty() {
-            return false;
-        }
-        saw_symlink = true;
-    }
-    saw_symlink
-}
-
-/// Check if a target path or any of its parent components is a symlink
-/// when the order entry does NOT want a symlink.
-pub fn target_is_unexpected_symlink(target: &std::path::Path, is_symlink_entry: bool) -> bool {
-    if is_symlink_entry {
-        return false;
-    }
-    // Check the target itself
-    if let Ok(meta) = std::fs::symlink_metadata(target)
-        && meta.file_type().is_symlink()
+pub fn expected_node_kind(result: &BuildResult) -> NodeKind {
+    if result.is_symlink {
+        NodeKind::Symlink
+    } else if result
+        .source_path
+        .as_ref()
+        .is_some_and(|source_path| source_path.is_dir())
     {
-        return true;
+        NodeKind::Directory
+    } else {
+        NodeKind::File
     }
-    // Check parent path components (e.g., ~/.config/skhd is a symlink,
-    // target is ~/.config/skhd/skhdrc which resolves through it)
-    for ancestor in target.ancestors().skip(1) {
-        if ancestor == std::path::Path::new("/") || ancestor == std::path::Path::new("") {
-            break;
-        }
-        if let Ok(meta) = std::fs::symlink_metadata(ancestor) {
-            if meta.file_type().is_symlink() {
-                return true;
-            }
-            // Stop at first real existing ancestor
-            break;
-        }
+}
+
+pub fn target_type_mismatch(result: &BuildResult) -> Result<Option<(NodeKind, NodeKind)>> {
+    let expected = expected_node_kind(result);
+    let Some(actual) = node_kind(&result.target)
+        .with_context(|| format!("could not inspect target {}", result.target.display()))?
+    else {
+        return Ok(None);
+    };
+    Ok((expected != actual).then_some((expected, actual)))
+}
+
+pub fn result_has_type_mismatch(result: &BuildResult) -> Result<bool> {
+    if target_type_mismatch(result)?.is_some() {
+        return Ok(true);
     }
-    false
+    Ok(compute_dir_file_diffs(result)?
+        .iter()
+        .any(FileDiffResult::has_type_mismatch))
+}
+
+pub fn compute_managed_dir_diffs(
+    source_dir: &std::path::Path,
+    target_dir: &std::path::Path,
+    local_dir: Option<&std::path::Path>,
+    exclude_patterns: &[String],
+    ignore_keys: &[String],
+) -> Result<Vec<FileDiffResult>> {
+    let exclude = build_glob_set(exclude_patterns)?;
+    let merged = collect_merged_files(source_dir, local_dir, exclude.as_ref())?;
+    let managed_files: Vec<_> = merged
+        .into_iter()
+        .map(|file| (file.source, file.rel_path))
+        .collect();
+    Ok(diff_managed_files(&managed_files, target_dir, ignore_keys)?)
 }
 
 /// Compute the diff between a build result and the deployed file
-pub fn compute_diff_for_result(result: &BuildResult) -> DiffResult {
-    if result.is_symlink {
-        return DiffResult::no_changes();
+pub fn compute_diff_for_result(result: &BuildResult) -> Result<DiffResult> {
+    let target_kind = node_kind(&result.target)
+        .with_context(|| format!("could not inspect target {}", result.target.display()))?;
+    if target_kind.is_none() {
+        return Ok(DiffResult::no_changes());
     }
 
-    if !result.target.exists() {
-        return DiffResult::no_changes();
+    if let Some((expected, actual)) = target_type_mismatch(result)? {
+        return Ok(DiffResult::with_changes(format!(
+            "target type mismatch: expected {expected}, found {actual}"
+        )));
+    }
+
+    if result.is_symlink {
+        let expected = result
+            .canonical_source
+            .as_ref()
+            .map(|path| path.display().to_string())
+            .unwrap_or_else(|| "<unknown>".to_string());
+        return Ok(match std::fs::read_link(&result.target) {
+            Ok(actual) if result.canonical_source.as_ref() == Some(&actual) => {
+                DiffResult::no_changes()
+            }
+            Ok(actual) => DiffResult::with_changes(format!(
+                "symlink target mismatch: expected {expected}, found {}",
+                actual.display()
+            )),
+            Err(error) => {
+                DiffResult::with_changes(format!("could not read target symlink: {error}"))
+            }
+        });
     }
 
     if result.is_plaintext {
         if let Some(source_path) = &result.source_path {
             if source_path.is_dir() {
-                // For directories, compute an aggregate diff from per-file results.
-                // diff_directory only reports files present in the source.
-                let file_diffs = diff_directory(source_path, &result.target, &result.ignore_keys);
-                return aggregate_dir_diff(&file_diffs);
+                let file_diffs = compute_dir_file_diffs(result)?;
+                return Ok(aggregate_dir_diff(&file_diffs));
             }
             if let (Ok(source_content), Ok(deployed)) = (
                 std::fs::read_to_string(source_path),
                 std::fs::read_to_string(&result.target),
             ) {
-                return diff_configs(
+                return Ok(diff_configs(
                     nickel::Format::Plaintext,
                     &source_content,
                     &deployed,
                     &result.ignore_keys,
-                );
+                ));
             }
         }
-        DiffResult::no_changes()
+        Ok(DiffResult::no_changes())
     } else if let Ok(deployed) = std::fs::read_to_string(&result.target) {
-        diff_configs(
+        Ok(diff_configs(
             result.format,
             &result.content,
             &deployed,
             &result.ignore_keys,
-        )
+        ))
     } else {
-        DiffResult::no_changes()
+        Ok(DiffResult::no_changes())
     }
 }
 
 /// Compute per-file diffs for a directory build result, filtering out
 /// "target only" files that are managed by other entries in the same order.
-pub fn compute_dir_file_diffs(result: &BuildResult) -> Vec<FileDiffResult> {
-    if let Some(source_path) = &result.source_path
-        && source_path.is_dir()
+pub fn compute_dir_file_diffs(result: &BuildResult) -> Result<Vec<FileDiffResult>> {
+    if expected_node_kind(result) == NodeKind::Directory
+        && let Some(source_path) = &result.source_path
     {
-        return diff_directory(source_path, &result.target, &result.ignore_keys);
+        return compute_managed_dir_diffs(
+            source_path,
+            &result.target,
+            result.local_dir.as_deref(),
+            &result.exclude_patterns,
+            &result.ignore_keys,
+        );
     }
-    Vec::new()
+    Ok(Vec::new())
 }
 
 /// Aggregate per-file diffs into a single DiffResult (for sync compatibility)
@@ -153,10 +165,15 @@ pub fn aggregate_dir_diff(file_diffs: &[FileDiffResult]) -> DiffResult {
                 style(format!("{} (missing from Target)", path_str)).blue()
             ));
         } else if f.has_changes {
-            let annotation = match (f.target_is_symlink, !f.diff_output.is_empty()) {
-                (true, true) => "unexpected symlink, modified",
-                (true, false) => "unexpected symlink",
-                (false, _) => "modified",
+            let annotation = if let Some(target_kind) = f.target_kind
+                && target_kind != f.expected_kind
+            {
+                format!(
+                    "type mismatch: expected {}, found {}",
+                    f.expected_kind, target_kind
+                )
+            } else {
+                "modified".to_string()
             };
             output_lines.push(format!(
                 "{} {}",
@@ -188,14 +205,16 @@ mod tests {
                 has_changes: false,
                 source_only: false,
                 diff_output: String::new(),
-                target_is_symlink: false,
+                expected_kind: NodeKind::File,
+                target_kind: Some(NodeKind::File),
             },
             FileDiffResult {
                 rel_path: PathBuf::from("b.txt"),
                 has_changes: false,
                 source_only: false,
                 diff_output: String::new(),
-                target_is_symlink: false,
+                expected_kind: NodeKind::File,
+                target_kind: Some(NodeKind::File),
             },
         ];
         let result = aggregate_dir_diff(&diffs);
@@ -209,7 +228,8 @@ mod tests {
             has_changes: true,
             source_only: false,
             diff_output: "diff".to_string(),
-            target_is_symlink: false,
+            expected_kind: NodeKind::File,
+            target_kind: Some(NodeKind::File),
         }];
         let result = aggregate_dir_diff(&diffs);
         assert!(result.has_changes);
@@ -223,7 +243,8 @@ mod tests {
             has_changes: true,
             source_only: true,
             diff_output: String::new(),
-            target_is_symlink: false,
+            expected_kind: NodeKind::File,
+            target_kind: None,
         }];
         let result = aggregate_dir_diff(&diffs);
         let plain = console::strip_ansi_codes(&result.output);
@@ -238,7 +259,8 @@ mod tests {
             has_changes: true,
             source_only: false,
             diff_output: "line diff".to_string(),
-            target_is_symlink: false,
+            expected_kind: NodeKind::File,
+            target_kind: Some(NodeKind::File),
         }];
         let result = aggregate_dir_diff(&diffs);
         let plain = console::strip_ansi_codes(&result.output);
@@ -253,43 +275,44 @@ mod tests {
     }
 
     #[test]
-    fn test_aggregate_dir_diff_unexpected_symlink_matching_content() {
-        // Inner-file symlink with matching resolved content: surface
-        // the type mismatch even though there is no textual diff.
+    fn test_aggregate_dir_diff_type_mismatch() {
         let diffs = vec![FileDiffResult {
             rel_path: PathBuf::from(".prototools"),
             has_changes: true,
             source_only: false,
             diff_output: String::new(),
-            target_is_symlink: true,
+            expected_kind: NodeKind::File,
+            target_kind: Some(NodeKind::Symlink),
         }];
         let result = aggregate_dir_diff(&diffs);
         let plain = console::strip_ansi_codes(&result.output);
         assert!(result.has_changes);
         assert!(
-            plain.contains(".prototools") && plain.contains("unexpected symlink"),
-            "expected unexpected-symlink annotation, got:\n{plain}"
+            plain.contains(".prototools")
+                && plain.contains("type mismatch: expected file, found symlink"),
+            "expected type-mismatch annotation, got:\n{plain}"
         );
     }
 
     #[test]
-    fn test_aggregate_dir_diff_unexpected_symlink_with_content_diff() {
+    fn test_aggregate_dir_diff_does_not_mix_type_and_content_diffs() {
         let diffs = vec![FileDiffResult {
             rel_path: PathBuf::from(".prototools"),
             has_changes: true,
             source_only: false,
-            diff_output: ">> Target: old\n<< Source: new".to_string(),
-            target_is_symlink: true,
+            diff_output: String::new(),
+            expected_kind: NodeKind::File,
+            target_kind: Some(NodeKind::Symlink),
         }];
         let result = aggregate_dir_diff(&diffs);
         let plain = console::strip_ansi_codes(&result.output);
-        assert!(plain.contains("unexpected symlink"));
-        assert!(plain.contains(">> Target: old"));
+        assert!(plain.contains("type mismatch: expected file, found symlink"));
+        assert!(!plain.contains(">> Target"));
     }
 
     #[cfg(unix)]
     #[test]
-    fn test_dir_has_inner_symlinks_detects_symlink_target() {
+    fn test_managed_dir_diffs_detects_symlink_target() {
         // Per-file detection: for directory entries we must walk into the
         // target dir, not just check the dir's own type.
         let source = TempDir::new().unwrap();
@@ -299,22 +322,32 @@ mod tests {
         std::fs::write(backing.path().join("file"), "x").unwrap();
         std::os::unix::fs::symlink(backing.path().join("file"), target.path().join("file"))
             .unwrap();
-        assert!(dir_has_inner_symlinks(source.path(), target.path()));
+        assert!(
+            compute_managed_dir_diffs(source.path(), target.path(), None, &[], &[])
+                .unwrap()
+                .iter()
+                .any(FileDiffResult::has_type_mismatch)
+        );
     }
 
     #[cfg(unix)]
     #[test]
-    fn test_dir_has_inner_symlinks_false_when_all_regular() {
+    fn test_managed_dir_diffs_has_no_type_mismatch_when_all_regular() {
         let source = TempDir::new().unwrap();
         let target = TempDir::new().unwrap();
         std::fs::write(source.path().join("file"), "x").unwrap();
         std::fs::write(target.path().join("file"), "x").unwrap();
-        assert!(!dir_has_inner_symlinks(source.path(), target.path()));
+        assert!(
+            !compute_managed_dir_diffs(source.path(), target.path(), None, &[], &[])
+                .unwrap()
+                .iter()
+                .any(FileDiffResult::has_type_mismatch)
+        );
     }
 
     #[cfg(unix)]
     #[test]
-    fn test_dir_has_inner_symlinks_only_inspects_files_present_in_source() {
+    fn test_managed_dir_diffs_only_inspects_nodes_present_in_source() {
         // A symlink that exists only in target (no source counterpart)
         // is unmanaged by blend and must NOT trigger the warning, so the
         // detection stays scoped to files originating from the order.
@@ -326,7 +359,12 @@ mod tests {
         std::fs::write(backing.path().join("stray"), "y").unwrap();
         std::os::unix::fs::symlink(backing.path().join("stray"), target.path().join("stray"))
             .unwrap();
-        assert!(!dir_has_inner_symlinks(source.path(), target.path()));
+        assert!(
+            !compute_managed_dir_diffs(source.path(), target.path(), None, &[], &[])
+                .unwrap()
+                .iter()
+                .any(FileDiffResult::has_type_mismatch)
+        );
     }
 
     #[test]
@@ -337,21 +375,24 @@ mod tests {
                 has_changes: true,
                 source_only: true,
                 diff_output: String::new(),
-                target_is_symlink: false,
+                expected_kind: NodeKind::File,
+                target_kind: None,
             },
             FileDiffResult {
                 rel_path: PathBuf::from("modified.txt"),
                 has_changes: true,
                 source_only: false,
                 diff_output: "diff".to_string(),
-                target_is_symlink: false,
+                expected_kind: NodeKind::File,
+                target_kind: Some(NodeKind::File),
             },
             FileDiffResult {
                 rel_path: PathBuf::from("stable.txt"),
                 has_changes: false,
                 source_only: false,
                 diff_output: String::new(),
-                target_is_symlink: false,
+                expected_kind: NodeKind::File,
+                target_kind: Some(NodeKind::File),
             },
         ];
         let result = aggregate_dir_diff(&diffs);
@@ -381,7 +422,104 @@ mod tests {
             local_dir: None,
             immutable: false,
         };
-        assert!(compute_dir_file_diffs(&result).is_empty());
+        assert!(compute_dir_file_diffs(&result).unwrap().is_empty());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn test_compute_dir_file_diffs_includes_local_overlay_nodes() {
+        let temp = TempDir::new().unwrap();
+        let source = temp.path().join("source");
+        let local = temp.path().join("local");
+        let target = temp.path().join("target");
+        let backing = temp.path().join("backing");
+        std::fs::create_dir_all(&source).unwrap();
+        std::fs::create_dir_all(&local).unwrap();
+        std::fs::create_dir_all(&target).unwrap();
+        std::fs::write(local.join("local.txt"), "local").unwrap();
+        std::fs::write(&backing, "local").unwrap();
+        std::os::unix::fs::symlink(&backing, target.join("local.txt")).unwrap();
+
+        let result = BuildResult {
+            target,
+            content: String::new(),
+            is_plaintext: true,
+            source_path: Some(source),
+            name: "target".to_string(),
+            format: nickel::Format::Plaintext,
+            ignore_keys: vec![],
+            is_symlink: false,
+            canonical_source: None,
+            exclude_patterns: vec![],
+            local_dir: Some(local),
+            immutable: false,
+        };
+
+        let diffs = compute_dir_file_diffs(&result).unwrap();
+        assert_eq!(diffs.len(), 1);
+        assert!(diffs[0].has_type_mismatch());
+        assert!(result_has_type_mismatch(&result).unwrap());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn test_compute_dir_file_diffs_ignores_excluded_nodes() {
+        let temp = TempDir::new().unwrap();
+        let source = temp.path().join("source");
+        let target = temp.path().join("target");
+        let backing = temp.path().join("backing");
+        std::fs::create_dir_all(&source).unwrap();
+        std::fs::create_dir_all(&target).unwrap();
+        std::fs::write(source.join("excluded.txt"), "source").unwrap();
+        std::fs::write(&backing, "source").unwrap();
+        std::os::unix::fs::symlink(&backing, target.join("excluded.txt")).unwrap();
+
+        let result = BuildResult {
+            target,
+            content: String::new(),
+            is_plaintext: true,
+            source_path: Some(source),
+            name: "target".to_string(),
+            format: nickel::Format::Plaintext,
+            ignore_keys: vec![],
+            is_symlink: false,
+            canonical_source: None,
+            exclude_patterns: vec!["excluded.txt".to_string()],
+            local_dir: None,
+            immutable: false,
+        };
+
+        assert!(compute_dir_file_diffs(&result).unwrap().is_empty());
+        assert!(!result_has_type_mismatch(&result).unwrap());
+    }
+
+    #[test]
+    fn test_compute_dir_file_diffs_propagates_invalid_exclude_pattern() {
+        let temp = TempDir::new().unwrap();
+        let source = temp.path().join("source");
+        let target = temp.path().join("target");
+        std::fs::create_dir_all(&source).unwrap();
+        std::fs::create_dir_all(&target).unwrap();
+
+        let result = BuildResult {
+            target,
+            content: String::new(),
+            is_plaintext: true,
+            source_path: Some(source),
+            name: "target".to_string(),
+            format: nickel::Format::Plaintext,
+            ignore_keys: vec![],
+            is_symlink: false,
+            canonical_source: None,
+            exclude_patterns: vec!["[".to_string()],
+            local_dir: None,
+            immutable: false,
+        };
+
+        let error = compute_dir_file_diffs(&result).unwrap_err();
+        assert!(error.to_string().contains("Invalid exclude glob pattern"));
+        assert!(result_has_type_mismatch(&result).is_err());
+        assert!(compute_diff_for_result(&result).is_err());
     }
 
     #[test]
@@ -401,7 +539,7 @@ mod tests {
             local_dir: None,
             immutable: false,
         };
-        assert!(compute_dir_file_diffs(&result).is_empty());
+        assert!(compute_dir_file_diffs(&result).unwrap().is_empty());
     }
 
     #[test]
@@ -425,7 +563,7 @@ mod tests {
             immutable: false,
         };
 
-        let diff = compute_diff_for_result(&result);
+        let diff = compute_diff_for_result(&result).unwrap();
         let plain = console::strip_ansi_codes(&diff.output);
         assert!(diff.has_changes);
         assert!(plain.contains("prefix-extra"));
@@ -457,7 +595,7 @@ mod tests {
             local_dir: None,
             immutable: false,
         };
-        let diffs = compute_dir_file_diffs(&result);
+        let diffs = compute_dir_file_diffs(&result).unwrap();
         assert_eq!(diffs.len(), 2);
         let a = diffs
             .iter()
@@ -496,7 +634,7 @@ mod tests {
             local_dir: None,
             immutable: false,
         };
-        let diffs = compute_dir_file_diffs(&result);
+        let diffs = compute_dir_file_diffs(&result).unwrap();
         assert_eq!(diffs.len(), 1);
         assert!(!diffs[0].has_changes);
     }

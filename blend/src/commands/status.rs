@@ -1,10 +1,11 @@
 use console::style;
 use rayon::prelude::*;
 
-use crate::commands::helpers::{dir_has_inner_symlinks, target_is_unexpected_symlink};
+use crate::commands::helpers::compute_managed_dir_diffs;
 use crate::compose::{discover_orders, get_order};
 use crate::context::Context;
 use crate::diff::check_file_sync;
+use crate::fs_node::{NodeKind, node_kind};
 use crate::nickel::generated;
 use crate::output::log;
 
@@ -117,65 +118,129 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                 format!("{:<file_w$}", source_name)
                             };
 
-                            let (status, diff_display) = if file_entry.symlink {
+                            let expected_kind = if file_entry.symlink {
+                                NodeKind::Symlink
+                            } else if is_dir {
+                                NodeKind::Directory
+                            } else {
+                                NodeKind::File
+                            };
+                            let (target_kind, mut row_error) = match node_kind(&target) {
+                                Ok(kind) => (kind, None),
+                                Err(error) => {
+                                    (None, Some(format!("could not inspect target: {error}")))
+                                }
+                            };
+
+                            let (status, diff_display) = if row_error.is_some() {
+                                (
+                                    style(format!("{:<status_w$}", "error")).red().to_string(),
+                                    style(format!("{:<diff_w$}", "\u{00b7}")).dim().to_string(),
+                                )
+                            } else if file_entry.symlink {
                                 // Symlink entry: check if symlink exists and points correctly
                                 let source_path = ctx
                                     .orders_dir
                                     .join(order_name)
                                     .join(file_entry.from_file.as_deref().unwrap_or(""));
                                 let canonical = source_path.canonicalize().ok();
-                                let linked_ok = match std::fs::read_link(&target) {
-                                    Ok(existing) => {
-                                        canonical.as_deref() == Some(existing.as_path())
-                                    }
-                                    Err(_) => false,
-                                };
-                                if linked_ok {
-                                    (
-                                        style(format!("{:<status_w$}", "linked"))
-                                            .green()
-                                            .to_string(),
-                                        style(format!("{:<diff_w$}", "\u{2713}"))
-                                            .green()
-                                            .to_string(),
-                                    )
-                                } else if target.exists() || target.symlink_metadata().is_ok() {
-                                    (
-                                        style(format!("{:<status_w$}", "linked"))
+                                match target_kind {
+                                    Some(NodeKind::Symlink) => match std::fs::read_link(&target) {
+                                        Ok(existing)
+                                            if canonical.as_deref() == Some(existing.as_path()) =>
+                                        {
+                                            (
+                                                style(format!("{:<status_w$}", "linked"))
+                                                    .green()
+                                                    .to_string(),
+                                                style(format!("{:<diff_w$}", "\u{2713}"))
+                                                    .green()
+                                                    .to_string(),
+                                            )
+                                        }
+                                        Ok(_) => (
+                                            style(format!("{:<status_w$}", "mismatch"))
+                                                .yellow()
+                                                .to_string(),
+                                            style(format!("{:<diff_w$}", "\u{2260}"))
+                                                .yellow()
+                                                .to_string(),
+                                        ),
+                                        Err(error) => {
+                                            row_error = Some(format!(
+                                                "could not read target symlink: {error}"
+                                            ));
+                                            (
+                                                style(format!("{:<status_w$}", "error"))
+                                                    .red()
+                                                    .to_string(),
+                                                style(format!("{:<diff_w$}", "\u{00b7}"))
+                                                    .dim()
+                                                    .to_string(),
+                                            )
+                                        }
+                                    },
+                                    Some(_) => (
+                                        style(format!("{:<status_w$}", "mismatch"))
                                             .yellow()
                                             .to_string(),
                                         style(format!("{:<diff_w$}", "\u{2260}"))
                                             .yellow()
                                             .to_string(),
-                                    )
-                                } else {
-                                    (
+                                    ),
+                                    None => (
                                         style(format!("{:<status_w$}", "pending"))
                                             .yellow()
                                             .to_string(),
                                         style(format!("{:<diff_w$}", "\u{00b7}")).dim().to_string(),
-                                    )
+                                    ),
                                 }
-                            } else if target.exists() || target.symlink_metadata().is_ok() {
-                                // Check for an unexpected target symlink.
-                                // For directory entries, also walk the source dir
-                                // and detect per-file symlinks within the target,
-                                // since the directory itself can be a real dir
-                                // while inner files are still legacy symlinks.
+                            } else if let Some(actual_kind) = target_kind {
                                 let order_dir = ctx.orders_dir.join(order_name);
-                                let unexpected_sym =
-                                    target_is_unexpected_symlink(&target, file_entry.symlink);
-                                let inner_sym = !file_entry.symlink
-                                    && file_entry
-                                        .from_file
+                                let direct_mismatch = actual_kind != expected_kind;
+                                let directory_diffs = if direct_mismatch || !is_dir {
+                                    Ok(None)
+                                } else {
+                                    let source_dir = order_dir
+                                        .join(file_entry.from_file.as_deref().unwrap_or_default());
+                                    let local_dir = file_entry
+                                        .local
                                         .as_ref()
-                                        .map(|f| order_dir.join(f))
-                                        .filter(|p| p.is_dir())
-                                        .is_some_and(|src| dir_has_inner_symlinks(&src, &target));
+                                        .map(|local| order_dir.join(local));
+                                    let mut ignore_keys = order.global_ignore().to_vec();
+                                    ignore_keys.extend(file_entry.ignore.iter().cloned());
+                                    compute_managed_dir_diffs(
+                                        &source_dir,
+                                        &target,
+                                        local_dir.as_deref(),
+                                        &file_entry.exclude,
+                                        &ignore_keys,
+                                    )
+                                    .map(Some)
+                                };
 
-                                if unexpected_sym || inner_sym {
+                                let directory_diffs = match directory_diffs {
+                                    Ok(value) => value,
+                                    Err(error) => {
+                                        row_error = Some(format!(
+                                            "could not build managed inventory: {error}"
+                                        ));
+                                        None
+                                    }
+                                };
+                                let inner_mismatch =
+                                    directory_diffs.as_ref().is_some_and(|diffs| {
+                                        diffs.iter().any(|diff| diff.has_type_mismatch())
+                                    });
+
+                                if row_error.is_some() {
                                     (
-                                        style(format!("{:<status_w$}", "symlinked"))
+                                        style(format!("{:<status_w$}", "error")).red().to_string(),
+                                        style(format!("{:<diff_w$}", "\u{00b7}")).dim().to_string(),
+                                    )
+                                } else if direct_mismatch || inner_mismatch {
+                                    (
+                                        style(format!("{:<status_w$}", "mismatch"))
                                             .yellow()
                                             .to_string(),
                                         style(format!("{:<diff_w$}", "\u{2260}"))
@@ -183,29 +248,47 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                             .to_string(),
                                     )
                                 } else {
-                                    let sync = check_file_sync(
-                                        &order_dir,
-                                        file_entry,
-                                        &target,
-                                        order.global_ignore(),
-                                    );
+                                    let sync = if let Some(file_diffs) = directory_diffs {
+                                        Ok((!file_diffs.is_empty()).then(|| {
+                                            file_diffs.iter().all(|diff| !diff.has_changes)
+                                        }))
+                                    } else {
+                                        check_file_sync(
+                                            &order_dir,
+                                            file_entry,
+                                            &target,
+                                            order.global_ignore(),
+                                        )
+                                    };
                                     let diff_col = match sync {
-                                        Some(true) => style(format!("{:<diff_w$}", "\u{2713}"))
+                                        Ok(Some(true)) => style(format!("{:<diff_w$}", "\u{2713}"))
                                             .green()
                                             .to_string(),
-                                        Some(false) => style(format!("{:<diff_w$}", "\u{2260}"))
-                                            .yellow()
-                                            .to_string(),
-                                        None => style(format!("{:<diff_w$}", "\u{00b7}"))
+                                        Ok(Some(false)) => {
+                                            style(format!("{:<diff_w$}", "\u{2260}"))
+                                                .yellow()
+                                                .to_string()
+                                        }
+                                        Ok(None) => style(format!("{:<diff_w$}", "\u{00b7}"))
                                             .dim()
                                             .to_string(),
+                                        Err(error) => {
+                                            row_error = Some(format!(
+                                                "could not compare target content: {error}"
+                                            ));
+                                            style(format!("{:<diff_w$}", "\u{00b7}"))
+                                                .dim()
+                                                .to_string()
+                                        }
                                     };
-                                    (
+                                    let status = if row_error.is_some() {
+                                        style(format!("{:<status_w$}", "error")).red().to_string()
+                                    } else {
                                         style(format!("{:<status_w$}", "deployed"))
                                             .green()
-                                            .to_string(),
-                                        diff_col,
-                                    )
+                                            .to_string()
+                                    };
+                                    (status, diff_col)
                                 }
                             } else {
                                 (
@@ -222,6 +305,12 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                 format!("~{}", &target_str[home_str.len()..])
                             } else {
                                 target_str.into_owned()
+                            };
+
+                            let target_display = if let Some(error) = row_error {
+                                format!("{target_display} ({error})")
+                            } else {
+                                target_display
                             };
 
                             rows.push(format!(

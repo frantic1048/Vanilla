@@ -1,10 +1,12 @@
+use anyhow::Context as _;
 use console::style;
 
 use crate::commands::helpers::{
-    compute_diff_for_result, compute_dir_file_diffs, target_is_unexpected_symlink,
+    compute_diff_for_result, compute_dir_file_diffs, target_type_mismatch,
 };
 use crate::compose::{build_order, discover_orders};
 use crate::context::Context;
+use crate::fs_node::{NodeKind, node_kind};
 use crate::nickel::generated;
 use crate::output::log;
 
@@ -60,6 +62,9 @@ pub fn cmd_view(
                 println!("\n{}", style(order_name).cyan().bold());
 
                 for result in &results {
+                    let target_kind = node_kind(&result.target).with_context(|| {
+                        format!("could not inspect target {}", result.target.display())
+                    })?;
                     let target_display = shorten_path(&result.target);
                     let immutable_tag = if result.immutable {
                         format!(" {}", style("(immutable)").magenta())
@@ -71,16 +76,34 @@ pub fn cmd_view(
 
                     if result.is_symlink {
                         if let Some(canonical) = &result.canonical_source {
-                            let link_status = match std::fs::read_link(&result.target) {
-                                Ok(existing) if existing == *canonical => {
-                                    if short {
-                                        continue;
+                            let link_status =
+                                match (target_kind, std::fs::read_link(&result.target)) {
+                                    (Some(NodeKind::Symlink), Ok(existing))
+                                        if existing == *canonical =>
+                                    {
+                                        if short {
+                                            continue;
+                                        }
+                                        style("(linked)").green().to_string()
                                     }
-                                    style("(linked)").green().to_string()
-                                }
-                                Ok(_) => style("(wrong target)").yellow().to_string(),
-                                Err(_) => style("(not linked)").yellow().to_string(),
-                            };
+                                    (Some(NodeKind::Symlink), Ok(_)) => {
+                                        style("(wrong target)").yellow().to_string()
+                                    }
+                                    (Some(NodeKind::Symlink), Err(error)) => {
+                                        return Err(error).with_context(|| {
+                                            format!(
+                                                "could not read target symlink {}",
+                                                result.target.display()
+                                            )
+                                        });
+                                    }
+                                    (Some(actual), _) => style(format!(
+                                        "(type mismatch: expected symlink, found {actual})"
+                                    ))
+                                    .yellow()
+                                    .to_string(),
+                                    (None, _) => style("(not linked)").yellow().to_string(),
+                                };
                             println!(
                                 "{} {} {}",
                                 file_header,
@@ -102,21 +125,28 @@ pub fn cmd_view(
                             }
 
                             if show_diff && is_dir {
-                                // Enumerate per-file status for directories
-                                let file_diffs = compute_dir_file_diffs(result);
+                                let target_missing = target_kind.is_none();
+                                let direct_mismatch = target_type_mismatch(result)?;
+                                // Enumerate per-node status only when the target
+                                // root has the expected directory type.
+                                let file_diffs = if direct_mismatch.is_none() {
+                                    compute_dir_file_diffs(result)?
+                                } else {
+                                    Vec::new()
+                                };
                                 let any_file_changes = file_diffs.iter().any(|f| f.has_changes);
 
-                                if !result.target.exists() {
+                                if target_missing {
                                     annotations.push(style("(not deployed)").yellow().to_string());
                                     println!("{} {}", file_header, annotations.join(" "));
                                     has_changes = true;
-                                } else if target_is_unexpected_symlink(
-                                    &result.target,
-                                    result.is_symlink,
-                                ) && !any_file_changes
-                                {
+                                } else if let Some((expected, actual)) = direct_mismatch {
                                     annotations.push(
-                                        style("(symlinked, needs re-deploy)").yellow().to_string(),
+                                        style(format!(
+                                            "(type mismatch: expected {expected}, found {actual})"
+                                        ))
+                                        .yellow()
+                                        .to_string(),
                                     );
                                     println!("{} {}", file_header, annotations.join(" "));
                                     has_changes = true;
@@ -142,15 +172,13 @@ pub fn cmd_view(
                                             );
                                             has_changes = true;
                                         } else if f.has_changes {
-                                            let label = if f.target_is_symlink {
-                                                if f.diff_output.is_empty() {
-                                                    format!("{} (unexpected symlink)", rel)
-                                                } else {
-                                                    format!(
-                                                        "{} (unexpected symlink, modified)",
-                                                        rel
-                                                    )
-                                                }
+                                            let label = if let Some(target_kind) = f.target_kind
+                                                && target_kind != f.expected_kind
+                                            {
+                                                format!(
+                                                    "{} (type mismatch: expected {}, found {})",
+                                                    rel, f.expected_kind, target_kind
+                                                )
                                             } else {
                                                 format!("{}", rel)
                                             };
@@ -174,12 +202,15 @@ pub fn cmd_view(
                                     }
                                 }
                             } else if show_diff && !is_dir {
-                                let diff_result = compute_diff_for_result(result);
-                                let unexpected_sym =
-                                    target_is_unexpected_symlink(&result.target, result.is_symlink);
-                                if unexpected_sym {
+                                let diff_result = compute_diff_for_result(result)?;
+                                let direct_mismatch = target_type_mismatch(result)?;
+                                if let Some((expected, actual)) = direct_mismatch {
                                     annotations.push(
-                                        style("(symlinked, needs re-deploy)").yellow().to_string(),
+                                        style(format!(
+                                            "(type mismatch: expected {expected}, found {actual})"
+                                        ))
+                                        .yellow()
+                                        .to_string(),
                                     );
                                 }
                                 if diff_result.has_changes {
@@ -192,11 +223,11 @@ pub fn cmd_view(
                                         println!("    {}", line);
                                     }
                                     has_changes = true;
-                                } else if !result.target.exists() {
+                                } else if target_kind.is_none() {
                                     annotations.push(style("(not deployed)").yellow().to_string());
                                     println!("{} {}", file_header, annotations.join(" "));
                                     has_changes = true;
-                                } else if unexpected_sym {
+                                } else if direct_mismatch.is_some() {
                                     println!("{} {}", file_header, annotations.join(" "));
                                     has_changes = true;
                                 } else if !short {
@@ -214,12 +245,13 @@ pub fn cmd_view(
 
                     // Structured config
                     let diff_status = if show_diff {
-                        Some(compute_diff_for_result(result))
+                        Some(compute_diff_for_result(result)?)
                     } else {
                         None
                     };
 
-                    let target_missing = !result.target.exists();
+                    let target_missing = target_kind.is_none();
+                    let direct_mismatch = target_type_mismatch(result)?;
                     let has_diff_output = diff_status
                         .as_ref()
                         .is_some_and(|diff_result| diff_result.has_changes);
@@ -248,11 +280,14 @@ pub fn cmd_view(
                             }
                             has_changes = true;
                         }
-                    } else if target_is_unexpected_symlink(&result.target, result.is_symlink) {
+                    } else if let Some((expected, actual)) = direct_mismatch {
                         println!(
                             "{} {}",
                             file_header,
-                            style("(symlinked, needs re-deploy)").yellow()
+                            style(format!(
+                                "(type mismatch: expected {expected}, found {actual})"
+                            ))
+                            .yellow()
                         );
                         has_changes = true;
                     } else if !short {

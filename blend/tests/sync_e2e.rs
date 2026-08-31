@@ -619,6 +619,66 @@ fn test_sync_force_source_to_target_then_no_changes() {
 }
 
 #[test]
+fn test_sync_target_to_source_deletion_removes_field_comments() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = copy_fixture("toml-basic");
+    let order_path = orders_dir(blend_dir.path()).join("toml-basic/order.ncl");
+    let source = std::fs::read_to_string(&order_path).unwrap().replace(
+        "          number = 42,",
+        "          # Numeric setting\n          number = 42, # Stored as a number",
+    );
+    std::fs::write(&order_path, source).unwrap();
+
+    let deploy = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "toml-basic"],
+    );
+    assert!(
+        deploy.status.success(),
+        "initial deployment failed:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&deploy.stdout),
+        String::from_utf8_lossy(&deploy.stderr)
+    );
+
+    let target = home.path().join(".config/toml-basic/config.toml");
+    let deployed = std::fs::read_to_string(&target).unwrap();
+    let without_number = deployed
+        .lines()
+        .filter(|line| !line.starts_with("number"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    std::fs::write(&target, format!("{without_number}\n")).unwrap();
+
+    let pull = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-target-to-source", "toml-basic"],
+    );
+    assert!(
+        pull.status.success(),
+        "target-to-source deletion failed:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&pull.stdout),
+        String::from_utf8_lossy(&pull.stderr)
+    );
+
+    let rewritten = std::fs::read_to_string(&order_path).unwrap();
+    assert!(!rewritten.contains("number = 42"));
+    assert!(!rewritten.contains("Numeric setting"));
+    assert!(!rewritten.contains("Stored as a number"));
+    assert!(rewritten.contains("key = \"value\""));
+    assert!(rewritten.contains("nested = {"));
+
+    let check = run_blend(home.path(), blend_dir.path(), &["check", "toml-basic"]);
+    assert!(
+        check.status.success(),
+        "rewritten order should remain valid:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&check.stdout),
+        String::from_utf8_lossy(&check.stderr)
+    );
+}
+
+#[test]
 fn test_sync_dry_run_no_changes() {
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();

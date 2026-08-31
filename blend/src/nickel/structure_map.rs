@@ -933,7 +933,7 @@ mod tests {
         name = "test.toml",
         from_config = {
           # Record-level note
-
+          \t
           # Field-specific note
           a = 1,
           b = 2,
@@ -941,17 +941,177 @@ mod tests {
       },
     ],
   },
-}"#;
+}"#
+        .replace("\\t", "\t");
 
-        let structure = build_structure_map(source, 0).unwrap();
+        let structure = build_structure_map(&source, 0).unwrap();
         let edits = vec![FieldEdit::Delete { path: kp("a") }];
-        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5)
+        let result = surgical_rewrite_with_structure(&source, &structure, &[], &edits, 5)
             .unwrap()
             .new_source;
 
         assert!(result.contains("Record-level note"));
         assert!(!result.contains("Field-specific note"));
         assert!(result.contains("b = 2"));
+    }
+
+    #[test]
+    fn delete_nested_field_removes_contiguous_leading_doc_comments() {
+        use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+          section = {
+            keep = 1,
+            # First line describing remove
+            # Second line describing remove
+            remove = 2,
+            # Documentation for after
+            after = 3,
+          },
+        },
+      },
+    ],
+  },
+}"#;
+
+        let structure = build_structure_map(source, 0).unwrap();
+        let edits = vec![FieldEdit::Delete {
+            path: kp("section.remove"),
+        }];
+        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5)
+            .unwrap()
+            .new_source;
+
+        assert!(result.contains("keep = 1"));
+        assert!(!result.contains("describing remove"));
+        assert!(result.contains("# Documentation for after\n            after = 3"));
+        build_structure_map(&result, 0).unwrap();
+    }
+
+    #[test]
+    fn delete_field_removes_multiline_comments_with_trailing_horizontal_whitespace() {
+        use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+          keep = 1,
+          # First documentation line<spaces>
+          # Second documentation line\t
+          remove = 2,
+          after = 3,
+        },
+      },
+    ],
+  },
+}"#
+        .replace("<spaces>", "   ")
+        .replace("\\t", "\t");
+
+        let structure = build_structure_map(&source, 0).unwrap();
+        let edits = vec![FieldEdit::Delete { path: kp("remove") }];
+        let result = surgical_rewrite_with_structure(&source, &structure, &[], &edits, 5)
+            .unwrap()
+            .new_source;
+
+        assert!(!result.contains("documentation line"));
+        assert!(result.contains("keep = 1,\n          after = 3"));
+    }
+
+    #[test]
+    fn delete_field_preserves_comment_for_following_field() {
+        use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+          remove = 1,
+          # Documentation for keep
+          keep = 2,
+        },
+      },
+    ],
+  },
+}"#;
+
+        let structure = build_structure_map(source, 0).unwrap();
+        let edits = vec![FieldEdit::Delete { path: kp("remove") }];
+        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5)
+            .unwrap()
+            .new_source;
+
+        assert!(!result.contains("remove = 1"));
+        assert!(result.contains("# Documentation for keep\n          keep = 2"));
+    }
+
+    #[test]
+    fn delete_field_removes_trailing_same_line_comment() {
+        use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+          remove = 1, # Documentation for remove
+          keep = 2,
+        },
+      },
+    ],
+  },
+}"#;
+
+        let structure = build_structure_map(source, 0).unwrap();
+        let edits = vec![FieldEdit::Delete { path: kp("remove") }];
+        let result = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5)
+            .unwrap()
+            .new_source;
+
+        assert!(!result.contains("remove = 1"));
+        assert!(!result.contains("Documentation for remove"));
+        assert!(result.contains("from_config = {\n          keep = 2"));
+        build_structure_map(&result, 0).unwrap();
+    }
+
+    #[test]
+    fn delete_field_with_mismatched_comment_indentation_is_unapplied() {
+        use super::super::ast_utils::{FieldEdit, surgical_rewrite_with_structure};
+
+        let source = r#"{
+  blend = {
+    files = [
+      {
+        name = "test.toml",
+        from_config = {
+        # Ambiguous record-level documentation
+          remove = 1,
+          keep = 2,
+        },
+      },
+    ],
+  },
+}"#;
+
+        let structure = build_structure_map(source, 0).unwrap();
+        let path = kp("remove");
+        let edits = vec![FieldEdit::Delete { path: path.clone() }];
+        let outcome = surgical_rewrite_with_structure(source, &structure, &[], &edits, 5).unwrap();
+
+        assert_eq!(outcome.new_source, source);
+        assert!(outcome.applied.is_empty());
+        assert_eq!(outcome.unapplied, vec![path]);
     }
 
     // -----------------------------------------------------------------------

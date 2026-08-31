@@ -915,42 +915,15 @@ pub fn surgical_rewrite_with_structure(
                     push_unique(&mut unapplied, path);
                     continue;
                 };
+                let FieldDeletionSpan::Safe(delete_range) =
+                    field_deletion_span(source, &structure.comments, field.full_range.clone())
+                else {
+                    push_unique(&mut unapplied, path);
+                    continue;
+                };
+
                 push_unique(&mut applied, path);
-
-                // Determine what byte range to delete.
-                // We want to remove the entire field definition, including the
-                // preceding newline and indentation.
-                let bytes = source.as_bytes();
-
-                // Find the start of the line containing this field
-                // Start deletion AFTER the preceding newline (keep it for the previous line)
-                let line_start = source[..field.full_range.start]
-                    .rfind('\n')
-                    .map(|pos| pos + 1) // skip the \n itself
-                    .unwrap_or(field.full_range.start);
-
-                let delete_start = leading_comment_block_start(
-                    source,
-                    &structure.comments,
-                    line_start,
-                    field.full_range.start,
-                );
-                let mut delete_end = field.full_range.end;
-
-                // Also consume trailing whitespace and newline after the field
-                while delete_end < source.len()
-                    && (bytes[delete_end] == b' '
-                        || bytes[delete_end] == b'\t'
-                        || bytes[delete_end] == b'\n')
-                {
-                    if bytes[delete_end] == b'\n' {
-                        delete_end += 1;
-                        break;
-                    }
-                    delete_end += 1;
-                }
-
-                ops.push((delete_start, delete_end - delete_start, String::new()));
+                ops.push((delete_range.start, delete_range.len(), String::new()));
             }
         }
     }
@@ -973,16 +946,34 @@ pub fn surgical_rewrite_with_structure(
     })
 }
 
-/// Include a contiguous block of standalone comments immediately above a
-/// deleted field. Blank lines and inline comments form a boundary so comments
-/// belonging to the surrounding record or previous field are preserved.
-fn leading_comment_block_start(
+enum FieldDeletionSpan {
+    Safe(std::ops::Range<usize>),
+    Ambiguous,
+}
+
+/// Find the complete, safely-owned source range for a field deletion.
+///
+/// Contiguous standalone comments with the field's indentation are treated as
+/// leading documentation. A blank line or an inline comment after a previous
+/// field is an ownership boundary. A standalone adjacent comment with a
+/// different indentation is ambiguous, so the field is left untouched.
+fn field_deletion_span(
     source: &str,
     comments: &[std::ops::Range<usize>],
-    field_line_start: usize,
-    field_start: usize,
-) -> usize {
-    let field_indent = &source[field_line_start..field_start];
+    field_range: std::ops::Range<usize>,
+) -> FieldDeletionSpan {
+    let field_line_start = source[..field_range.start]
+        .rfind('\n')
+        .map(|pos| pos + 1)
+        .unwrap_or(0);
+    let field_indent = &source[field_line_start..field_range.start];
+    if !field_indent
+        .bytes()
+        .all(|byte| matches!(byte, b' ' | b'\t'))
+    {
+        return FieldDeletionSpan::Ambiguous;
+    }
+
     let mut delete_start = field_line_start;
 
     while let Some(comment) = comments
@@ -1001,14 +992,49 @@ fn leading_comment_block_start(
             .rfind('\n')
             .map(|pos| pos + 1)
             .unwrap_or(0);
-        if &source[comment_line_start..comment.start] != field_indent {
+        let comment_prefix = &source[comment_line_start..comment.start];
+        if !comment_prefix
+            .bytes()
+            .all(|byte| matches!(byte, b' ' | b'\t'))
+        {
+            // This is an inline comment belonging to the previous field.
             break;
+        }
+        if comment_prefix != field_indent {
+            return FieldDeletionSpan::Ambiguous;
         }
 
         delete_start = comment_line_start;
     }
 
-    delete_start
+    let mut delete_end = field_range.end;
+    let line_end = source[delete_end..]
+        .find('\n')
+        .map(|offset| delete_end + offset)
+        .unwrap_or(source.len());
+    let trailing_comment = comments
+        .iter()
+        .filter(|comment| comment.start >= delete_end && comment.start <= line_end)
+        .min_by_key(|comment| comment.start)
+        .filter(|comment| {
+            source[delete_end..comment.start]
+                .bytes()
+                .all(|byte| matches!(byte, b' ' | b'\t' | b'\r'))
+        });
+
+    if let Some(comment) = trailing_comment {
+        delete_end = comment.end;
+    }
+
+    let bytes = source.as_bytes();
+    while delete_end < source.len() && matches!(bytes[delete_end], b' ' | b'\t' | b'\r') {
+        delete_end += 1;
+    }
+    if delete_end < source.len() && bytes[delete_end] == b'\n' {
+        delete_end += 1;
+    }
+
+    FieldDeletionSpan::Safe(delete_start..delete_end)
 }
 
 /// Determine the indentation level of a from_config block by looking at the source.

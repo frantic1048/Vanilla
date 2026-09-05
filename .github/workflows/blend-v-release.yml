@@ -27,7 +27,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Harden the runner (audit all outbound calls)
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
 
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner (audit all outbound calls)
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
 
@@ -172,7 +172,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner (Block unapproved outbound calls)
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -206,7 +206,7 @@ jobs:
           cp blend-x86_64-unknown-linux-gnu/blend blend/
 
       - name: Log in to ghcr.io
-        uses: step-security/docker-login-action@bd6978fd4ef9a5f78130095b298b8a721afcb0d8 # v4.5.1
+        uses: step-security/docker-login-action@8c7b695d8738c5699a679ff5254baf0f19f20a94 # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -246,7 +246,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Harden the runner (audit all outbound calls)
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
 

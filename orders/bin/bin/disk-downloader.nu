@@ -45,9 +45,16 @@ def main [
         ]
     }
 
-    if $urgent {
-        with-external-commands-do ["npm"] {||
-            print-section-title "npm"
+    with-external-commands-do ["deno"] {||
+        print-section-title "deno"
+        print-and-do-command [deno clean]
+    }
+
+    with-external-commands-do ["npm"] {||
+        print-section-title "npm"
+        if not $urgent {
+            print "noop when --urgent is not set."
+        } else {
             print-and-do-command [npm cache clean --force]
         }
     }

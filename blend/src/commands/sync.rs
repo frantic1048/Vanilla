@@ -9,6 +9,7 @@ use crate::fs_node::node_kind;
 use crate::nickel;
 use crate::nickel::generated;
 use crate::nickel::key_path::KeyPath;
+use crate::nickel::resolution::ResourceDisposition;
 use crate::output::log;
 use crate::sync::{self, KeyAction, KeyResolution, Prompter, SyncAction, SyncMode};
 
@@ -88,6 +89,64 @@ pub fn cmd_sync(
                     continue;
                 }
             };
+            match result.resource_disposition {
+                ResourceDisposition::Unmanaged => {
+                    if ctx.verbose {
+                        log::info(&format!(
+                            "{}:{} is unmanaged at the resource root",
+                            order_name, result.name
+                        ));
+                    }
+                    continue;
+                }
+                ResourceDisposition::Unresolved => {
+                    log::warn(&format!(
+                        "Resolver made no decision for {}:{} at the resource root; edit order.ncl manually",
+                        order_name, result.name
+                    ));
+                    skipped += 1;
+                    continue;
+                }
+                ResourceDisposition::Absent => {
+                    if target_kind.is_none() {
+                        if ctx.verbose {
+                            log::info(&format!(
+                                "{}:{} is absent as required",
+                                order_name, result.name
+                            ));
+                        }
+                        continue;
+                    }
+                    match write_result(result, ctx.dry_run) {
+                        Ok(()) => {
+                            if !ctx.dry_run {
+                                log::success(&format!(
+                                    "Applied Source -> Target absence for {}:{}",
+                                    order_name, result.name
+                                ));
+                                source_to_target += 1;
+                            }
+                        }
+                        Err(error) => {
+                            log::error(&format!(
+                                "Failed to remove Target for {}:{}: {}",
+                                order_name, result.name, error
+                            ));
+                            build_errors += 1;
+                        }
+                    }
+                    continue;
+                }
+                ResourceDisposition::Present => {}
+            }
+            if target_kind.is_none() && !result.manual_resolution_paths.is_empty() {
+                log::warn(&format!(
+                    "Cannot create {}:{} because a resolver made no decision; edit order.ncl manually",
+                    order_name, result.name
+                ));
+                skipped += 1;
+                continue;
+            }
             if target_kind.is_none() {
                 let snapshot = ctx
                     .state
@@ -183,13 +242,23 @@ pub fn cmd_sync(
             let is_from_config = !result.is_plaintext && !result.is_symlink;
             // Malformed Target data cannot participate in a semantic merge, but
             // whole-file interactive mode can still repair it from Source.
+            let target_is_parseable = std::fs::read_to_string(&result.target)
+                .ok()
+                .is_some_and(|content| get_renderer(result.format).parse(&content).is_ok());
+            if is_from_config && !result.manual_resolution_paths.is_empty() && !target_is_parseable
+            {
+                log::warn(&format!(
+                    "Cannot resolve {}:{} automatically because its Target is not parseable and a resolver requires manual declaration editing",
+                    order_name, result.name
+                ));
+                skipped += 1;
+                continue;
+            }
             let use_per_key = is_from_config
-                && matches!(mode, SyncMode::Interactive)
-                && !ctx.dry_run
-                && can_pull
-                && std::fs::read_to_string(&result.target)
-                    .ok()
-                    .is_some_and(|content| get_renderer(result.format).parse(&content).is_ok());
+                && ((matches!(mode, SyncMode::Interactive) && can_pull)
+                    || !result.automatic_source_paths.is_empty()
+                    || !result.manual_resolution_paths.is_empty())
+                && target_is_parseable;
 
             if use_per_key {
                 // Per-key interactive sync for from_config entries
@@ -299,26 +368,59 @@ pub fn cmd_sync(
                 let mut quit = false;
 
                 for change in &key_changes {
-                    let action = if let Some(resolution) = all_mode {
-                        match resolution {
-                            KeyResolution::Source => KeyAction::UseSource,
-                            KeyResolution::Target => KeyAction::UseTarget,
+                    let manual_overlap = result.manual_resolution_paths.iter().any(|path| {
+                        change.path.segments().starts_with(path.segments())
+                            || path.segments().starts_with(change.path.segments())
+                    });
+                    if manual_overlap {
+                        log::warn(&format!(
+                            "Resolver made no decision for {}:{} key {}; edit order.ncl manually",
+                            order_name, result.name, change.path
+                        ));
+                        continue;
+                    }
+                    let declarative_overlap = result.automatic_source_paths.iter().any(|path| {
+                        change.path.segments().starts_with(path.segments())
+                            || path.segments().starts_with(change.path.segments())
+                    });
+                    if declarative_overlap {
+                        // Type mismatches are reported at the ancestor. Promote
+                        // the decision so enforced descendants can be created.
+                        decisions.insert(change.path.clone(), KeyResolution::Source);
+                        continue;
+                    }
+                    let action = match mode {
+                        SyncMode::ApplySourceToTargetAll => KeyAction::UseSource,
+                        SyncMode::ApplyTargetToSourceAll => KeyAction::UseTarget,
+                        SyncMode::Interactive => {
+                            if ctx.dry_run {
+                                log::info_important(&format!(
+                                    "[dry-run] would prompt for {}:{} key {}",
+                                    order_name, result.name, change.path
+                                ));
+                                KeyAction::Skip
+                            } else if let Some(resolution) = all_mode {
+                                match resolution {
+                                    KeyResolution::Source => KeyAction::UseSource,
+                                    KeyResolution::Target => KeyAction::UseTarget,
+                                }
+                            } else {
+                                let key_annotation = sync::compute_key_annotation(
+                                    snapshot_json.as_ref(),
+                                    &source_json,
+                                    &target_json,
+                                    &change.path,
+                                );
+                                let prompt_change =
+                                    key_change_with_base_display(change, snapshot_json.as_ref());
+                                prompter.ask_key_action(
+                                    order_name,
+                                    &result.name,
+                                    &prompt_change,
+                                    key_annotation,
+                                )
+                            }
                         }
-                    } else {
-                        let key_annotation = sync::compute_key_annotation(
-                            snapshot_json.as_ref(),
-                            &source_json,
-                            &target_json,
-                            &change.path,
-                        );
-                        let prompt_change =
-                            key_change_with_base_display(change, snapshot_json.as_ref());
-                        prompter.ask_key_action(
-                            order_name,
-                            &result.name,
-                            &prompt_change,
-                            key_annotation,
-                        )
                     };
 
                     match action {
@@ -348,6 +450,9 @@ pub fn cmd_sync(
 
                 if quit {
                     log::info("Sync aborted by user");
+                    if build_errors > 0 {
+                        anyhow::bail!("sync failed with {build_errors} error(s)");
+                    }
                     return Ok(());
                 }
 
@@ -369,37 +474,49 @@ pub fn cmd_sync(
                     .collect();
 
                 if !target_keys.is_empty() {
-                    match sync::pull_from_config_keys(
-                        ctx,
-                        order_name,
-                        *file_entry_index,
-                        &result.target,
-                        format,
-                        &target_keys,
-                        false,
-                    ) {
-                        Ok(report) => {
-                            for key in &report.unapplied {
-                                log::warn(&format!(
-                                    "Skipped {}:{} key {}: Target value could not be written back to order.ncl (resolve manually)",
-                                    order_name, result.name, key
-                                ));
-                                decisions.remove(key);
-                            }
-                            if report.any_applied() {
-                                target_to_source += 1;
-                            }
+                    if !can_pull {
+                        for key in &target_keys {
+                            decisions.remove(key);
                         }
-                        Err(e) => {
-                            log::error(&format!(
-                                "Failed to rewrite .ncl for {}:{}: {}",
-                                order_name, result.name, e
-                            ));
-                            build_errors += 1;
-                            // None of the Target selections landed in Source;
-                            // drop them so they are not treated as resolved.
-                            for key in &target_keys {
-                                decisions.remove(key);
+                        log::warn(&format!(
+                            "Skipped {} Target -> Source decision(s) for {}:{} because source rewriting is unavailable",
+                            target_keys.len(),
+                            order_name,
+                            result.name
+                        ));
+                    } else {
+                        match sync::pull_from_config_keys(
+                            ctx,
+                            order_name,
+                            *file_entry_index,
+                            &result.target,
+                            format,
+                            &target_keys,
+                            ctx.dry_run,
+                        ) {
+                            Ok(report) => {
+                                for key in &report.unapplied {
+                                    log::warn(&format!(
+                                        "Skipped {}:{} key {}: Target value could not be written back to order.ncl (resolve manually)",
+                                        order_name, result.name, key
+                                    ));
+                                    decisions.remove(key);
+                                }
+                                if report.any_applied() {
+                                    target_to_source += 1;
+                                }
+                            }
+                            Err(e) => {
+                                log::error(&format!(
+                                    "Failed to rewrite .ncl for {}:{}: {}",
+                                    order_name, result.name, e
+                                ));
+                                build_errors += 1;
+                                // None of the Target selections landed in Source;
+                                // drop them so they are not treated as resolved.
+                                for key in &target_keys {
+                                    decisions.remove(key);
+                                }
                             }
                         }
                     }
@@ -417,6 +534,15 @@ pub fn cmd_sync(
                 // Write merged result to target
                 match format_renderer.render(&merged) {
                     Ok(merged_content) => {
+                        if ctx.dry_run {
+                            log::info_important(&format!(
+                                "[dry-run] would apply {} declarative/selected key resolution(s) for {}:{}",
+                                decisions.len(),
+                                order_name,
+                                result.name
+                            ));
+                            continue;
+                        }
                         let merged_result = BuildResult {
                             target: result.target.clone(),
                             content: merged_content,
@@ -430,6 +556,9 @@ pub fn cmd_sync(
                             exclude_patterns: vec![],
                             local_dir: None,
                             immutable: result.immutable,
+                            automatic_source_paths: std::collections::HashSet::new(),
+                            manual_resolution_paths: std::collections::HashSet::new(),
+                            resource_disposition: ResourceDisposition::Present,
                         };
                         match write_result(&merged_result, false) {
                             Ok(()) => {
@@ -647,6 +776,9 @@ pub fn cmd_sync(
                     }
                     SyncAction::Quit => {
                         log::info("Sync aborted by user");
+                        if build_errors > 0 {
+                            anyhow::bail!("sync failed with {build_errors} error(s)");
+                        }
                         return Ok(());
                     }
                 }
@@ -654,16 +786,15 @@ pub fn cmd_sync(
         }
     }
 
+    if build_errors > 0 {
+        anyhow::bail!("sync failed with {build_errors} error(s)");
+    }
+
     // Summary
     if !ctx.dry_run {
-        let error_note = if build_errors > 0 {
-            format!(" ({} errors)", build_errors)
-        } else {
-            String::new()
-        };
         log::success(&format!(
-            "Sync complete: {} Source -> Target, {} Target -> Source, {} skipped{}",
-            source_to_target, target_to_source, skipped, error_note
+            "Sync complete: {} Source -> Target, {} Target -> Source, {} skipped",
+            source_to_target, target_to_source, skipped
         ));
     }
 
@@ -873,6 +1004,8 @@ fn build_order_with_indices(
             let result = compose::build_file_entry_pub(
                 ctx,
                 &order_dir,
+                file_entry_index,
+                order.entry_has_resolution_semantics(file_entry_index),
                 file_entry,
                 expanded_target,
                 ignore_keys.clone(),

@@ -441,6 +441,19 @@ fn collect_fields_from_value<'ast>(
             }
         }
 
+        // `record |> blend.target_only resolver` desugars to an application
+        // whose final argument is the managed record. The helper adds policy
+        // for Target-only children but doesn't make declared literal leaves
+        // non-rewritable.
+        Node::App { head, args } if is_target_only_application(head) && args.last().is_some() => {
+            collect_fields_from_value(
+                args.last().expect("checked above"),
+                metadata,
+                rewritable,
+                non_rewritable,
+            );
+        }
+
         // Match expression applied to an argument: metadata.field |> match { ... }
         // Resolve the active branch, then collect fields from it
         Node::App { head, args } if matches!(head.node, Node::Match(_)) => {
@@ -485,6 +498,22 @@ fn collect_fields_from_value<'ast>(
                 });
             }
         }
+    }
+}
+
+fn is_target_only_application(ast: &Ast<'_>) -> bool {
+    match &ast.node {
+        Node::PrimOpApp {
+            op: PrimOp::RecordStatAccess(field),
+            args,
+        } => {
+            field.label() == "target_only"
+                && args.first().is_some_and(
+                    |receiver| matches!(&receiver.node, Node::Var(id) if id.label() == "blend"),
+                )
+        }
+        Node::App { head, .. } => is_target_only_application(head),
+        _ => false,
     }
 }
 
@@ -1136,10 +1165,12 @@ fn is_valid_nickel_ident(s: &str) -> bool {
 
 fn escape_nickel_string(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
-    for ch in s.chars() {
+    let mut chars = s.chars().peekable();
+    while let Some(ch) = chars.next() {
         match ch {
             '"' => out.push_str("\\\""),
             '\\' => out.push_str("\\\\"),
+            '%' if chars.peek() == Some(&'{') => out.push_str("\\%"),
             '\n' => out.push_str("\\n"),
             '\r' => out.push_str("\\r"),
             '\t' => out.push_str("\\t"),
@@ -1757,6 +1788,7 @@ let metadata = { os = "darwin", arch = "aarch64", hostname = "test", user = "tes
     fn test_escape_nickel_string() {
         assert_eq!(escape_nickel_string("hello"), "hello");
         assert_eq!(escape_nickel_string("he\"llo"), "he\\\"llo");
+        assert_eq!(escape_nickel_string("%{1 + 1}"), "\\%{1 + 1}");
         assert_eq!(escape_nickel_string("\u{e76f}"), "\\u{e76f}");
     }
 

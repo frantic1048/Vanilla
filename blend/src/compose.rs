@@ -9,8 +9,16 @@ use crate::context::Context;
 use crate::formats::get_renderer;
 use crate::fs_node::{NodeKind, node_kind};
 use crate::immutable;
+use crate::nickel::resolution::ResourceDisposition;
 use crate::nickel::{FileEntry, Format, NickelEvaluator, Order};
 use crate::output::log;
+
+#[derive(Debug, Default)]
+pub struct FileResolution {
+    pub automatic_source_paths: HashSet<crate::nickel::key_path::KeyPath>,
+    pub manual_resolution_paths: HashSet<crate::nickel::key_path::KeyPath>,
+    pub resource_disposition: ResourceDisposition,
+}
 
 /// Discover orders in the orders directory
 pub fn discover_orders(orders_dir: &Path) -> HashSet<String> {
@@ -71,6 +79,14 @@ pub struct BuildResult {
     pub local_dir: Option<PathBuf>,
     /// Whether to set the OS immutable flag on the deployed file
     pub immutable: bool,
+    /// Structured paths whose declarations are authoritative and can be
+    /// reconciled without prompting.
+    pub automatic_source_paths: HashSet<crate::nickel::key_path::KeyPath>,
+    /// Structured paths for which a resolver explicitly returned
+    /// `'Unresolved`. These require a manual declaration edit.
+    pub manual_resolution_paths: HashSet<crate::nickel::key_path::KeyPath>,
+    /// Resource-root ownership/existence semantics.
+    pub resource_disposition: ResourceDisposition,
 }
 
 /// Build a single order, returning results for all file entries and targets
@@ -94,7 +110,7 @@ pub fn build_order(ctx: &Context, order_name: &str) -> Result<Vec<BuildResult>> 
     let global_ignore = order.global_ignore();
     let global_prefix = order.global_prefix();
 
-    for file_entry in &order.blend.files {
+    for (file_entry_index, file_entry) in order.blend.files.iter().enumerate() {
         // Check per-file condition
         if !file_entry.should_apply(&ctx.metadata.os, &ctx.metadata.arch, &ctx.metadata.hostname) {
             if ctx.verbose {
@@ -113,8 +129,21 @@ pub fn build_order(ctx: &Context, order_name: &str) -> Result<Vec<BuildResult>> 
         // Build for each target prefix (file-level overrides global)
         for target_path in file_entry.target_paths(global_prefix) {
             let expanded_target = ctx.expand_path(&target_path);
-            let result =
-                build_file_entry(&order_dir, file_entry, expanded_target, ignore_keys.clone())?;
+            let (evaluated_entry, resolution) = resolve_file_entry(
+                ctx,
+                &order_dir,
+                file_entry_index,
+                order.entry_has_resolution_semantics(file_entry_index),
+                file_entry,
+                &expanded_target,
+            )?;
+            let result = build_file_entry(
+                &order_dir,
+                &evaluated_entry,
+                expanded_target,
+                ignore_keys.clone(),
+                resolution,
+            )?;
             results.push(result);
         }
     }
@@ -124,13 +153,53 @@ pub fn build_order(ctx: &Context, order_name: &str) -> Result<Vec<BuildResult>> 
 
 /// Build a single file entry to a specific target (public wrapper)
 pub fn build_file_entry_pub(
-    _ctx: &Context,
+    ctx: &Context,
     order_dir: &Path,
+    file_entry_index: usize,
+    has_resolution_semantics: bool,
     entry: &FileEntry,
     target: PathBuf,
     ignore_keys: Vec<String>,
 ) -> Result<BuildResult> {
-    build_file_entry(order_dir, entry, target, ignore_keys)
+    let (evaluated_entry, resolution) = resolve_file_entry(
+        ctx,
+        order_dir,
+        file_entry_index,
+        has_resolution_semantics,
+        entry,
+        &target,
+    )?;
+    build_file_entry(order_dir, &evaluated_entry, target, ignore_keys, resolution)
+}
+
+pub fn resolve_file_entry(
+    ctx: &Context,
+    order_dir: &Path,
+    file_entry_index: usize,
+    has_resolution_semantics: bool,
+    entry: &FileEntry,
+    target: &Path,
+) -> Result<(FileEntry, FileResolution)> {
+    if !has_resolution_semantics {
+        return Ok((entry.clone(), FileResolution::default()));
+    }
+    let evaluator = NickelEvaluator::new(&ctx.metadata);
+    let target_value = read_target_config(entry, target)?;
+    let plan = evaluator.resolve_config(
+        &order_dir.join("order.ncl"),
+        file_entry_index,
+        target_value.as_ref(),
+    )?;
+    let mut evaluated_entry = entry.clone();
+    evaluated_entry.from_config = Some(plan.source.unwrap_or(serde_json::Value::Null));
+    Ok((
+        evaluated_entry,
+        FileResolution {
+            automatic_source_paths: plan.automatic,
+            manual_resolution_paths: plan.manual,
+            resource_disposition: plan.resource,
+        },
+    ))
 }
 
 /// Build a single file entry to a specific target
@@ -139,7 +208,13 @@ fn build_file_entry(
     entry: &FileEntry,
     target: PathBuf,
     ignore_keys: Vec<String>,
+    resolution: FileResolution,
 ) -> Result<BuildResult> {
+    let FileResolution {
+        automatic_source_paths,
+        manual_resolution_paths,
+        resource_disposition,
+    } = resolution;
     if let Some(file) = &entry.from_file {
         let source_path = order_dir.join(file);
         if !source_path.exists() {
@@ -184,6 +259,9 @@ fn build_file_entry(
                 exclude_patterns: entry.exclude.clone(),
                 local_dir,
                 immutable: entry.immutable,
+                automatic_source_paths,
+                manual_resolution_paths,
+                resource_disposition,
             });
         }
 
@@ -200,13 +278,20 @@ fn build_file_entry(
             exclude_patterns: entry.exclude.clone(),
             local_dir,
             immutable: entry.immutable,
+            automatic_source_paths,
+            manual_resolution_paths,
+            resource_disposition,
         });
     }
 
     if let Some(config) = &entry.from_config {
         let format = entry.effective_format();
         let renderer = get_renderer(format);
-        let content = renderer.render(config)?;
+        let content = if resource_disposition == ResourceDisposition::Present {
+            renderer.render(config)?
+        } else {
+            String::new()
+        };
 
         return Ok(BuildResult {
             target,
@@ -221,6 +306,9 @@ fn build_file_entry(
             exclude_patterns: vec![],
             local_dir: None,
             immutable: entry.immutable,
+            automatic_source_paths,
+            manual_resolution_paths,
+            resource_disposition,
         });
     }
 
@@ -229,6 +317,26 @@ fn build_file_entry(
         "File entry '{}' has neither 'from_file' nor 'from_config'",
         entry.name,
     ))
+}
+
+fn read_target_config(entry: &FileEntry, target: &Path) -> Result<Option<serde_json::Value>> {
+    let Some(_) = &entry.from_config else {
+        return Ok(None);
+    };
+    if !target.is_file() {
+        return Ok(None);
+    }
+    let content = std::fs::read_to_string(target)
+        .with_context(|| format!("Failed to read {}", target.display()))?;
+    let value = get_renderer(entry.effective_format())
+        .parse(&content)
+        .with_context(|| {
+            format!(
+                "Target {} is malformed and cannot be used as a resolver observation",
+                target.display()
+            )
+        })?;
+    Ok(Some(value))
 }
 
 fn ensure_dir(path: &Path) -> Result<()> {
@@ -313,6 +421,17 @@ fn remove_immutable_flag_recursive(dir: &Path, warn_on_failure: bool) -> Result<
 
 /// Write build result to target
 pub fn write_result(result: &BuildResult, dry_run: bool) -> Result<()> {
+    match result.resource_disposition {
+        ResourceDisposition::Absent => {
+            if result.target.exists() && !dry_run {
+                remove_immutable_flag(&result.target, result.immutable)?;
+            }
+            return remove_exact_node(&result.target, dry_run);
+        }
+        ResourceDisposition::Unmanaged | ResourceDisposition::Unresolved => return Ok(()),
+        ResourceDisposition::Present => {}
+    }
+
     if result.is_symlink {
         if let Some(canonical) = &result.canonical_source {
             return create_symlink(canonical, &result.target, dry_run);
@@ -692,8 +811,14 @@ mod tests {
             immutable: false,
         };
 
-        let result =
-            build_file_entry(temp.path(), &entry, temp.path().join(".npmrc"), vec![]).unwrap();
+        let result = build_file_entry(
+            temp.path(),
+            &entry,
+            temp.path().join(".npmrc"),
+            vec![],
+            FileResolution::default(),
+        )
+        .unwrap();
 
         assert_eq!(result.format, Format::EqualsRecordLines);
         assert_eq!(result.content, "prefix=~/.local/share/npm\nsave-exact=true");
@@ -873,6 +998,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: HashSet::new(),
+            manual_resolution_paths: HashSet::new(),
+            resource_disposition: ResourceDisposition::Present,
         };
 
         write_result(&result, false).unwrap();
@@ -909,6 +1037,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: HashSet::new(),
+            manual_resolution_paths: HashSet::new(),
+            resource_disposition: ResourceDisposition::Present,
         };
 
         write_result(&result, false).unwrap();
@@ -941,6 +1072,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: HashSet::new(),
+            manual_resolution_paths: HashSet::new(),
+            resource_disposition: ResourceDisposition::Present,
         };
 
         write_result(&result, false).unwrap();
@@ -991,6 +1125,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: HashSet::new(),
+            manual_resolution_paths: HashSet::new(),
+            resource_disposition: ResourceDisposition::Present,
         };
 
         write_result(&result, false).unwrap();

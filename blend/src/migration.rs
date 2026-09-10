@@ -9,7 +9,7 @@
 use crate::output::log;
 
 /// The contract version that this build of blend expects.
-pub const CURRENT_CONTRACT_VERSION: u32 = 2;
+pub const CURRENT_CONTRACT_VERSION: u32 = 3;
 
 /// A single migration step between two adjacent contract versions.
 struct Migration {
@@ -22,16 +22,27 @@ struct Migration {
 /// Ordered list of all migration steps. Each entry covers `from` → `to`
 /// (always `to == from + 1`). When jumping multiple versions, walk the
 /// slice sequentially.
-const MIGRATIONS: &[Migration] = &[Migration {
-    from: 1,
-    to: 2,
-    breaking: true,
-    hints: &[
-        "blend_dir removed from config.toml — now stored in state.json",
-        "Remove `blend_dir` and `ignore` fields from orders/blend/order.ncl if present",
-        "BlendOrder contract now enforces known config keys (sandbox only)",
-    ],
-}];
+const MIGRATIONS: &[Migration] = &[
+    Migration {
+        from: 1,
+        to: 2,
+        breaking: true,
+        hints: &[
+            "blend_dir removed from config.toml — now stored in state.json",
+            "Remove `blend_dir` and `ignore` fields from orders/blend/order.ncl if present",
+            "BlendOrder contract now enforces known config keys (sandbox only)",
+        ],
+    },
+    Migration {
+        from: 2,
+        to: 3,
+        breaking: true,
+        hints: &[
+            "Blend enum tags 'Absent, 'Assert, 'Unmanaged, 'Unresolved, and 'Enforce now carry resolution semantics",
+            "Review enum-valued from_config fields before running `blend init --upgrade`",
+        ],
+    },
+];
 
 /// Outcome of comparing the user's contract version against the current one.
 #[derive(Debug, PartialEq, Eq)]
@@ -133,6 +144,17 @@ mod tests {
             check(1),
             MigrationCheck::Breaking {
                 from: 1,
+                to: CURRENT_CONTRACT_VERSION
+            }
+        );
+    }
+
+    #[test]
+    fn check_breaking_from_v2() {
+        assert_eq!(
+            check(2),
+            MigrationCheck::Breaking {
+                from: 2,
                 to: CURRENT_CONTRACT_VERSION
             }
         );

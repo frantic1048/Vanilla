@@ -3,7 +3,7 @@
 # Regenerate with: blend init  (or any sync run).
 
 {
-  contract_version = 2,
+  contract_version = 3,
 
   Format = std.contract.from_predicate (fun x =>
     std.is_string x &&
@@ -28,7 +28,7 @@
     from_config | Dyn | optional,       # Inline structured config data
     prefix | Array String | optional,   # Destination prefixes (overrides global)
     format | Format | optional,         # Override format (inferred from name if omitted)
-    ignore | Array String | optional,   # Keys to exclude from diff
+    ignore | Array String | optional,   # Legacy compatibility; prefer resolution primitives
     when | WhenCondition | optional,    # Per-file condition
     symlink | Bool | optional,          # Create symlink instead of copying (from_file only)
     exclude | Array String | optional,  # Glob patterns to skip in from_file directories
@@ -40,7 +40,11 @@
     files | Array FileEntry | optional,
     prefix | Array String | optional,   # Default prefix for all files
     when | WhenCondition | optional,    # Global condition
-    ignore | Array String | optional,   # Global ignore keys
+    ignore | Array String | optional,   # Legacy compatibility; prefer resolution primitives
+    target_only | default | not_exported = fun resolver value =>
+      let selected_resolver = resolver in
+      let selected_value = value in
+      'BlendTargetOnly { resolver = selected_resolver, value = selected_value },
   },
 
   Order = {

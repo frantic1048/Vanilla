@@ -511,6 +511,42 @@ fn test_check_order_fails_when_from_file_is_missing() {
 }
 
 #[test]
+fn test_check_rejects_invalid_dynamic_resolver_body() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+    let order_dir = orders_dir(blend_dir.path()).join("invalid-resolver");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"let { Order, .. } = import "../order.contract.ncl" in
+({
+  blend = {
+    prefix = ["~/.config/invalid-resolver/"],
+    files = [{
+      name = "settings.json",
+      from_config = fun { target } =>
+        if target == 'Absent then 1 else 1 + true,
+    }],
+  },
+} | Order)"#,
+    )
+    .unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["check", "invalid-resolver"],
+    );
+    assert!(
+        !output.status.success(),
+        "blend check should evaluate the present-target resolver path\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+}
+
+#[test]
 fn test_format_check_order_success() {
     let home = TempDir::new().unwrap();
     let orders = fixtures_dir();
@@ -1636,6 +1672,372 @@ fn test_sync_ignore_field_not_in_diff() {
         !stdout.contains("timestamp"),
         "Ignored field 'timestamp' should not appear in diff output:\n{stdout}"
     );
+}
+
+#[test]
+fn test_recursive_constraints_apply_before_interactive_fallback() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let order_dir = orders_dir(blend_dir.path()).join("recursive-resolution");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"let { Order, .. } = import "../order.contract.ncl" in
+({
+  blend = {
+    prefix = ["~/.config/recursive-resolution/"],
+    files = [{
+      name = "settings.json",
+      from_config = {
+        theme = "dark",
+        forced = fun _ => 2,
+        nested = { child = fun _ => 2, ordinary = "kept" },
+        defaulted = fun { target } => if target == 'Absent then 30 else target,
+        unmanaged = 'Unmanaged,
+        exact = 'Enforce { owned = true },
+        removed = 'Absent,
+        safe = 'Assert "yes",
+      } |> blend.target_only (fun { key, value } =>
+        if key == "cache" then 'Unmanaged else 'Absent
+      ),
+    }],
+  },
+} | Order)"#,
+    )
+    .unwrap();
+
+    let target = home
+        .path()
+        .join(".config/recursive-resolution/settings.json");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    std::fs::write(
+        &target,
+        r#"{
+  "theme": "light",
+  "forced": 1,
+  "nested": 1,
+  "unmanaged": {"runtime": true},
+  "exact": {"owned": false, "extra": true},
+  "removed": true,
+  "safe": "yes",
+  "cache": {"runtime": true},
+  "stray": true
+}"#,
+    )
+    .unwrap();
+
+    let dry_run = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--dry-run", "recursive-resolution"],
+    );
+    assert!(dry_run.status.success());
+    assert!(String::from_utf8_lossy(&dry_run.stdout).contains("declarative/selected"));
+    let unchanged: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&target).unwrap()).unwrap();
+    assert_eq!(unchanged["forced"], 1);
+
+    // The ordinary theme declaration remains interactive; all other changes
+    // are resolved declaratively before that fallback.
+    let output = run_blend_with_stdin(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "recursive-resolution"],
+        "k\n",
+    );
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(
+        output.status.success(),
+        "recursive resolution sync failed:\nstdout: {stdout}\nstderr: {stderr}"
+    );
+
+    let target_json: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&target).unwrap()).unwrap();
+    assert_eq!(target_json["theme"], "light");
+    assert_eq!(target_json["forced"], 2);
+    assert_eq!(
+        target_json["nested"],
+        serde_json::json!({"child": 2, "ordinary": "kept"})
+    );
+    assert_eq!(target_json["defaulted"], 30);
+    assert_eq!(
+        target_json["unmanaged"],
+        serde_json::json!({"runtime": true})
+    );
+    assert_eq!(target_json["exact"], serde_json::json!({"owned": true}));
+    assert_eq!(target_json["cache"], serde_json::json!({"runtime": true}));
+    assert_eq!(target_json["safe"], "yes");
+    assert!(target_json.get("removed").is_none());
+    assert!(target_json.get("stray").is_none());
+
+    let mut changed_target = target_json;
+    changed_target["theme"] = serde_json::json!("solarized");
+    std::fs::write(
+        &target,
+        serde_json::to_string_pretty(&changed_target).unwrap(),
+    )
+    .unwrap();
+    let no_rewrite = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &[
+            "sync",
+            "--force-target-to-source",
+            "--no-rewrite",
+            "recursive-resolution",
+        ],
+    );
+    assert!(no_rewrite.status.success());
+    let unchanged_order = std::fs::read_to_string(order_dir.join("order.ncl")).unwrap();
+    assert!(!unchanged_order.contains("solarized"));
+
+    let pull = run_blend_with_stdin(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "recursive-resolution"],
+        "t\n",
+    );
+    assert!(
+        pull.status.success(),
+        "target selection through blend.target_only failed:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&pull.stdout),
+        String::from_utf8_lossy(&pull.stderr)
+    );
+    let order_source = std::fs::read_to_string(order_dir.join("order.ncl")).unwrap();
+    assert!(
+        order_source.contains("theme = \"solarized\""),
+        "declared literals inside blend.target_only should remain rewritable:\n{order_source}"
+    );
+
+    let status = run_blend(home.path(), blend_dir.path(), &["status"]);
+    assert!(status.status.success());
+    let status_stdout = String::from_utf8_lossy(&status.stdout);
+    assert!(status_stdout.contains("recursive-resolution"));
+    assert!(status_stdout.contains('\u{2713}'));
+
+    let mut assertion_target: serde_json::Value =
+        serde_json::from_str(&std::fs::read_to_string(&target).unwrap()).unwrap();
+    assertion_target["safe"] = serde_json::json!("no");
+    std::fs::write(
+        &target,
+        serde_json::to_string_pretty(&assertion_target).unwrap(),
+    )
+    .unwrap();
+    let failed_status = run_blend(home.path(), blend_dir.path(), &["status"]);
+    let failed_status_stdout = String::from_utf8_lossy(&failed_status.stdout);
+    assert!(failed_status_stdout.contains("error"));
+    assert!(failed_status_stdout.contains("assertion failed"));
+    assertion_target["safe"] = serde_json::json!("yes");
+    std::fs::write(
+        &target,
+        serde_json::to_string_pretty(&assertion_target).unwrap(),
+    )
+    .unwrap();
+
+    // Keep the repair checks focused on a dynamic entry without requiring an
+    // assertion to inspect a target document that cannot be parsed yet.
+    let order_path = order_dir.join("order.ncl");
+    let order_source = std::fs::read_to_string(&order_path).unwrap();
+    std::fs::write(
+        &order_path,
+        order_source.replace("safe = 'Assert \"yes\",", "safe = \"yes\","),
+    )
+    .unwrap();
+
+    std::fs::write(&target, "{ definitely not json").unwrap();
+    let failed_view = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["view", "recursive-resolution"],
+    );
+    let failed_view_stdout = String::from_utf8_lossy(&failed_view.stdout);
+    let failed_view_stderr = String::from_utf8_lossy(&failed_view.stderr);
+    assert!(
+        !failed_view.status.success(),
+        "view should fail for a malformed resolver target\nstdout: {failed_view_stdout}\nstderr: {failed_view_stderr}"
+    );
+    assert!(!failed_view_stdout.contains("All orders are up to date"));
+    assert!(failed_view_stderr.contains("view failed with 1 evaluation error"));
+
+    let repair = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "recursive-resolution"],
+    );
+    let repair_stdout = String::from_utf8_lossy(&repair.stdout);
+    let repair_stderr = String::from_utf8_lossy(&repair.stderr);
+    assert!(
+        !repair.status.success(),
+        "sync should fail for a malformed resolver target\nstdout: {repair_stdout}\nstderr: {repair_stderr}"
+    );
+    assert!(!repair_stdout.contains("Sync complete"));
+    assert!(repair_stderr.contains("sync failed with 1 error"));
+    assert!(
+        repair_stderr.contains("malformed and cannot be used as a resolver observation"),
+        "unexpected malformed-target output:\n{repair_stdout}\nstderr: {repair_stderr}"
+    );
+    assert_eq!(
+        std::fs::read_to_string(&target).unwrap(),
+        "{ definitely not json"
+    );
+
+    std::fs::remove_file(&target).unwrap();
+    std::fs::create_dir(&target).unwrap();
+    let structural_repair = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "recursive-resolution"],
+    );
+    assert!(structural_repair.status.success());
+    assert!(target.is_file());
+}
+
+#[test]
+fn test_unresolved_resolver_requires_manual_edit_for_both_force_directions() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let order_dir = orders_dir(blend_dir.path()).join("manual-resolution");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    let order_path = order_dir.join("order.ncl");
+    std::fs::write(
+        &order_path,
+        r#"let { Order, .. } = import "../order.contract.ncl" in
+({
+  blend = {
+    prefix = ["~/.config/manual-resolution/"],
+    files = [{
+      name = "settings.json",
+      from_config = {
+        maybe = fun { target } => target |> match {
+          "legacy" => "modern",
+          _ => 'Unresolved,
+        },
+      },
+    }],
+  },
+} | Order)"#,
+    )
+    .unwrap();
+    let original_order = std::fs::read_to_string(&order_path).unwrap();
+
+    let target = home.path().join(".config/manual-resolution/settings.json");
+    std::fs::create_dir_all(target.parent().unwrap()).unwrap();
+    std::fs::write(&target, r#"{"maybe":"experimental"}"#).unwrap();
+
+    for direction in ["--force-source-to-target", "--force-target-to-source"] {
+        let output = run_blend(
+            home.path(),
+            blend_dir.path(),
+            &["sync", direction, "manual-resolution"],
+        );
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(
+            output.status.success(),
+            "{direction} failed:\nstdout: {stdout}\nstderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert!(stdout.contains("edit order.ncl manually"));
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&std::fs::read_to_string(&target).unwrap())
+                .unwrap(),
+            serde_json::json!({"maybe": "experimental"})
+        );
+        assert_eq!(
+            std::fs::read_to_string(&order_path).unwrap(),
+            original_order
+        );
+    }
+
+    std::fs::remove_file(&target).unwrap();
+    let missing = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "manual-resolution"],
+    );
+    assert!(missing.status.success());
+    assert!(
+        String::from_utf8_lossy(&missing.stdout)
+            .contains("resolver made no decision; edit order.ncl manually")
+    );
+    assert!(!target.exists());
+    assert_eq!(
+        std::fs::read_to_string(&order_path).unwrap(),
+        original_order
+    );
+}
+
+#[test]
+fn test_resource_root_absence_and_unmanaged_do_not_write_null() {
+    let home = TempDir::new().unwrap();
+    let blend_dir = TempDir::new().unwrap();
+    copy_shared_order_files(blend_dir.path());
+
+    let order_dir = orders_dir(blend_dir.path()).join("root-resolution");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    std::fs::write(
+        order_dir.join("order.ncl"),
+        r#"let { Order, .. } = import "../order.contract.ncl" in
+({
+  blend = {
+    prefix = ["~/.config/root-resolution/"],
+    files = [
+      { name = "delete.json", from_config = fun { target } => 'Absent },
+      { name = "missing.json", from_config = 'Unmanaged },
+      { name = "keep.json", from_config = 'Unmanaged },
+    ],
+  },
+} | Order)"#,
+    )
+    .unwrap();
+
+    let target_dir = home.path().join(".config/root-resolution");
+    std::fs::create_dir_all(&target_dir).unwrap();
+    let delete_target = target_dir.join("delete.json");
+    let missing_target = target_dir.join("missing.json");
+    let keep_target = target_dir.join("keep.json");
+    std::fs::write(&delete_target, r#"{"remove":true}"#).unwrap();
+    std::fs::write(&keep_target, r#"{"runtime":true}"#).unwrap();
+
+    let output = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["sync", "--force-source-to-target", "root-resolution"],
+    );
+    assert!(
+        output.status.success(),
+        "root resolution failed:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(!delete_target.exists());
+    assert!(!missing_target.exists());
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&std::fs::read_to_string(&keep_target).unwrap())
+            .unwrap(),
+        serde_json::json!({"runtime": true})
+    );
+
+    let status = run_blend(home.path(), blend_dir.path(), &["status"]);
+    let stdout = String::from_utf8_lossy(&status.stdout);
+    assert!(status.status.success());
+    assert!(stdout.contains("absent"));
+    assert!(stdout.contains("unmanaged"));
+
+    let view = run_blend(
+        home.path(),
+        blend_dir.path(),
+        &["view", "--all", "root-resolution"],
+    );
+    let view_stdout = String::from_utf8_lossy(&view.stdout);
+    assert!(view.status.success());
+    assert!(view_stdout.contains("(absent)"));
+    assert!(view_stdout.contains("(unmanaged)"));
+    assert!(!view_stdout.lines().any(|line| line.trim() == "null"));
 }
 
 // ---------------------------------------------------------------------------

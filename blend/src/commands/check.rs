@@ -5,16 +5,25 @@ use crate::context::Context;
 use crate::nickel::{NickelEvaluator, Order, generated};
 use crate::output::log;
 
-fn validate_order_semantics(ctx: &Context, order_name: &str, order: &Order) -> anyhow::Result<()> {
+fn validate_order_semantics(
+    ctx: &Context,
+    evaluator: &NickelEvaluator,
+    order_name: &str,
+    order: &Order,
+) -> anyhow::Result<()> {
     if !order.should_apply(&ctx.metadata.os, &ctx.metadata.arch, &ctx.metadata.hostname) {
         return Ok(());
     }
 
     let order_dir = ctx.orders_dir.join(order_name);
 
-    for file_entry in &order.blend.files {
+    for (file_entry_index, file_entry) in order.blend.files.iter().enumerate() {
         if !file_entry.should_apply(&ctx.metadata.os, &ctx.metadata.arch, &ctx.metadata.hostname) {
             continue;
+        }
+
+        if order.entry_has_resolution_semantics(file_entry_index) {
+            evaluator.validate_config(&order_dir.join("order.ncl"), file_entry_index)?;
         }
 
         let Some(from_file) = &file_entry.from_file else {
@@ -53,7 +62,7 @@ pub fn cmd_check(ctx: &Context, orders: &[String]) -> anyhow::Result<()> {
         }
 
         match evaluator.evaluate(&ncl_path).and_then(|order| {
-            validate_order_semantics(ctx, order_name, &order)?;
+            validate_order_semantics(ctx, &evaluator, order_name, &order)?;
             Ok(order)
         }) {
             Ok(_) => {

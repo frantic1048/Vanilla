@@ -421,6 +421,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
         assert!(compute_dir_file_diffs(&result).unwrap().is_empty());
     }
@@ -453,6 +456,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: Some(local),
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
 
         let diffs = compute_dir_file_diffs(&result).unwrap();
@@ -487,6 +493,9 @@ mod tests {
             exclude_patterns: vec!["excluded.txt".to_string()],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
 
         assert!(compute_dir_file_diffs(&result).unwrap().is_empty());
@@ -514,6 +523,9 @@ mod tests {
             exclude_patterns: vec!["[".to_string()],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
 
         let error = compute_dir_file_diffs(&result).unwrap_err();
@@ -538,6 +550,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
         assert!(compute_dir_file_diffs(&result).unwrap().is_empty());
     }
@@ -561,6 +576,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
 
         let diff = compute_diff_for_result(&result).unwrap();
@@ -594,6 +612,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
         let diffs = compute_dir_file_diffs(&result).unwrap();
         assert_eq!(diffs.len(), 2);
@@ -633,6 +654,9 @@ mod tests {
             exclude_patterns: vec![],
             local_dir: None,
             immutable: false,
+            automatic_source_paths: std::collections::HashSet::new(),
+            manual_resolution_paths: std::collections::HashSet::new(),
+            resource_disposition: crate::nickel::resolution::ResourceDisposition::Present,
         };
         let diffs = compute_dir_file_diffs(&result).unwrap();
         assert_eq!(diffs.len(), 1);

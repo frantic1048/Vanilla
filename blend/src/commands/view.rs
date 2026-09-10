@@ -8,6 +8,7 @@ use crate::compose::{build_order, discover_orders};
 use crate::context::Context;
 use crate::fs_node::{NodeKind, node_kind};
 use crate::nickel::generated;
+use crate::nickel::resolution::ResourceDisposition;
 use crate::output::log;
 
 /// View command: show generated config and/or diff from deployed
@@ -33,6 +34,7 @@ pub fn cmd_view(
     let show_diff = !content_only;
     let mut has_changes = false;
     let mut orders_found = 0;
+    let mut evaluation_errors = 0;
 
     let shorten_path = |path: &std::path::Path| -> String {
         let s = path.to_string_lossy();
@@ -243,6 +245,44 @@ pub fn cmd_view(
                         continue;
                     }
 
+                    match result.resource_disposition {
+                        ResourceDisposition::Unmanaged => {
+                            if !short || viewing_specific {
+                                println!("{} {}", file_header, style("(unmanaged)").dim());
+                            }
+                            continue;
+                        }
+                        ResourceDisposition::Unresolved => {
+                            println!(
+                                "{} {}",
+                                file_header,
+                                style("(unresolved; edit order.ncl manually)").yellow()
+                            );
+                            if show_diff {
+                                has_changes = true;
+                            }
+                            continue;
+                        }
+                        ResourceDisposition::Absent => {
+                            if target_kind.is_none() {
+                                if !short || viewing_specific {
+                                    println!("{} {}", file_header, style("(absent)").green());
+                                }
+                            } else {
+                                println!(
+                                    "{} {}",
+                                    file_header,
+                                    style("(would remove target)").yellow()
+                                );
+                                if show_diff {
+                                    has_changes = true;
+                                }
+                            }
+                            continue;
+                        }
+                        ResourceDisposition::Present => {}
+                    }
+
                     // Structured config
                     let diff_status = if show_diff {
                         Some(compute_diff_for_result(result)?)
@@ -297,8 +337,13 @@ pub fn cmd_view(
             }
             Err(e) => {
                 log::error(&format!("Failed to evaluate {order_name}: {e}"));
+                evaluation_errors += 1;
             }
         }
+    }
+
+    if evaluation_errors > 0 {
+        anyhow::bail!("view failed with {evaluation_errors} evaluation error(s)");
     }
 
     if show_diff && !has_changes && orders_found > 0 {

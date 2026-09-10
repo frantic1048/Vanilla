@@ -2,11 +2,12 @@ use console::style;
 use rayon::prelude::*;
 
 use crate::commands::helpers::compute_managed_dir_diffs;
-use crate::compose::{discover_orders, get_order};
+use crate::compose::{discover_orders, get_order, resolve_file_entry};
 use crate::context::Context;
 use crate::diff::check_file_sync;
 use crate::fs_node::{NodeKind, node_kind};
 use crate::nickel::generated;
+use crate::nickel::resolution::ResourceDisposition;
 use crate::output::log;
 
 /// Status command: show available orders and their state
@@ -63,7 +64,7 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                     let files = &order.blend.files;
                     let global_prefix = order.global_prefix();
                     let mut shown_order = false;
-                    for file_entry in files {
+                    for (file_entry_index, file_entry) in files.iter().enumerate() {
                         let file_applies = file_entry.should_apply(
                             &ctx.metadata.os,
                             &ctx.metadata.arch,
@@ -131,12 +132,76 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                     (None, Some(format!("could not inspect target: {error}")))
                                 }
                             };
+                            let order_dir = ctx.orders_dir.join(order_name);
+                            let resolved_entry = if row_error.is_none()
+                                && order.entry_has_resolution_semantics(file_entry_index)
+                            {
+                                match resolve_file_entry(
+                                    ctx,
+                                    &order_dir,
+                                    file_entry_index,
+                                    true,
+                                    file_entry,
+                                    &target,
+                                ) {
+                                    Ok(resolved) => Some(resolved),
+                                    Err(error) => {
+                                        row_error =
+                                            Some(format!("could not resolve declaration: {error}"));
+                                        None
+                                    }
+                                }
+                            } else {
+                                None
+                            };
 
                             let (status, diff_display) = if row_error.is_some() {
                                 (
                                     style(format!("{:<status_w$}", "error")).red().to_string(),
                                     style(format!("{:<diff_w$}", "\u{00b7}")).dim().to_string(),
                                 )
+                            } else if resolved_entry.as_ref().is_some_and(|(_, resolution)| {
+                                resolution.resource_disposition == ResourceDisposition::Unmanaged
+                            }) {
+                                (
+                                    style(format!("{:<status_w$}", "unmanaged"))
+                                        .dim()
+                                        .to_string(),
+                                    style(format!("{:<diff_w$}", "\u{00b7}")).dim().to_string(),
+                                )
+                            } else if resolved_entry.as_ref().is_some_and(|(_, resolution)| {
+                                resolution.resource_disposition == ResourceDisposition::Unresolved
+                            }) {
+                                (
+                                    style(format!("{:<status_w$}", "unresolved"))
+                                        .yellow()
+                                        .to_string(),
+                                    style(format!("{:<diff_w$}", "\u{2260}"))
+                                        .yellow()
+                                        .to_string(),
+                                )
+                            } else if resolved_entry.as_ref().is_some_and(|(_, resolution)| {
+                                resolution.resource_disposition == ResourceDisposition::Absent
+                            }) {
+                                if target_kind.is_none() {
+                                    (
+                                        style(format!("{:<status_w$}", "absent"))
+                                            .green()
+                                            .to_string(),
+                                        style(format!("{:<diff_w$}", "\u{2713}"))
+                                            .green()
+                                            .to_string(),
+                                    )
+                                } else {
+                                    (
+                                        style(format!("{:<status_w$}", "mismatch"))
+                                            .yellow()
+                                            .to_string(),
+                                        style(format!("{:<diff_w$}", "\u{2260}"))
+                                            .yellow()
+                                            .to_string(),
+                                    )
+                                }
                             } else if file_entry.symlink {
                                 // Symlink entry: check if symlink exists and points correctly
                                 let source_path = ctx
@@ -196,7 +261,6 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                     ),
                                 }
                             } else if let Some(actual_kind) = target_kind {
-                                let order_dir = ctx.orders_dir.join(order_name);
                                 let direct_mismatch = actual_kind != expected_kind;
                                 let directory_diffs = if direct_mismatch || !is_dir {
                                     Ok(None)
@@ -253,12 +317,23 @@ pub fn cmd_status(ctx: &Context) -> anyhow::Result<()> {
                                             file_diffs.iter().all(|diff| !diff.has_changes)
                                         }))
                                     } else {
-                                        check_file_sync(
-                                            &order_dir,
-                                            file_entry,
-                                            &target,
-                                            order.global_ignore(),
-                                        )
+                                        if let Some((evaluated_entry, _)) = &resolved_entry {
+                                            check_file_sync(
+                                                &order_dir,
+                                                evaluated_entry,
+                                                &target,
+                                                order.global_ignore(),
+                                            )
+                                            .map_err(anyhow::Error::from)
+                                        } else {
+                                            check_file_sync(
+                                                &order_dir,
+                                                file_entry,
+                                                &target,
+                                                order.global_ignore(),
+                                            )
+                                            .map_err(anyhow::Error::from)
+                                        }
                                     };
                                     let diff_col = match sync {
                                         Ok(Some(true)) => style(format!("{:<diff_w$}", "\u{2713}"))

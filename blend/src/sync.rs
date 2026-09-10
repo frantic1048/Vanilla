@@ -337,16 +337,11 @@ pub fn pull_from_config(
 
     // Get current evaluated JSON for comparison
     let evaluator = nickel::NickelEvaluator::new(&ctx.metadata);
-    let order = evaluator.evaluate(&ncl_path)?;
-    let file_entry = order
-        .blend
-        .files
-        .get(file_entry_index)
-        .context("file entry index out of bounds")?;
-    let current_json = file_entry
-        .from_config
+    let resolution = evaluator.resolve_config(&ncl_path, file_entry_index, Some(&deployed_json))?;
+    let current_json = resolution
+        .source
         .as_ref()
-        .context("file entry has no from_config")?;
+        .context("resolver did not produce a concrete resource")?;
 
     if dry_run {
         log::info(&format!(
@@ -538,6 +533,13 @@ fn merge_values(
     decisions: &std::collections::HashMap<KeyPath, KeyResolution>,
     path: &KeyPath,
 ) -> serde_json::Value {
+    if let Some(&resolution) = decisions.get(path) {
+        return match resolution {
+            KeyResolution::Source => source.clone(),
+            KeyResolution::Target => target.clone(),
+        };
+    }
+
     match (source, target) {
         (serde_json::Value::Object(source_obj), serde_json::Value::Object(target_obj)) => {
             let mut merged = serde_json::Map::new();
@@ -669,16 +671,11 @@ pub fn pull_from_config_keys_with_changes(
 
     // Get current evaluated JSON
     let evaluator = nickel::NickelEvaluator::new(&ctx.metadata);
-    let order = evaluator.evaluate(&ncl_path)?;
-    let file_entry = order
-        .blend
-        .files
-        .get(file_entry_index)
-        .context("file entry index out of bounds")?;
-    let current_json = file_entry
-        .from_config
+    let resolution = evaluator.resolve_config(&ncl_path, file_entry_index, Some(&deployed_json))?;
+    let current_json = resolution
+        .source
         .as_ref()
-        .context("file entry has no from_config")?;
+        .context("resolver did not produce a concrete resource")?;
 
     if dry_run {
         log::info(&format!(

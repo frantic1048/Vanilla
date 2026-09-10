@@ -186,6 +186,10 @@ pub struct OrderMeta {
 pub struct Order {
     /// Order metadata
     pub blend: OrderMeta,
+    /// Per-entry marker produced by the Rust evaluation wrapper. This isn't
+    /// part of the authored Order contract.
+    #[serde(rename = "__blend_dynamic_entries", default)]
+    pub(crate) dynamic_entries: Vec<bool>,
 }
 
 impl Order {
@@ -213,6 +217,10 @@ impl Order {
             Some(when) => when.matches_platform(os, arch),
             None => true,
         }
+    }
+
+    pub(crate) fn entry_has_resolution_semantics(&self, index: usize) -> bool {
+        self.dynamic_entries.get(index).copied().unwrap_or(false)
     }
 }
 

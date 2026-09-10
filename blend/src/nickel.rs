@@ -2,6 +2,7 @@ pub mod ast_utils;
 pub mod generated;
 pub mod key_path;
 mod loader;
+pub mod resolution;
 mod schema;
 pub mod structure_map;
 

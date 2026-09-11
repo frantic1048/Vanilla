@@ -41,10 +41,14 @@
     prefix | Array String | optional,   # Default prefix for all files
     when | WhenCondition | optional,    # Global condition
     ignore | Array String | optional,   # Legacy compatibility; prefer resolution primitives
-    target_only | default | not_exported = fun resolver value =>
-      let selected_resolver = resolver in
+    with_target_only | default | not_exported = fun policy value =>
+      let selected_policy = policy in
       let selected_value = value in
-      'BlendTargetOnly { resolver = selected_resolver, value = selected_value },
+      'BlendTargetOnly { resolver = selected_policy, value = selected_value },
+    target_only | default | not_exported = fun policy value =>
+      let selected_policy = policy in
+      let selected_value = value in
+      'BlendTargetOnly { resolver = selected_policy, value = selected_value },
   },
 
   Order = {

@@ -441,7 +441,7 @@ fn collect_fields_from_value<'ast>(
             }
         }
 
-        // `record |> blend.target_only resolver` desugars to an application
+        // `record |> blend.with_target_only policy` desugars to an application
         // whose final argument is the managed record. The helper adds policy
         // for Target-only children but doesn't make declared literal leaves
         // non-rewritable.
@@ -507,7 +507,7 @@ fn is_target_only_application(ast: &Ast<'_>) -> bool {
             op: PrimOp::RecordStatAccess(field),
             args,
         } => {
-            field.label() == "target_only"
+            matches!(field.label(), "with_target_only" | "target_only")
                 && args.first().is_some_and(
                     |receiver| matches!(&receiver.node, Node::Var(id) if id.label() == "blend"),
                 )
@@ -1237,6 +1237,26 @@ mod tests {
         assert_eq!(spans[1].name, "number");
         // Plain data should have empty branch context
         assert!(spans[0].branch_context.is_empty());
+    }
+
+    #[test]
+    fn test_locate_data_wrapped_with_constant_target_only_policy() {
+        let source = r#"{
+  blend = {
+    files = [{
+      name = "test.toml",
+      from_config = {
+        key = "value",
+      } |> blend.with_target_only 'Unmanaged,
+    }],
+  },
+}"#;
+        let meta = test_metadata("darwin");
+        let result = locate_from_config(source, 0, &meta).unwrap();
+        let spans = result.rewritable_spans();
+
+        assert_eq!(spans.len(), 1);
+        assert_eq!(spans[0].name, "key");
     }
 
     #[test]

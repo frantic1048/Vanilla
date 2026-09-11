@@ -11,10 +11,14 @@ use super::resolution::{ResolutionNode, ResolutionPlan};
 use super::schema::Order;
 
 const BLEND_LIBRARY: &str = r#"{
-  target_only = fun resolver value =>
-    let selected_resolver = resolver in
+  with_target_only = fun policy value =>
+    let selected_policy = policy in
     let selected_value = value in
-    'BlendTargetOnly { resolver = selected_resolver, value = selected_value },
+    'BlendTargetOnly { resolver = selected_policy, value = selected_value },
+  target_only = fun policy value =>
+    let selected_policy = policy in
+    let selected_value = value in
+    'BlendTargetOnly { resolver = selected_policy, value = selected_value },
 }"#;
 
 const RESOLUTION_NORMALIZER: &str = r#"
@@ -29,7 +33,7 @@ let rec normalize = fun source target resolved =>
         let payload = enum_data.arg in
         let declared = payload.value in
         if !std.is_record declared then
-          std.error "blend.target_only can only be applied to a record"
+          std.error "blend.with_target_only can only be applied to a record"
         else
           let observed = target in
           let declared_children = std.record.map (fun key child =>
@@ -48,8 +52,15 @@ let rec normalize = fun source target resolved =>
               |> std.record.map (fun key value =>
                 let child_key = key in
                 let child_value = value in
+                let policy = payload.resolver in
+                let result =
+                  if std.is_function policy then
+                    policy { key = child_key, value = child_value }
+                  else
+                    policy
+                in
                 normalize
-                  (payload.resolver { key = child_key, value = child_value })
+                  result
                   child_value
                   true
               )
@@ -471,6 +482,56 @@ mod tests {
         assert!(!plan.automatic.contains(&KeyPath::root().child("maybe")));
         assert!(!plan.automatic.contains(&KeyPath::root().child("unmanaged")));
         assert!(!plan.automatic.contains(&KeyPath::root().child("cache")));
+    }
+
+    #[test]
+    fn test_constant_target_only_policies() {
+        let temp = TempDir::new().unwrap();
+        let order_path = temp.path().join("order.ncl");
+        std::fs::write(
+            temp.path().join("order.contract.ncl"),
+            crate::nickel::generated::contract_ncl(),
+        )
+        .unwrap();
+        std::fs::write(
+            &order_path,
+            r#"let { Order, .. } = import "./order.contract.ncl" in
+({
+  blend = {
+    prefix = ["/tmp/"],
+    files = [
+      {
+        name = "unmanaged.json",
+        from_config = { declared = 1 } |> blend.with_target_only 'Unmanaged,
+      },
+      {
+        name = "absent.json",
+        from_config = { declared = 1 } |> blend.with_target_only 'Absent,
+      },
+    ],
+  },
+} | Order)"#,
+        )
+        .unwrap();
+
+        let evaluator = NickelEvaluator::new(&test_metadata());
+        let target = serde_json::json!({"declared": 1, "extra": 2});
+
+        let unmanaged = evaluator
+            .resolve_config(&order_path, 0, Some(&target))
+            .unwrap();
+        assert_eq!(unmanaged.source, Some(target.clone()));
+        assert!(
+            !unmanaged
+                .automatic
+                .contains(&KeyPath::root().child("extra"))
+        );
+
+        let absent = evaluator
+            .resolve_config(&order_path, 1, Some(&target))
+            .unwrap();
+        assert_eq!(absent.source, Some(serde_json::json!({"declared": 1})));
+        assert!(absent.automatic.contains(&KeyPath::root().child("extra")));
     }
 
     #[test]

@@ -1,7 +1,30 @@
 # blend
 
-Implementation reference for the `blend` crate. For design intent and
-architectural reasoning, see [`../NEW_BLEND.md`](../NEW_BLEND.md).
+Blend is a cross-platform dotfile manager for composing configuration in
+[Nickel](https://nickel-lang.org/) and reconciling it with files used by
+applications.
+
+An `order.ncl` file declares one or more target files. Blend can copy literal
+files and directories, or render structured Nickel values as TOML, JSON, JSONC,
+YAML, and simple line-oriented formats. It compares structured files by value,
+supports target-aware declarative policies, and falls back to interactive
+resolution when the declaration does not decide a difference.
+
+## Why Blend
+
+- Keep platform logic in Nickel instead of embedding template syntax in target
+  file formats.
+- Mix structured `from_config` entries with faithful `from_file` copies.
+- Describe ownership, defaults, enforcement, absence, and assertions close to
+  the fields they affect.
+- Preview changes and reconcile in either direction, with snapshot-backed
+  Source/Target/Base context.
+- Leave unresolved or application-owned state to an explicit interactive or
+  unmanaged path.
+
+Blend aims to satisfy declared constraints at best effort: automatically when
+the declaration is authoritative, interactively when either side may be right,
+and with a clear failure when an assertion or input cannot be satisfied safely.
 
 ## Install
 
@@ -11,41 +34,37 @@ architectural reasoning, see [`../NEW_BLEND.md`](../NEW_BLEND.md).
 brew install frantic1048/tap/blend
 ```
 
-The Homebrew formula is maintained in
-[`frantic1048/homebrew-tap`](https://github.com/frantic1048/homebrew-tap) and
-tracks stable `blend-v*` releases.
+### Installer
 
-### Docker
-
-The container image is published to GitHub Container Registry:
-
-```sh
-docker run --rm ghcr.io/frantic1048/blend:latest --version
-docker run --rm -v "$PWD:/workspace" -w /workspace ghcr.io/frantic1048/blend:latest check
-```
-
-The image entrypoint is already `blend`, so pass the Blend subcommand directly.
-Stable releases publish both the version tag and `latest`; prereleases publish
-only the version tag.
-
-### GitHub Releases
-
-Release assets are available from
-[`frantic1048/Vanilla` releases](https://github.com/frantic1048/Vanilla/releases).
-The generated installer downloads the matching platform archive, verifies its
-embedded SHA256 checksum, and installs `blend` to `~/.local/bin` by default:
+Release archives are published from
+[frantic1048/Vanilla](https://github.com/frantic1048/Vanilla/releases). The
+installer selects the current platform archive, verifies its embedded SHA256
+checksum, and installs to `~/.local/bin` by default:
 
 ```sh
 curl -fsSLO https://github.com/frantic1048/Vanilla/releases/latest/download/blend-installer.sh
 sh blend-installer.sh
 ```
 
-Use `sh blend-installer.sh --dir /path/to/bin` to choose a different install
-directory. Archives and `.sha256` files are also published for:
+Use `sh blend-installer.sh --dir /path/to/bin` to choose another directory.
+Published targets are:
 
 - `aarch64-apple-darwin`
 - `x86_64-apple-darwin`
 - `x86_64-unknown-linux-gnu`
+
+### Container
+
+```sh
+docker run --rm ghcr.io/frantic1048/blend:latest --version
+docker run --rm \
+  -v "$PWD:/workspace" \
+  -w /workspace \
+  ghcr.io/frantic1048/blend:latest check
+```
+
+The image entrypoint is `blend`. Stable releases publish both a version tag and
+`latest`; prereleases publish only their version tag.
 
 ### From source
 
@@ -55,108 +74,81 @@ cd Vanilla/blend
 cargo build --release
 ```
 
-The binary is written to `target/release/blend` at the repository root.
+The workspace writes the binary to `../target/release/blend`.
 
-## Build & test
+## Quick start
+
+Create a directory for Blend Source and initialize it:
 
 ```sh
-cargo build --release      # produces target/release/blend
-cargo fmt --check          # CI-equivalent format check
-cargo clippy -- -D warnings
-cargo test --release
+mkdir dotfiles
+cd dotfiles
+blend init
 ```
 
-The top-level `justfile` wraps these (`just build`, `just fmt`, `just
-fmt-check`, `just clippy`, `just test`). Tests use ANSI color assertions —
-run under `CLICOLOR_FORCE=1` if your terminal strips colors (CI does not).
+`blend init` creates the generated Order contract, metadata defaults, and a
+starter Blend configuration. Import an existing target file or directory as a
+literal source entry:
 
-Pinned to Rust **1.92.0** via `rust-toolchain.toml` (edition 2024).
-
-## Source layout
-
-```
-src/
-├── main.rs              entrypoint: parse CLI, build Context, dispatch
-├── cli.rs               clap derive definitions
-├── context.rs           runtime Context (home, orders, dry-run, metadata)
-├── metadata.rs          OS/arch/hostname/desktop/user detection
-├── output.rs            log helpers (info/warn/error/success)
-│
-├── commands.rs          re-exports command handlers
-├── commands/
-│   ├── add.rs           import Target files/directories into Source orders
-│   ├── create.rs        scaffold empty Source orders
-│   ├── check.rs         validate Source order definitions
-│   ├── format.rs        format order.ncl files
-│   ├── helpers.rs       shared symlink + diff-aggregation helpers
-│   ├── init.rs          refresh generated contract + metadata files
-│   ├── sync.rs          bidirectional sync + per-key interactive flow
-│   ├── view.rs          render preview & diff
-│   ├── status.rs        order state table (parallel via rayon)
-│   └── table.rs         HTML table for README
-│
-├── compose.rs           build_order: evaluate .ncl → BuildResult
-├── sync.rs              SyncMode/Action, Prompter trait, Target -> Source helpers
-│
-├── nickel.rs            re-exports schema types + NickelEvaluator
-├── nickel/
-│   ├── schema.rs        FileEntry, Format, Order, WhenCondition
-│   ├── loader.rs        Nickel evaluation with metadata injection
-│   ├── ast_utils.rs     parse-only shadow walk (locate_from_config)
-│   └── structure_map.rs surgical .ncl rewriting via byte spans
-│
-├── formats.rs           FormatRenderer trait + get_renderer dispatch
-├── formats/
-│   ├── toml.rs          toml renderer/parser
-│   ├── json.rs          JSON (with JSONC fallback on parse)
-│   ├── jsonc.rs         JSON-with-comments (preserves comments on round-trip)
-│   ├── delimited.rs     simple space/equals line formats
-│   └── plaintext.rs     verbatim text (no parsing)
-│
-└── diff.rs              re-exports DiffResult, FileDiffResult, diff_*
-    diff/
-    ├── semantic.rs      key-based diffing (TOML/JSON/YAML)
-    └── text.rs          line-based diffing for plaintext
-
-tests/
-├── sync_e2e.rs          end-to-end CLI tests
-└── fixtures/            .ncl + deployed-file fixtures
+```sh
+blend add git ~/.config/git
 ```
 
-## Where things live
+For a structured configuration, create an order and edit its `order.ncl`:
 
-| Want to change… | Look in |
-| --- | --- |
-| A CLI flag | `cli.rs`, then the matching `commands/<cmd>.rs` |
-| How a format parses or renders | `formats/<fmt>.rs` |
-| How `.ncl` evaluates | `nickel/loader.rs` |
-| How `.ncl` is rewritten for Target -> Source | `nickel/structure_map.rs`, `nickel/ast_utils.rs` |
-| How conflicts are presented to the user | `sync.rs` (`Prompter`, `display_conflict`) |
-| Diff output for the `view` command | `commands/view.rs` + `commands/helpers.rs` |
-| Status table columns | `commands/status.rs` |
+```sh
+blend create editor
+```
 
-## Test coverage
+A small structured order looks like this:
 
-- **Unit tests** live alongside the code they exercise (`#[cfg(test)] mod tests`).
-  Notable suites: `nickel/structure_map.rs` (AST surgery), `formats/*.rs`
-  (renderer round-trips), `commands/helpers.rs` (diff aggregation).
-- **End-to-end** tests in `tests/sync_e2e.rs` drive the compiled binary
-  against tempdir fixtures — Source -> Target / Target -> Source sync,
-  view/status flows, symlink redeploy, snapshots, and per-key interactive sync.
+```nickel
+let { Order, .. } = import "../order.contract.ncl" in
+{
+  blend = {
+    prefix = ["~/.config/example/"],
+    files = [
+      {
+        name = "settings.toml",
+        from_config =
+          {
+            theme = "dark",
+            timeout =
+              fun { target } =>
+                if target == 'Absent then 30 else target,
+          }
+          |> blend.with_target_only 'Unmanaged,
+      },
+    ],
+  },
+} | Order
+```
 
-## Adding a new command
+Here `theme` uses ordinary interactive reconciliation when it differs,
+`timeout` defaults to `30` only when absent, and undeclared target fields are
+outside Blend ownership.
 
-1. Add a variant to `Commands` in `cli.rs`.
-2. Create `commands/<name>.rs` exporting `pub fn cmd_<name>(ctx: &Context, …) -> anyhow::Result<()>`.
-3. Add `pub mod <name>;` and `pub use <name>::cmd_<name>;` to `commands.rs`.
-4. Wire the dispatch arm in `main.rs`.
-5. If shared with other commands, lift helpers to `commands/helpers.rs`.
+Validate, preview, and reconcile:
 
-## Adding a new format
+```sh
+blend check
+blend view
+blend sync
+```
 
-1. Create `formats/<name>.rs` implementing `FormatRenderer` (`parse` →
-   `serde_json::Value`, `render` → `String`).
-2. Add `<Name>` to `Format` in `nickel/schema.rs` and update
-   `Format::from_path` if it has a file extension.
-3. Add the dispatch arm in `formats.rs::get_renderer`.
-4. Add a diff strategy in `diff/semantic.rs` if structured comparison applies.
+Running `blend` without a subcommand shows deployment status. Dry-run output is
+command-specific: `blend sync --dry-run` reports prospective reconciliation,
+while `blend init --dry-run` only checks that generated Order files are current
+and does not preview replacement content.
+
+## Documentation
+
+- [GUIDE.md](docs/GUIDE.md) — Orders, formats, resolution semantics, workflows,
+  safety boundaries, and troubleshooting.
+- [DEVELOPMENT.md](docs/DEVELOPMENT.md) — architecture, source map, tests, CI,
+  and release maintenance.
+- [DESIGN.md](docs/DESIGN.md) — durable design rationale, trade-offs, and scope.
+- [CHANGELOG.md](CHANGELOG.md) — release history.
+
+Blend is currently developed and released from the Vanilla repository. Vanilla
+is also its primary real-world consumer and integration corpus.

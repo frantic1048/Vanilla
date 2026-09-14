@@ -7,7 +7,10 @@
 - Most config packages live under `~/Vanilla/orders/<order-name>/`.
 - User scripts are physically sourced from `~/Vanilla/orders/bin/bin`; `~/Vanilla/bin` is a repo-level symlink kept as the stable entrypoint and contains `bin/blend` as a symlink to the built Blend binary.
 - Each order's deployment shape is described by its `order.ncl`.
-- Read `~/Vanilla/blend/README.md`, `~/Vanilla/NEW_BLEND.md`, and `~/Vanilla/blend/src/` when deeper Blend behavior matters.
+- Read `~/Vanilla/blend/README.md` and `~/Vanilla/blend/docs/GUIDE.md` for
+  behavior. Consult `~/Vanilla/blend/docs/DEVELOPMENT.md`,
+  `~/Vanilla/blend/docs/DESIGN.md`, and `~/Vanilla/blend/src/` when
+  implementation details or design rationale matter.
 
 ## Rendered Versus Symlinked Config
 

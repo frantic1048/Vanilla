@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.15](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.14...blend-v0.2.15) - 2026-09-14
+
+### Added
+- *(blend)* implement proper YAML support
+- *(blend)* add target-aware constraint resolution
+- *(blend)* allow constant target-only policies
+
+### Fixed
+- *(blend)* stabilize tests and remove stale code
+- *(blend)* unify target node reconciliation
+- *(blend)* preserve comments during field deletion
+- *(blend)* render Nickel errors with source context
+
+### Other
+- Update debian:trixie-slim Docker digest to d7e1218
+
 ## [0.2.14](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.13...blend-v0.2.14) - 2026-08-24
 
 ### Fixed

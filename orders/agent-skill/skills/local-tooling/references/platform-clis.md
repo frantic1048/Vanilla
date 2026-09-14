@@ -9,6 +9,7 @@ Common CLIs:
 - `gh` for GitHub
 - `glab` for GitLab
 - `twg` for Atlassian/Jira/Confluence/internal work graph tasks
+- `ntn` for Notion
 - `pup` for Datadog
 - `sentry` for Sentry
 
@@ -120,6 +121,28 @@ then run the write outside the sandbox with an explicit `--site` and read it
 back. If a sandboxed write reports `TWG_COMMAND_FAILED: Unable to connect`,
 retry the same write outside the sandbox before opening a browser or declaring
 TWG unavailable.
+
+## Notion ntn
+
+Use `ntn` for live Notion reads and user-authorized writes when it is installed
+and configured. Because the CLI is beta, inspect the relevant live help before
+constructing a command instead of relying on memorized version-specific syntax.
+
+Prefer typed read commands such as `ntn pages get`, `ntn datasources query` or
+`resolve`, and `ntn files get` or `list`. Use `ntn api --spec` or `--docs` when
+the typed commands do not cover the required page properties, templates, or API
+surface.
+
+Treat `ntn pages create`, `edit`, or `trash`, `ntn files create`, and mutating
+`ntn api` requests as remote mutations. Read the current object first, obtain
+the required authorization, and read it back after the write. `ntn pages edit`
+replaces page content; treat `--allow-deleting-content` as destructive and use
+it only when the user explicitly requests that deletion scope.
+
+Use existing keychain-backed authentication. Never print credentials with
+`ntn auth token`, inject `NOTION_API_TOKEN`, set `NOTION_KEYRING=0`, or run
+`ntn login` or `logout` as an authentication workaround. Authentication setup
+or changes require an explicit user request.
 
 ## Host-Bound Companion Operations
 

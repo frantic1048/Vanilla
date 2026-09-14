@@ -1699,7 +1699,7 @@ fn test_recursive_constraints_apply_before_interactive_fallback() {
         exact = 'Enforce { owned = true },
         removed = 'Absent,
         safe = 'Assert "yes",
-      } |> blend.target_only (fun { key, value } =>
+      } |> blend.with_target_only (fun { key, value } =>
         if key == "cache" then 'Unmanaged else 'Absent
       ),
     }],
@@ -1802,14 +1802,14 @@ fn test_recursive_constraints_apply_before_interactive_fallback() {
     );
     assert!(
         pull.status.success(),
-        "target selection through blend.target_only failed:\nstdout: {}\nstderr: {}",
+        "target selection through blend.with_target_only failed:\nstdout: {}\nstderr: {}",
         String::from_utf8_lossy(&pull.stdout),
         String::from_utf8_lossy(&pull.stderr)
     );
     let order_source = std::fs::read_to_string(order_dir.join("order.ncl")).unwrap();
     assert!(
         order_source.contains("theme = \"solarized\""),
-        "declared literals inside blend.target_only should remain rewritable:\n{order_source}"
+        "declared literals inside blend.with_target_only should remain rewritable:\n{order_source}"
     );
 
     let status = run_blend(home.path(), blend_dir.path(), &["status"]);

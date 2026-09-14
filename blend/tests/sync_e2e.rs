@@ -2111,6 +2111,67 @@ fn test_sync_no_rewrite_flag() {
 // ---------------------------------------------------------------------------
 
 #[test]
+fn test_nickel_diagnostics_reach_cli_without_debug_dump() {
+    let home = TempDir::new().unwrap();
+    let temp = TempDir::new().unwrap();
+    copy_shared_order_files(temp.path());
+    let order_dir = orders_dir(temp.path()).join("diagnostic");
+    std::fs::create_dir_all(&order_dir).unwrap();
+    let order_path = order_dir.join("order.ncl");
+
+    for (config, expected) in [
+        (
+            r#"{ "chat.commandCenter.enabled" = 'Unmanaged,
+                 "chat.commandCenter.enabled" = false }"#,
+            "non mergeable terms",
+        ),
+        (
+            r#"{ value = fun _ => {}."resolver probe failed" }"#,
+            "resolver probe failed",
+        ),
+    ] {
+        let source = format!(
+            r#"let {{ Order, .. }} = import "../order.contract.ncl" in
+let metadata = import "../metadata.ncl" in
+{{
+  blend = {{
+    prefix = ["~/"],
+    files = [{{ name = "settings.json", from_config = {config} }}],
+  }},
+}} | Order"#
+        );
+        std::fs::write(&order_path, &source).unwrap();
+
+        for args in [
+            vec!["view", "diagnostic"],
+            vec!["check", "diagnostic"],
+            vec!["sync", "--force-source-to-target", "diagnostic"],
+        ] {
+            let output = run_blend(home.path(), temp.path(), &args);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert!(!output.status.success(), "{args:?}: {stderr}");
+            assert!(stderr.contains(expected), "{args:?}: {stderr}");
+            assert!(stderr.contains(order_path.to_str().unwrap()), "{stderr}");
+            for internal in ["EvalErrorData", "CallStack", "PosIdx", "RawSpan"] {
+                assert!(!stderr.contains(internal), "{stderr}");
+            }
+            assert!(!stderr.contains("<Blend generated>"), "{stderr}");
+            for (index, line) in source.lines().enumerate() {
+                if line.contains("chat.commandCenter.enabled")
+                    || line.contains("resolver probe failed")
+                {
+                    assert!(stderr.contains(&format!("{} │", index + 1)), "{stderr}");
+                    assert!(stderr.contains(line.trim()), "{stderr}");
+                }
+            }
+            assert!(stderr.lines().count() < 35, "{stderr}");
+            assert!(!home.path().join("settings.json").exists());
+            assert_eq!(std::fs::read_to_string(&order_path).unwrap(), source);
+        }
+    }
+}
+
+#[test]
 fn test_sync_force_source_to_target_error_malformed_ncl() {
     let home = TempDir::new().unwrap();
     let temp = TempDir::new().unwrap();

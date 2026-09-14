@@ -596,11 +596,13 @@ mod tests {
         let deployed = r#"{}"#;
         let result = semantic_diff(Format::Json, generated, deployed, &[]);
         assert!(result.has_changes);
-        assert!(result.output.contains("~ terminal"));
-        assert!(result.output.contains("\"shell\""));
-        assert!(result.output.contains("\"program\": \"/usr/bin/env\""));
-        assert!(result.output.contains("\"args\": [\"elvish\"]"));
-        assert!(!result.output.contains("<< Source: {...}"));
+        // The marker and path are styled separately when colors are enabled.
+        let output = console::strip_ansi_codes(&result.output);
+        assert!(output.contains("~ terminal"), "{output}");
+        assert!(output.contains("\"shell\""), "{output}");
+        assert!(output.contains("\"program\": \"/usr/bin/env\""), "{output}");
+        assert!(output.contains("\"args\": [\"elvish\"]"), "{output}");
+        assert!(!output.contains("<< Source: {...}"), "{output}");
     }
 
     #[test]

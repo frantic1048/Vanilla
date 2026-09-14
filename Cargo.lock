@@ -190,6 +190,7 @@ dependencies = [
  "anyhow",
  "clap",
  "codespan",
+ "codespan-reporting",
  "console",
  "globset",
  "hostname",

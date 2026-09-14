@@ -16,6 +16,7 @@ nickel-lang = "=2.2.0"
 nickel-lang-core = { version = "=0.18.0", default-features = false, features = ["format"] }
 nickel-lang-parser = "=0.3.0"
 codespan = "0.13"
+codespan-reporting = "0.13"
 
 # Serialization
 serde = { version = "1", features = ["derive"] }

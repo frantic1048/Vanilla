@@ -1,14 +1,20 @@
-use std::ffi::OsString;
 use std::io::Cursor;
 use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Context as AnyhowContext, Result};
-use nickel_lang::Context;
+use nickel_lang_core::{
+    cache::{CacheHub, InputFormat, SourcePath},
+    error::{Error as NickelError, NullReporter},
+    eval::{VirtualMachine, VmContext, cache::CacheImpl},
+    serialize::{self, ExportFormat},
+};
 
 use crate::metadata::Metadata;
 
+use super::diagnostics::render_error;
 use super::resolution::{ResolutionNode, ResolutionPlan};
 use super::schema::Order;
+use super::source_map::SourceMap;
 
 const BLEND_LIBRARY: &str = r#"{
   with_target_only = fun policy value =>
@@ -143,13 +149,14 @@ impl NickelEvaluator {
             .with_context(|| format!("Failed to read {}", ncl_path.display()))?;
 
         // Inject metadata by replacing the import statement
-        let processed = self.inject_metadata(&ncl_content);
+        let mut program = self.inject_metadata(&ncl_content);
 
         // Keep resolver functions and Blend enum sentinels lazy while loading
         // file metadata. Dynamic from_config values are evaluated later with
         // the concrete Target value for each target path.
-        let program = format!(
-            r#"let blend = {BLEND_LIBRARY} in
+        program.wrap(
+            &format!(
+                r#"let blend = {BLEND_LIBRARY} in
 let rec has_blend_semantics = fun value =>
   if std.is_function value then true
   else if std.is_enum value then
@@ -159,7 +166,9 @@ let rec has_blend_semantics = fun value =>
     std.array.any (fun key => has_blend_semantics value."%{{key}}") (std.record.fields value)
   else false
 in
-let loaded_order = ({processed}) in
+let loaded_order = ("#
+            ),
+            r#") in
 let declared_files =
   if std.record.has_field "files" loaded_order.blend then
     loaded_order.blend.files
@@ -172,20 +181,20 @@ let dynamic_entries = std.array.map (fun entry =>
 let loaded_files = std.array.map (fun entry =>
   if std.record.has_field "from_config" entry then
     let dynamic = has_blend_semantics entry.from_config in
-    entry & {{
-      from_config | force = if dynamic then {{}} else entry.from_config,
-    }}
+    entry & {
+      from_config | force = if dynamic then {} else entry.from_config,
+    }
   else entry
 ) declared_files in
-{{
-  blend = loaded_order.blend & {{ files | force = loaded_files }},
+{
+  blend = loaded_order.blend & { files | force = loaded_files },
   __blend_dynamic_entries = dynamic_entries,
-}}"#
+}"#,
         );
 
         // Evaluate the Nickel program
         let t_eval = std::time::Instant::now();
-        let json = self.eval_to_json(&program, ncl_path)?;
+        let json = eval_to_json(&program, ncl_path, None)?;
         let eval_us = t_eval.elapsed().as_micros();
 
         // Parse into Order
@@ -253,35 +262,23 @@ let loaded_files = std.array.map (fun entry =>
     ) -> Result<ResolutionNode> {
         let ncl_content = std::fs::read_to_string(ncl_path)
             .with_context(|| format!("Failed to read {}", ncl_path.display()))?;
-        let processed = self.inject_metadata(&ncl_content);
+        let mut program = self.inject_metadata(&ncl_content);
         let target_nickel = target
             .map(|value| super::ast_utils::json_to_nickel(value, 0))
             .unwrap_or_else(|| "'Absent".to_string());
-        let program = format!(
-            r#"let blend = {BLEND_LIBRARY} in
+        program.wrap(
+            &format!(
+                r#"let blend = {BLEND_LIBRARY} in
 {RESOLUTION_NORMALIZER}
-let loaded_order = ({processed}) in
+let loaded_order = ("#
+            ),
+            &format!(
+                r#") in
 let declaration = (std.array.at {file_entry_index} loaded_order.blend.files).from_config in
 normalize declaration ({target_nickel}) false"#
+            ),
         );
-        let json = match self.eval_to_json(&program, ncl_path) {
-            Ok(json) => json,
-            Err(error) => {
-                let debug = format!("{error:#?}");
-                if debug.contains("NonExhaustiveMatch") || debug.contains("NonExhaustiveEnumMatch")
-                {
-                    anyhow::bail!(
-                        "resolver made no decision for from_config entry {file_entry_index}; \
-                         Nickel's public embedding API cannot safely distinguish a direct partial \
-                         match from a nested evaluation failure, so add an explicit fallback branch \
-                         such as `_ => 'Unresolved`"
-                    );
-                }
-                return Err(error).with_context(|| {
-                    format!("Failed to resolve from_config entry {file_entry_index}")
-                });
-            }
-        };
+        let json = eval_to_json(&program, ncl_path, Some(file_entry_index))?;
         serde_json::from_value(json).with_context(|| "Failed to decode Blend resolution result")
     }
 
@@ -293,37 +290,83 @@ normalize declaration ({target_nickel}) false"#
     /// Variants with extra whitespace or a different relative path are not
     /// rewritten. The committed orders/ files use the canonical form, and
     /// `blend init`/`sync` regenerates them deterministically.
-    fn inject_metadata(&self, source: &str) -> String {
+    fn inject_metadata(&self, source: &str) -> SourceMap {
         let pattern = r#"import "../metadata.ncl""#;
-        let replacement = format!(r#"((import "../metadata.ncl") & {})"#, self.metadata_nickel);
-        source.replace(pattern, &replacement)
-    }
-
-    /// Evaluate Nickel source and return JSON
-    fn eval_to_json(&self, source: &str, path: &Path) -> Result<serde_json::Value> {
-        let mut ctx = Context::new().with_source_name(path.to_string_lossy().into_owned());
-
-        // Add the parent directory to import paths so relative imports work
-        if let Some(parent) = path.parent() {
-            let import_paths: Vec<OsString> = vec![parent.as_os_str().to_owned()];
-            ctx = ctx.with_added_import_paths(import_paths);
+        let mut mapped = SourceMap::new(source);
+        let mut cursor = 0;
+        for (start, matched) in source.match_indices(pattern) {
+            mapped.push_original(cursor..start);
+            mapped.push_generated("((");
+            cursor = start + matched.len();
+            mapped.push_original(start..cursor);
+            mapped.push_generated(&format!(") & {})", self.metadata_nickel));
         }
-
-        // Evaluate the Nickel source
-        let expr = ctx
-            .eval_deep(source)
-            .map_err(|e| anyhow::anyhow!("Nickel evaluation error: {e:?}"))?;
-
-        // Export to JSON
-        let json_str = ctx
-            .expr_to_json(&expr)
-            .map_err(|e| anyhow::anyhow!("Failed to export Nickel to JSON: {e:?}"))?;
-
-        let json: serde_json::Value =
-            serde_json::from_str(&json_str).with_context(|| "Failed to parse exported JSON")?;
-
-        Ok(json)
+        mapped.push_original(cursor..source.len());
+        mapped
     }
+}
+
+/// Mirror nickel_lang::Context's deep evaluation and JSON export, retaining
+/// the source database and typed errors needed to remap diagnostic spans.
+pub(super) fn eval_to_json(
+    source: &SourceMap,
+    path: &Path,
+    resolver_entry: Option<usize>,
+) -> Result<serde_json::Value> {
+    let mut ctx: VmContext<CacheHub, CacheImpl> =
+        VmContext::new(CacheHub::new(), std::io::sink(), NullReporter {});
+
+    // Add the parent directory to import paths so relative imports work
+    if let Some(parent) = path.parent() {
+        ctx.import_resolver
+            .sources
+            .add_import_paths(std::iter::once(parent.to_path_buf()));
+    }
+
+    let file_id = ctx
+        .import_resolver
+        .sources
+        .add_source(
+            SourcePath::Path(path.to_path_buf(), InputFormat::Nickel),
+            Cursor::new(source.generated.as_bytes()),
+        )
+        .with_context(|| format!("Failed to load Nickel source for {}", path.display()))?;
+    let evaluation = ctx.prepare_eval(file_id).and_then(|prepared| {
+        VirtualMachine::new(&mut ctx)
+            .eval_full(prepared)
+            .map_err(NickelError::from)
+    });
+    let expr = evaluation.map_err(|error| {
+        render_error(
+            error,
+            ctx.import_resolver.sources.files().clone(),
+            file_id,
+            source,
+            path,
+            "evaluation",
+            resolver_entry,
+        )
+    })?;
+
+    // Export to JSON
+    let json_str = serialize::validate(ExportFormat::Json, &expr)
+        .and_then(|_| serialize::to_string(ExportFormat::Json, &expr))
+        .map_err(|error| {
+            render_error(
+                error.with_pos_table(ctx.pos_table.clone()).into(),
+                ctx.import_resolver.sources.files().clone(),
+                file_id,
+                source,
+                path,
+                "JSON export",
+                resolver_entry,
+            )
+        })?;
+
+    let json: serde_json::Value =
+        serde_json::from_str(&json_str).with_context(|| "Failed to parse exported JSON")?;
+
+    Ok(json)
 }
 
 fn validate_order_source_paths(order: &Order, ncl_path: &Path) -> Result<()> {
@@ -384,6 +427,7 @@ pub fn normalize_order_source_path(path: &str) -> Result<PathBuf> {
 mod tests {
     use super::*;
     use crate::nickel::key_path::KeyPath;
+    use nickel_lang::Context;
     use std::path::PathBuf;
     use tempfile::TempDir;
 
@@ -641,7 +685,9 @@ mod tests {
         let error = evaluator
             .evaluate_resolution(&order_path, 0, Some(&generated_source))
             .unwrap_err();
-        assert!(error.to_string().contains("resolve from_config"));
+        let message = error.to_string();
+        assert!(message.contains("from_config entry 0"), "{message}");
+        assert!(message.contains("type error"), "{message}");
 
         assert!(evaluator.validate_config(&order_path, 0).is_err());
     }
@@ -691,7 +737,7 @@ mod tests {
 
         let evaluator = NickelEvaluator::new(&metadata);
         let source = r#"let metadata = import "../metadata.ncl" in { os = metadata.os }"#;
-        let result = evaluator.inject_metadata(source);
+        let result = evaluator.inject_metadata(source).generated;
 
         // Original import expression is preserved (now inside a wrapper).
         assert!(
@@ -721,11 +767,31 @@ mod tests {
         };
         let evaluator = NickelEvaluator::new(&metadata);
         let source = r#"{ blend = { files = [] } }"#;
-        let result = evaluator.inject_metadata(source);
+        let result = evaluator.inject_metadata(source).generated;
         assert_eq!(
             result, source,
             "order without metadata import should be unchanged"
         );
+    }
+
+    #[test]
+    fn diagnostic_columns_survive_repeated_metadata_imports_and_unicode() {
+        let temp = TempDir::new().unwrap();
+        let directory = temp.path().join("order");
+        std::fs::create_dir(&directory).unwrap();
+        std::fs::write(temp.path().join("metadata.ncl"), "{}").unwrap();
+        let path = directory.join("order.ncl");
+        let source = "let one = import \"../metadata.ncl\" in let two = import \"../metadata.ncl\" in { label = \"é\", value = 1 + true }";
+        let mut mapped = NickelEvaluator::new(&test_metadata()).inject_metadata(source);
+        mapped.wrap("let wrapper = (\n", ") in wrapper");
+        let message = eval_to_json(&mapped, &path, None).unwrap_err().to_string();
+        let column = source[..source.rfind("true").unwrap()].chars().count() + 1;
+        assert!(
+            message.contains(&format!("{}:1:{column}", path.display())),
+            "{message}"
+        );
+        assert!(message.contains(source), "{message}");
+        assert!(!message.contains("<Blend generated>"), "{message}");
     }
 
     /// Pin Nickel's `&` merge strictness. Several pieces of `surgical_rewrite_with_structure`

@@ -1,194 +1,157 @@
 # AGENTS.md
 
-## Project Overview
+## Project overview
 
-Vanilla is the owner's dotfiles repository. Configs are defined as Nickel
-orders under `orders/` and deployed by the local `blend` CLI, a Rust tool in
-`blend/`. The root `bin` entry is a symlink to `orders/bin/bin`, and
-`bin/blend` resolves through that Source directory to the release build at
-`target/release/blend`.
+Vanilla is the owner's dotfiles repository. Nickel Orders under `orders/` are
+deployed by the Rust `blend` CLI in `blend/`.
 
-This repo mixes two surfaces:
+The repository therefore contains two related surfaces:
 
-- dotfile source data (`orders/`, `bin/`, Brewfiles, bootstrap scripts)
-- the dotfile manager itself (`blend/`)
+- personal configuration Source, bootstrap scripts, and maintenance tools;
+- the Blend program, its documentation, tests, CI, and release automation.
 
-Keep those surfaces distinct when changing, testing, and interpreting CI.
+Keep those surfaces distinct when changing behavior or interpreting CI.
 
-## Repository Layout
+## Documentation authority
 
-- `blend/` - Rust crate for the `blend` CLI.
-- `orders/` - active Nickel order definitions and config source files.
-- `bin` - symlink to the physical personal-script Source at `orders/bin/bin`.
-- `legacy/` - stow-era or out-of-scope files kept for reference only; not
-  managed by blend.
-- `screenshots/` - README screenshots.
-- `Brewfile*` - Homebrew dependency manifests.
-- `bootstrap.sh` - fresh-machine bootstrap entrypoint.
-- `justfile` - canonical local task runner.
-- `macos_config.sh` - standalone macOS defaults script; run separately from
-  blend.
-- `NEW_BLEND.md` - design notes for the blend rewrite.
-- `ERGO.md` - blend user-journey and ergonomics notes.
-- `RETRO.md` - retrospective notes.
-- `README.md.nu` - Nushell script that regenerates `README.md` from
-  `blend table` output.
+- `README.md.nu` generates the root `README.md` and documents Vanilla.
+- `blend/README.md` is the Blend product entry point.
+- `blend/docs/GUIDE.md` defines user-visible Order and reconciliation behavior.
+- `blend/docs/DEVELOPMENT.md` describes architecture, source layout, testing,
+  CI, and releases.
+- `blend/docs/DESIGN.md` records durable design rationale and scope boundaries.
+- `blend/CHANGELOG.md` is owned by release-plz; do not edit it manually unless
+  explicitly requested.
 
-## Working Norms
+The generated `orders/order.contract.ncl` and CLI help are executable interface
+references. When prose and implementation disagree, verify against the current
+schema, tests, and command behavior rather than preserving stale documentation.
 
-- Default branch is `master`; development branches in this repo conventionally
-  use `dev/*`.
-- Use conventional commit subjects for blend program, CI, and release changes
-  such as `feat(blend): ...`, `fix(blend): ...`, `ci: ...`, or
-  `chore(blend): ...`.
-- Do not manually edit `blend/CHANGELOG.md` unless asked. `release-plz` owns
-  changelog updates and tag creation.
-- Prefer `just` recipes for local workflows, but read the recipe before
-  assuming what it does.
-- Keep generated deployment output and per-machine state out of git unless the
-  user explicitly asks otherwise.
-- Use `\u{xxxx}` escapes for non-ASCII codepoints in `.ncl` files when that
-  improves readability, especially Nerd Font symbols.
+## Repository layout
 
-## Current Blend Status
+- `blend/` — Rust crate for the Blend CLI.
+- `orders/` — active Nickel Order definitions and literal configuration Source.
+- `bin` — symlink to `orders/bin/bin`; `bin/blend` points through that Source
+  tree to the workspace release build.
+- `legacy/` — Stow-era or out-of-scope reference material, not managed by Blend.
+- `screenshots/` — root README images.
+- `Brewfile*` — Homebrew dependency manifests.
+- `bootstrap.sh` — fresh-machine bootstrap entry point.
+- `justfile` — canonical local task runner.
+- `macos_config.sh` — standalone macOS defaults, separate from Blend.
+- `README.md.nu` — root README generator.
 
-The Rust/Nickel migration is the active implementation. All managed configs
-live under `orders/`. The remaining `legacy/` entries are reference material
-from the stow era or files outside blend's current scope.
+## Working norms
 
-Blend is already released and dogfooded, but the repo is still primarily for
-one owner. When changing blend internals, prefer the clean current design over
-compatibility scaffolding for hypothetical external users. Still be careful
-with this owner's real dotfiles, deployed targets, and local Blend state.
+- The default branch is `master`; normal development branches use `dev/*`.
+- Use conventional commit subjects for Blend, CI, and release changes, such as
+  `feat(blend): ...`, `fix(blend): ...`, `docs(blend): ...`, or `ci: ...`.
+- Prefer `just` recipes, but inspect a recipe before assuming its effects.
+- Do not commit generated deployment output or per-machine state unless
+  explicitly requested.
+- Preserve unrelated work in a dirty checkout.
+- Prefer the clean current design over compatibility scaffolding for
+  hypothetical users; Blend is pre-1.0 and primarily dogfooded here.
+- Treat real Targets and state cautiously even when compatibility can be broken.
+- Use `\u{xxxx}` escapes for non-ASCII Nickel codepoints when that improves
+  readability, especially Nerd Font symbols.
 
-Per-machine Blend state lives under `$XDG_STATE_HOME/blend/`, falling back to
+## Current Blend baseline
+
+The workspace pins Rust 1.98.0 and uses edition 2024. Direct Nickel pins in
+`blend/Cargo.toml` are currently `nickel-lang 2.2.0`,
+`nickel-lang-core 0.18.0`, and `nickel-lang-parser 0.3.0`. Read the manifests
+before updating copied version references.
+
+All actively managed configuration lives below `orders/`. The current generated
+Order contract is version 3 and reserves `'Absent`, `'Assert`,
+`'Unmanaged`, `'Unresolved`, and `'Enforce` for resolution semantics.
+
+Per-machine state lives below `$XDG_STATE_HOME/blend/`, falling back to
 `$HOME/.local/state/blend/`:
 
-- `state.json` remembers the Blend Source checkout.
-- `snapshots/` stores sync snapshots for three-way reconciliation.
+- `state.json` remembers the selected Blend Source checkout;
+- `snapshots/` stores reconciliation bases.
 
-`--blend-dir` resolution checks the nearest ancestor containing `orders/`, then
-remembered state. Read commands must stay read-only: `status`, `view`, `table`,
-and `check` must not refresh remembered state.
+`--blend-dir` resolution checks the nearest ancestor containing `orders/` and
+then remembered state. Read commands must not refresh that state.
 
-## Blend Development
-
-Toolchain and dependency facts:
-
-- Rust `1.92.0`, pinned by `blend/rust-toolchain.toml`.
-- Rust edition `2024`.
-- Nickel crates are exact crates.io pins in `blend/Cargo.toml`:
-  `nickel-lang = "=2.1.0"`, `nickel-lang-core = "=0.17.0"`, and
-  `nickel-lang-parser = "=0.2.0"`.
-- Important crates include `clap`, `serde`, `serde_json`, `toml`,
-  `json-strip-comments`, `similar`, `rayon`, `tree-sitter`, and
-  `tree-sitter-nickel`.
-
-Common tasks:
-
-```sh
-just build       # release build + update the bin/blend entrypoint symlink
-just check       # bin/blend check
-just test        # cargo test --release in blend/
-just fmt-check   # cargo fmt --check in blend/
-just clippy      # cargo clippy -- -D warnings in blend/
-just deploy      # bin/blend sync
-```
-
-Use `cd blend && cargo build --release` when you only need the binary and do
-not want the `bin/blend` symlink step. Cargo still writes to the workspace
-`target/` directory.
-
-## Blend CLI Semantics
+## Command effects
 
 The top-level `blend` command defaults to `status`.
 
-Inspect commands:
+Read-only commands:
 
-- `status` - `[read]` show order deployment status.
-- `view [orders...]` - `[read]` preview generated config and diffs from Target
-  files. Useful flags: `--content-only`, `--all`, `--short`.
-- `table` - `[read]` emit the README order table as HTML.
+- `status` — deployment summary.
+- `view [orders...]` — generated content and/or Target differences.
+- `table` — root README Order table.
+- `check [orders...]` — validate Source definitions.
+- `format --check [orders...]` — formatting validation.
 
-Maintain commands:
+Source-writing commands:
 
-- `check [orders...]` - `[read]` validate Source order definitions.
-- `create <order>` - `[source]` scaffold a new empty Source order.
-- `add <order> <target>` - `[source]` import an absolute or `~`-prefixed
-  Target file/directory into a Source order, creating the order when needed. Useful flags:
-  `--prefix`, `--symlink follow|preserve`, `--allow-overlap`.
-- `format [orders...]` / `fmt` - `[source]` format Source order files; use
-  `--check` in CI or review validation.
-- `init --upgrade` - `[source, target]` initialize or refresh
-  `orders/order.contract.ncl` and `orders/metadata.ncl`; `--upgrade` is
-  required for breaking contract migrations.
-- `sync [orders...]` / `s` - `[source, target]` reconcile Source orders and
-  deployed Target files. Force flags are named from Blend's perspective:
-  `--force-source-to-target` and `--force-target-to-source`.
+- `create <order>` — scaffold an Order.
+- `add <order> <target>` — import an absolute or `~`-prefixed Target into
+  Source.
+- `format [orders...]` — format Order source.
 
-Global flags:
+Source/Target/state commands:
 
-- `--dry-run` / `-n` previews mutating commands.
-- `--verbose` / `-v` logs paths and metadata.
-- `--home` overrides Target `~` expansion and `metadata.home`.
-- `--blend-dir` overrides the Blend Source root.
-- `--sandbox force|prefer|never` controls the process sandbox policy.
+- `init [--upgrade]` — initialize or refresh generated modules and Blend
+  configuration; breaking contract migrations require `--upgrade`.
+- `sync [orders...]` — reconcile Source and Target.
 
-Order Source paths:
+Global `--dry-run` prevents command writes, but its output is command-specific;
+`init --dry-run` only validates generated-file freshness and does not preview
+replacement content. Force sync flags are named from Blend's
+perspective: `--force-source-to-target` and
+`--force-target-to-source`. `--sandbox force|prefer|never` controls sandbox
+installation.
 
-- `from_file` and `local` are relative to their order directory and must not be
-  absolute or normalize outside that directory.
-- File entries need an effective Target prefix from either `blend.prefix` or
-  entry-level `prefix`.
+`from_file` and `local` paths must be relative to their Order directory and
+must not normalize outside it. File entries need an effective Target prefix
+from the Order or entry.
 
-## Source Map
+See `blend/docs/GUIDE.md` for the complete user contract.
 
-For blend code changes, start here:
+## Development
 
-- CLI shape: `blend/src/cli.rs`, then the matching `blend/src/commands/*.rs`.
-- Dispatch: `blend/src/main.rs`.
-- Runtime paths, metadata, state update gate: `blend/src/context.rs`.
-- Per-machine state and snapshots: `blend/src/state.rs`.
-- Order evaluation: `blend/src/compose.rs` and `blend/src/nickel/loader.rs`.
-- Nickel schema: `blend/src/nickel/schema.rs`.
-- Source rewrite for Target-to-Source sync:
-  `blend/src/nickel/structure_map.rs` and `blend/src/nickel/ast_utils.rs`.
-- Format rendering/parsing: `blend/src/formats/*.rs`.
-- Diffing: `blend/src/diff/*.rs`.
-- Conflict flow: `blend/src/sync.rs`.
-- Status table: `blend/src/commands/status.rs`.
+Common tasks from the repository root:
 
-Tests live in `blend/tests/sync_e2e.rs` and inline `#[cfg(test)]` modules.
+```sh
+just build
+just check
+just test
+just fmt-check
+just clippy
+```
 
-## CI And Release
+`just build` creates a release build and refreshes `bin/blend`. A direct
+`cd blend && cargo build --release` builds without the symlink step.
 
-`Blend CI` runs for changes to `blend/**`, root Cargo files, or its workflow.
-It runs on macOS and Ubuntu and checks:
+Start code changes from the source map in
+`blend/docs/DEVELOPMENT.md#source-map`. Tests live in
+`blend/tests/sync_e2e.rs` and inline `#[cfg(test)]` modules.
 
-- `cargo fmt --check`
-- `cargo clippy -- -D warnings`
-- `cargo test`
-- `cargo run -- check`
-- `cargo run -- format --check`
+Generated `orders/order.contract.ncl` and `orders/metadata.ncl` originate in
+`blend/src/nickel/generated.rs`. Do not edit generated copies as the source of a
+schema change.
 
-`Orders CI` runs for changes to `orders/**` or its workflow. It uses the pinned
-published container image, currently `ghcr.io/frantic1048/blend:0.2.11`, then
-runs `blend check` and `blend format --check`. Treat this job as
-released-binary compatibility signaling for the current orders tree, not as a
-replacement for testing the in-branch blend binary.
+## CI and release
 
-`release-plz` owns release PRs, changelog edits, and `blend-v{{ version }}` tag
-creation. It is configured with `publish = false` and `git_release_enable =
-false`: it tags only; the release workflow creates GitHub Releases.
+`Blend CI` runs on macOS and Ubuntu and checks formatting, Clippy, tests, Order
+validation, and Order formatting with the in-branch binary.
 
-The `Release` workflow runs on `blend-v*` tags. It builds archives for:
+`Orders CI` uses the pinned released
+`ghcr.io/frantic1048/blend:0.2.15` image. It is released-binary compatibility
+coverage for the real Order tree, not a replacement for Blend CI.
 
-- `aarch64-apple-darwin`
-- `x86_64-apple-darwin`
-- `x86_64-unknown-linux-gnu`
+Both workflows use Harden Runner with outbound allowlists.
 
-It uploads `tar.xz` archives, SHA256 files, a generated installer, build
-provenance attestations, a GHCR Docker image, and dispatches the Homebrew tap
-update for stable releases. Release creation uses a GitHub App token; do not
-switch it back to the default `GITHUB_TOKEN` without revalidating release API
-permissions.
+Release-plz owns release PRs, changelog updates, and `blend-v<version>` tags.
+The tag-triggered Release workflow builds three platform archives, checksums,
+the installer, provenance attestations, the GHCR image, and stable Homebrew tap
+updates.
+
+Release creation uses a repository GitHub App token. Do not replace it with the
+default `GITHUB_TOKEN` without revalidating release API permissions.

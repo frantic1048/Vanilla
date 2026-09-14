@@ -14,7 +14,7 @@ let { Order, .. } = import "../order.contract.ncl" in
           {
             cli_auth_credentials_store = 'Enforce "keyring",
           }
-          |> blend.target_only (fun _ => 'Unmanaged),
+          |> blend.with_target_only 'Unmanaged,
       },
       {
         name = "agents/verifier.toml",

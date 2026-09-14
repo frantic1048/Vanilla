@@ -14,15 +14,13 @@ let { Order, .. } = import "../order.contract.ncl" in
       {
         name = "settings.json",
         format = "jsonc",
-        # These settings are not suitable for sync.
-        ignore = [
-          "window.zoomLevel",
-          "workbench.colorTheme",
-          "workbench.iconTheme",
-          "playwright.env",
-          "chat.commandCenter.enabled",
-        ],
         from_config = {
+          # Unmanaged settings (not worth syncing across machines)
+          "window.zoomLevel" = 'Unmanaged,
+          "workbench.colorTheme" = 'Unmanaged,
+          "workbench.iconTheme" = 'Unmanaged,
+          "playwright.env" = 'Unmanaged,
+
           # Editor settings
           "editor.fontSize" = 13,
           "editor.fontFamily" = "JetBrainsMono Nerd Font Mono, JetBrains Mono, Monaspace Argon Var, Fantasque Sans Mono, monospace, Electroharmonix",

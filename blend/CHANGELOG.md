@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.16](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.15...blend-v0.2.16) - 2026-09-15
+
+### Other
+- *(blend)* overhaul project documentation
+
 ## [0.2.15](https://github.com/frantic1048/Vanilla/compare/blend-v0.2.14...blend-v0.2.15) - 2026-09-14
 
 ### Added

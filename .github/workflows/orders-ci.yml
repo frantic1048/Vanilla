@@ -18,7 +18,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/frantic1048/blend:0.2.15@sha256:8a67c80e66bae598818a1b648c01921dd70c748f48fc5c9d52da0506461cdad9
+      image: ghcr.io/frantic1048/blend:0.2.16@sha256:fd9e21a5fca37a0f09e165d232f81b4f23fcc85f8e4d04a14263a4e98ce06736
     steps:
       - name: Harden the runner (Block unapproved outbound calls)
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1

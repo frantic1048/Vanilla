@@ -18,3 +18,4 @@ shared-globals-dir = true
 
 [settings]
 auto-install = true
+telemetry = false

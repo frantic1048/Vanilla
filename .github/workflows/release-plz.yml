@@ -54,7 +54,7 @@ jobs:
           permission-contents: write
           permission-pull-requests: read
       - name: Run release-plz
-        uses: release-plz/action@aec534bbd8631793b9b3b8f1ee6cd886c322e17f # v0.5.133
+        uses: release-plz/action@d6c56271d640b6c1b61d1e00593641c400a9f4bd # v0.5.138
         with:
           command: release
           manifest_path: Cargo.toml
@@ -102,7 +102,7 @@ jobs:
           permission-contents: write
           permission-pull-requests: write
       - name: Run release-plz
-        uses: release-plz/action@aec534bbd8631793b9b3b8f1ee6cd886c322e17f # v0.5.133
+        uses: release-plz/action@d6c56271d640b6c1b61d1e00593641c400a9f4bd # v0.5.138
         with:
           command: release-pr
           manifest_path: Cargo.toml

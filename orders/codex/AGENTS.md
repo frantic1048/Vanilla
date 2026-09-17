@@ -58,3 +58,41 @@
   final diff, and closing remaining gaps. Scale checks to the change and
   complete required validation. Repeat or broaden checks only after relevant
   changes, failures, incomplete evidence, or unresolved concerns.
+
+## Git workspace conventions
+
+Organize each repository collection around this layout:
+
+```text
+<collection>/<repository-key>                  # canonical checkout
+<collection>/.worktrees/<repository-key>/<task> # linked worktree
+<collection>/.scratch/<repository-key>/<task>   # disposable clone
+```
+
+Choose a stable, recognizable `<repository-key>` that fits the local
+collection. It may be a nested path or any locally meaningful directory name;
+do not assume a flattened naming scheme or derive one from the remote URL.
+Preserve an existing canonical checkout's key. When choosing one for a new
+clone, make it readable and unambiguous, then reuse the same key beneath the
+disposable roots.
+
+Collection roots are machine-local. Discover one by walking upward from an
+existing canonical checkout for an ancestor containing both `.worktrees/` and
+`.scratch/`; never assume a fixed absolute path. If no collection root can be
+determined unambiguously, ask before creating one.
+
+Keep canonical checkouts at stable paths. Treat both `.worktrees/` and
+`.scratch/` as disposable workspace roots. Use linked worktrees for concurrent
+branch work in repositories that are already retained locally, and independent
+disposable clones for short-lived tasks. Keep project dependencies and
+generated outputs inside disposable workspaces so retiring one removes its
+derived data as a unit.
+
+Before retiring a disposable workspace, confirm it contains no dirty,
+untracked, or unpushed work. Remove linked worktrees with
+`git worktree remove`; remove independent scratch clones as a unit.
+
+For disposable clones, prefer `git clone --filter=blob:none` to retain the
+commit graph while fetching historical blobs on demand. Use shallow clones only
+for truly throwaway work that will not need merge-base analysis, rebasing,
+range-diffs, tags, or history investigation.

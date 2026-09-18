@@ -4,6 +4,7 @@ let metadata = import "../metadata.ncl" in
 let { Order, .. } = import "../order.contract.ncl" in
 {
   blend = {
+    when = { os = ["linux"] },
     prefix = ["~/.config/alacritty/"],
     files = [
       {

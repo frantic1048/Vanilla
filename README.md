@@ -25,13 +25,11 @@ Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://gith
 
 <table><thead><tr><th>order</th><th colspan="3">profiles</th></tr></thead><tbody>
 <tr><td><a href="orders/agent-skill">agent-skill</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
-<tr><td><a href="orders/alacritty">alacritty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bash">bash</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bat">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bin">bin</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/codex">codex</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/elvish">elvish</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
-<tr><td><a href="orders/ghostty">ghostty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/git">git</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/gpg">gpg</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/kitty">kitty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
@@ -54,6 +52,7 @@ Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://gith
 <tr><td><a href="orders/wezterm">wezterm</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/zellij">zellij</a></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/X">X</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>
+<tr><td><a href="orders/alacritty">alacritty</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>
 <tr><td><a href="orders/alsa">alsa</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>
 <tr><td><a href="orders/color">color</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>
 <tr><td><a href="orders/fcitx">fcitx</a></td><td><code>linux-x86_64</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>

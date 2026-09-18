@@ -69,12 +69,15 @@ Organize each repository collection around this layout:
 <collection>/.scratch/<repository-key>/<task>   # disposable clone
 ```
 
-Choose a stable, recognizable `<repository-key>` that fits the local
-collection. It may be a nested path or any locally meaningful directory name;
-do not assume a flattened naming scheme or derive one from the remote URL.
-Preserve an existing canonical checkout's key. When choosing one for a new
-clone, make it readable and unambiguous, then reuse the same key beneath the
-disposable roots.
+Keep each `<repository-key>` to one directory component so the collection has
+a plain layout without namespace container directories. A readable
+`<namespace>.<repository>` key is a useful default when the repository name is
+ambiguous, but any stable, locally meaningful name is valid; do not derive or
+rewrite it solely from the remote URL. Preserve an existing compliant
+canonical checkout's key rather than silently renaming it. If a legacy checkout
+uses nested namespace directories, ask before choosing its new flat key. When
+choosing one for a new clone, make it readable and unambiguous, then reuse the
+same key beneath the disposable roots.
 
 Collection roots are machine-local. Discover one by walking upward from an
 existing canonical checkout for an ancestor containing both `.worktrees/` and

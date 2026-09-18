@@ -16,13 +16,6 @@
       "groupName": "github-actions"
     },
     {
-      "description": "Group all Rust dependency updates",
-      "matchManagers": [
-        "cargo"
-      ],
-      "groupName": "rust-dependencies"
-    },
-    {
       "description": "Group all Docker image updates",
       "matchDatasources": [
         "docker"

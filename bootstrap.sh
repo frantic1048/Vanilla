@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # Vanilla bootstrap — Stage 1
-# Installs system dependencies, then hands off to `just bootstrap` for blend build + config deploy.
+# Installs system dependencies, then hands off to `just bootstrap` for config
+# deployment with the `blend` executable already available in PATH.
 
 self_dir="$(cd "$(dirname "$0")" && pwd)"
 cd "$self_dir"
@@ -87,7 +88,7 @@ proto install --pin global go
 proto install --pin global python
 proto install --pin global uv
 
-# ─── Stage 2: Build & deploy via just ───────────────────────────────────────────
+# ─── Stage 2: Deploy via just ──────────────────────────────────────────────────
 
 just bootstrap
 

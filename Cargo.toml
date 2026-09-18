@@ -1,6 +1,0 @@
-[workspace]
-members = ["blend"]
-resolver = "3"
-
-[profile.release]
-lto = "thin"

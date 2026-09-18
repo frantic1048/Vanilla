@@ -1,46 +1,21 @@
 default:
     @just --list
 
-# Build all executables (release by default)
-build: build-blend
-
-# Build blend and symlink into bin/
-build-blend:
-    cd blend && cargo build --release
-    ln -sf ../../../target/release/blend bin/blend
-
-# Build blend in debug mode (for development)
-build-debug:
-    cd blend && cargo build
-    ln -sf ../../../target/debug/blend bin/blend-debug
-
 # Validate all orders
 check:
-    bin/blend check
-
-# Run rustfmt on the blend crate
-fmt:
-    cd blend && cargo fmt
-
-# Check formatting without modifying files (CI-equivalent)
-fmt-check:
-    cd blend && cargo fmt --check
-
-# Run clippy on the blend crate (CI-equivalent)
-clippy:
-    cd blend && cargo clippy -- -D warnings
-
-# Run the blend test suite
-test:
-    cd blend && cargo test --release
+    blend --blend-dir . check
 
 # Deploy all configs
 deploy:
-    bin/blend sync
+    blend --blend-dir . sync
 
 # Interactive sync
 sync *ARGS:
-    bin/blend sync {{ ARGS }}
+    blend --blend-dir . sync {{ ARGS }}
+
+# Regenerate README.md from the current Order table
+readme:
+    nu README.md.nu
 
 # Run the local system maintenance routine
 s:
@@ -50,8 +25,7 @@ s:
 upgrade:
     just s
 
-# Full bootstrap (called by bootstrap.sh after deps are installed)
+# Full bootstrap (called by bootstrap.sh after dependencies are installed)
 bootstrap:
-    just build
-    just deploy
+    blend --blend-dir . sync
     @echo "Bootstrap complete. Restart your shell."

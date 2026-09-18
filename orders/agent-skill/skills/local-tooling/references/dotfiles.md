@@ -3,14 +3,16 @@
 ## Source Of Truth
 
 - The user's dotfiles repo is `~/Vanilla`, hosted as `frantic1048/Vanilla`.
-- The repo is managed by the user's own tool `blend`, implemented in `~/Vanilla/blend`.
+- The repo is managed by the standalone `blend` CLI from
+  [frantic1048/blend](https://github.com/frantic1048/blend). Vanilla expects a
+  stable `blend` executable to be available in `PATH`.
 - Most config packages live under `~/Vanilla/orders/<order-name>/`.
-- User scripts are physically sourced from `~/Vanilla/orders/bin/bin`; `~/Vanilla/bin` is a repo-level symlink kept as the stable entrypoint and contains `bin/blend` as a symlink to the built Blend binary.
+- User scripts are physically sourced from `~/Vanilla/orders/bin/bin`;
+  `~/Vanilla/bin` is a repo-level symlink kept as their stable entrypoint.
 - Each order's deployment shape is described by its `order.ncl`.
-- Read `~/Vanilla/blend/README.md` and `~/Vanilla/blend/docs/GUIDE.md` for
-  behavior. Consult `~/Vanilla/blend/docs/DEVELOPMENT.md`,
-  `~/Vanilla/blend/docs/DESIGN.md`, and `~/Vanilla/blend/src/` when
-  implementation details or design rationale matter.
+- Read that repository's canonical documentation for behavior and
+  implementation details. A separate local checkout may be used when present;
+  do not expect Blend source code below `~/Vanilla`.
 
 ## Rendered Versus Symlinked Config
 

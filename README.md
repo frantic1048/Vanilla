@@ -1,6 +1,6 @@
 # 𝒱𝒶𝓃𝒾𝓁𝓁𝒶
 
-frantic1048's daily configs, scripts etc. Managed by [blend](blend/README.md).
+frantic1048's daily configs, scripts etc. Managed by [blend](https://github.com/frantic1048/blend).
 
 ## Screenshots
 
@@ -21,7 +21,7 @@ _macOS_:
 
 This repository mainly contains configs for various tools and applications shown in the table below.
 
-Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://github.com/nickel-lang/nickel) language under [orders/](orders/). Deployed via the `blend` program in this repo. See [blend/README.md](blend/README.md) for details.
+Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://github.com/nickel-lang/nickel) language under [orders/](orders/). They are deployed with the standalone [blend CLI](https://github.com/frantic1048/blend).
 
 <table><thead><tr><th>order</th><th colspan="3">profiles</th></tr></thead><tbody>
 <tr><td><a href="orders/agent-skill">agent-skill</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
@@ -29,6 +29,7 @@ Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://gith
 <tr><td><a href="orders/bash">bash</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bat">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bin">bin</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/codex">codex</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/elvish">elvish</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/ghostty">ghostty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/git">git</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
@@ -79,14 +80,16 @@ Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://gith
 
 ### Using standalone order(s)
 
-Require `blend` CLI in `PATH`.
+Require a stable `blend` executable in `PATH`. Vanilla does not install or pin
+the local CLI; Orders CI independently pins a released container image and
+digest.
 
 ```sh
 # interactively deploy specific order(s)
-./bin/blend sync [order1] [order2] ...
+just sync [order1] [order2] ...
 
 # interactively sync all available orders
-./bin/blend sync
+just sync
 ```
 
 ### bootstrap script
@@ -98,16 +101,18 @@ Require `blend` CLI in `PATH`.
 
 #### macOS / Arch Linux
 
-Fresh macOS needs Xcode Command Line Tools before the repository can be cloned
-and built. The bootstrap script then installs Homebrew when missing, runs the
+Fresh macOS needs Xcode Command Line Tools before the repository can be cloned.
+The bootstrap script then installs Homebrew when missing, runs the
 repo `Brewfile`, installs proto plus a baseline set of proto-managed toolchains,
-builds `blend`, and deploys the matching dotfile orders.
+and deploys the matching dotfile orders. The script currently expects `blend`
+to be available in `PATH`; installing it is intentionally left to the user.
 
 Require following dependencies in `PATH` before running `./bootstrap.sh`:
 
 1. `git`: https://git-scm.com/
 2. `bash`: https://www.gnu.org/software/bash/
 3. `curl`: https://curl.se/
+4. `blend`: https://github.com/frantic1048/blend
 
 ```sh
 # macOS only; wait for the installer to finish before cloning.
@@ -123,6 +128,13 @@ On macOS, `./bootstrap.sh` may ask for interactive confirmation during Homebrew
 and cask installation. After it finishes, follow the printed checklist for
 account-level setup such as the default shell, git credentials, Raycast, and
 macOS system preferences.
+
+## blend repository history
+
+blend versions through 0.2.16 were developed and released from this repository.
+Those tags and releases remain available as historical pre-extraction records.
+Starting with 0.3.0, [frantic1048/blend](https://github.com/frantic1048/blend)
+is the only active source and release repository.
 
 ## Credits
 

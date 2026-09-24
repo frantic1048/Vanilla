@@ -21,7 +21,7 @@ let { Order, .. } = import "../order.contract.ncl" in
         from_config = {
           name = "verifier",
           description = "Runs explicitly requested validation commands and reports their results without diagnosing or fixing failures.",
-          model = "gpt-5.6-luna",
+          model = "gpt-6-luna",
           model_reasoning_effort = "low",
           sandbox_mode = "workspace-write",
           developer_instructions = m%"
@@ -47,7 +47,7 @@ requests it.
         from_config = {
           name = "explorer",
           description = "Read-only repository exploration, execution-path mapping, and evidence collection.",
-          model = "gpt-5.6-terra",
+          model = "gpt-6-luna",
           model_reasoning_effort = "medium",
           sandbox_mode = "read-only",
           developer_instructions = m%"
@@ -67,7 +67,7 @@ commands, or expand into implementation.
         from_config = {
           name = "investigator",
           description = "Evidence-driven investigation that may create temporary probes or tests without implementing production fixes.",
-          model = "gpt-5.6-sol",
+          model = "gpt-6.1-sol",
           model_reasoning_effort = "high",
           sandbox_mode = "workspace-write",
           developer_instructions = m%"
@@ -91,7 +91,7 @@ implementation work to the primary agent or a separately assigned mechanic.
         from_config = {
           name = "reviewer",
           description = "Independent reviewer for correctness, security, regressions, and missing tests.",
-          model = "gpt-5.6-sol",
+          model = "gpt-6.1-sol",
           model_reasoning_effort = "high",
           sandbox_mode = "read-only",
           developer_instructions = m%"
@@ -113,7 +113,7 @@ unrelated tests or repeated checks without a specific unresolved concern.
         from_config = {
           name = "mechanic",
           description = "Implementation agent for small, explicit, mechanical changes.",
-          model = "gpt-5.6-terra",
+          model = "gpt-6.1-sol",
           model_reasoning_effort = "medium",
           sandbox_mode = "workspace-write",
           developer_instructions = m%"

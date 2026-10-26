@@ -1,5 +1,10 @@
 # shellcheck shell=zsh
 # interactive shell
+
+# Use non-modal editing even when VISUAL or EDITOR contains "vi".
+# I do not know why zsh have such heuristic (￣O￣;)
+bindkey -e
+
 if [[ -n ${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-} ]]; then
   PROMPT=$'[ssh %m] %b%k%F{12}%1v%B%2v%b%f\n%B%F{red}zsh❯%f%b '
 else

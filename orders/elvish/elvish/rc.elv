@@ -15,10 +15,6 @@ use カフェラテ・カフェモカ・カプチーノ/prompt
 # FIXME: not working in elvish 0.15.0 yet
 use カフェラテ・カフェモカ・カプチーノ/completion
 
-if (has-external starship) {
-    eval (starship init elvish)
-}
-
 # feeling bad about this　ಠ_ಠ
 # https://elv.sh/ref/readline-binding.html
 # https://github.com/elves/elvish/blob/master/pkg/mods/readline-binding/readline-binding.elv

@@ -1,6 +1,6 @@
 # Nushell Config File
 # https://github.com/nushell/nushell/blob/main/crates/nu-utils/src/sample_config/default_config.nu
-use std log
+use std/log
 
 # For more information on defining custom themes, see
 # https://www.nushell.sh/book/coloring_and_theming.html
@@ -153,7 +153,7 @@ if (which pueue pueued | length) == 2 {
 
 # The default config record. This is where much of your global configuration is setup.
 $env.config = {
-    show_banner: true # true or false to enable or disable the welcome banner at startup
+    show_banner: false # true or false to enable or disable the welcome banner at startup
 
     ls: {
         use_ls_colors: true # use the LS_COLORS environment variable to colorize output
@@ -526,7 +526,7 @@ $env.config = {
             event: {edit: movetolinestart}
         }
         {
-            name: move_to_line_start
+            name: move_to_line_start_ctrl_a
             modifier: control
             keycode: char_a
             mode: [emacs, vi_normal, vi_insert]
@@ -545,7 +545,7 @@ $env.config = {
             }
         }
         {
-            name: move_to_line_end_or_take_history_hint
+            name: move_to_line_end_or_take_history_hint_ctrl_e
             modifier: control
             keycode: char_e
             mode: [emacs, vi_normal, vi_insert]
@@ -557,7 +557,7 @@ $env.config = {
             }
         }
         {
-            name: move_to_line_start
+            name: move_to_line_start_ctrl_home
             modifier: control
             keycode: home
             mode: [emacs, vi_normal, vi_insert]
@@ -571,7 +571,7 @@ $env.config = {
             event: {edit: movetolineend}
         }
         {
-            name: move_up
+            name: move_up_ctrl_p
             modifier: control
             keycode: char_p
             mode: [emacs, vi_normal, vi_insert]
@@ -583,7 +583,7 @@ $env.config = {
             }
         }
         {
-            name: move_down
+            name: move_down_ctrl_t
             modifier: control
             keycode: char_t
             mode: [emacs, vi_normal, vi_insert]
@@ -616,28 +616,28 @@ $env.config = {
             event: {edit: delete}
         }
         {
-            name: delete_one_character_forward
+            name: delete_one_character_forward_ctrl_delete
             modifier: control
             keycode: delete
             mode: [emacs, vi_insert]
             event: {edit: delete}
         }
         {
-            name: delete_one_character_forward
+            name: delete_one_character_backward_ctrl_h
             modifier: control
             keycode: char_h
             mode: [emacs, vi_insert]
             event: {edit: backspace}
         }
         {
-            name: delete_one_word_backward
+            name: delete_one_word_backward_ctrl_w
             modifier: control
             keycode: char_w
             mode: [emacs, vi_insert]
             event: {edit: backspaceword}
         }
         {
-            name: move_left
+            name: move_left_vi_backspace
             modifier: none
             keycode: backspace
             mode: vi_normal
@@ -651,7 +651,7 @@ $env.config = {
             event: {send: enter}
         }
         {
-            name: move_left
+            name: move_left_ctrl_b
             modifier: control
             keycode: char_b
             mode: emacs
@@ -663,7 +663,7 @@ $env.config = {
             }
         }
         {
-            name: move_right_or_take_history_hint
+            name: move_right_or_take_history_hint_ctrl_f
             modifier: control
             keycode: char_f
             mode: emacs
@@ -725,14 +725,14 @@ $env.config = {
             event: {edit: swapgraphemes}
         }
         {
-            name: move_one_word_left
+            name: move_one_word_left_alt_left
             modifier: alt
             keycode: left
             mode: emacs
             event: {edit: movewordleft}
         }
         {
-            name: move_one_word_right_or_take_history_hint
+            name: move_one_word_right_or_take_history_hint_alt_right
             modifier: alt
             keycode: right
             mode: emacs
@@ -744,14 +744,14 @@ $env.config = {
             }
         }
         {
-            name: move_one_word_left
+            name: move_one_word_left_alt_b
             modifier: alt
             keycode: char_b
             mode: emacs
             event: {edit: movewordleft}
         }
         {
-            name: move_one_word_right_or_take_history_hint
+            name: move_one_word_right_or_take_history_hint_alt_f
             modifier: alt
             keycode: char_f
             mode: emacs
@@ -770,14 +770,14 @@ $env.config = {
             event: {edit: deleteword}
         }
         {
-            name: delete_one_word_backward
+            name: delete_one_word_backward_alt_backspace
             modifier: alt
             keycode: backspace
             mode: emacs
             event: {edit: backspaceword}
         }
         {
-            name: delete_one_word_backward
+            name: delete_one_word_backward_alt_m
             modifier: alt
             keycode: char_m
             mode: emacs
@@ -820,8 +820,7 @@ alias nu-g = g
 alias nu-p = p
 alias nu-n = n
 
-use ~/.cache/starship/init.nu
-use ./modules/dhd.nu
+# use ./modules/dhd.nu
 const alias_module = path self modules/alias.nu
 overlay use (if $nu.is-interactive { $alias_module } else { null })
 

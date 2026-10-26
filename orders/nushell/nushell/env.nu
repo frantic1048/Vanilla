@@ -5,9 +5,49 @@
 use ~/.local/bin/van/shellenv.nu
 shellenv apply
 
-$env.PROMPT_INDICATOR = {|| "> " }
-$env.PROMPT_INDICATOR_VI_INSERT = {|| ": " }
-$env.PROMPT_INDICATOR_VI_NORMAL = {|| "> " }
+let ssh_prefix = if ([$env.SSH_CONNECTION? $env.SSH_CLIENT? $env.SSH_TTY?] | any { is-not-empty }) {
+    $"[ssh (sys host | get hostname)] "
+} else {
+    ""
+}
+
+# Keep short paths whole; otherwise retain the last two directories.
+def prompt-path [directory: string] {
+    let display = if $directory == $nu.home-dir {
+        "~"
+    } else if ($directory | str starts-with $"($nu.home-dir)/") {
+        $"~($directory | str substring ($nu.home-dir | str length)..)"
+    } else {
+        $directory
+    }
+
+    let parts = ($display | split row "/")
+    if ($display | str length --chars) > 40 and ($parts | length) > 3 {
+        $"($parts | first)/.../($parts | last 2 | str join '/')"
+    } else {
+        $display
+    }
+}
+
+def styled-prompt-path [directory: string] {
+    let display = (prompt-path $directory)
+    let parts = ($display | split row "/")
+    let parent = ($parts | drop 1 | str join "/")
+    if ($parent | is-not-empty) {
+        $"(ansi light_blue)($parent)/(ansi light_blue_bold)($parts | last)(ansi reset)"
+    } else {
+        $"(ansi light_blue)($display)(ansi reset)"
+    }
+}
+
+let shell_indicator = $"(ansi magenta_bold)nu❯(ansi reset) "
+$env.PROMPT_COMMAND = {||
+    $"(ansi reset)($ssh_prefix)(styled-prompt-path $env.PWD)\n"
+}
+$env.PROMPT_COMMAND_RIGHT = {|| "" }
+$env.PROMPT_INDICATOR = {|| $shell_indicator }
+$env.PROMPT_INDICATOR_VI_INSERT = {|| $shell_indicator }
+$env.PROMPT_INDICATOR_VI_NORMAL = {|| $shell_indicator }
 $env.PROMPT_MULTILINE_INDICATOR = {|| "::: " }
 
 # If you want previously entered commands to have a different prompt from the usual one,
@@ -54,6 +94,3 @@ $env.NU_LIB_DIRS = [
 $env.NU_PLUGIN_DIRS = [
     ($nu.default-config-dir | path join 'plugins') # add <nushell-config-dir>/plugins
 ]
-
-mkdir ~/.cache/starship
-starship init nu | save -f ~/.cache/starship/init.nu

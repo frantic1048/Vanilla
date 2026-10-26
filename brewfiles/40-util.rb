@@ -1,7 +1,6 @@
 # Shell
 brew "elvish"
 brew "nushell"
-brew "starship"
 
 # Terminal workflow
 brew "tmux"

@@ -1,5 +1,4 @@
 # Shell
-brew "elvish"
 brew "nushell"
 
 # Terminal workflow

@@ -10,9 +10,8 @@
 
 ## Shell Choice
 
-- Nushell is the user's main interactive and login shell. Elvish remains installed but is no longer the default.
-- Personal scripts in `~/Vanilla/orders/bin/bin` no longer use elvish; elvish code remains only in the elvish config. Per-host scripts share `kokkoro.nu` there for host/desktop checks. `~/Vanilla/bin` should remain usable as the stable symlinked entrypoint.
-- Avoid writing new elvish scripts unless the task is specifically about elvish integration.
+- Nushell is the user's main interactive and login shell. Elvish is retired: its config is gone from Vanilla, and only `recall import-elvish` and `shellenv elvish` remain as bridges for machines not yet switched.
+- Per-host scripts in `~/Vanilla/orders/bin/bin` share `kokkoro.nu` there for host/desktop checks. `~/Vanilla/bin` should remain usable as the stable symlinked entrypoint.
 - Prefer nushell for new local automation scripts because it has rich built-ins and useful static checking, which makes agent-authored scripts easier to debug.
 - Bash, sh, and zsh availability varies across the user's macOS arm64 and Arch Linux x86_64 machines. Use them for short POSIX-compatible commands, repo-native scripts, or when a tool explicitly requires them.
 
@@ -21,7 +20,6 @@
 - Treat `~/.local/bin/van/shellenv.nu` as the environment brain.
 - `~/.local/bin/van/shellenv` is a bash bootstrap wrapper that finds `nu`, then delegates to `shellenv.nu`.
 - Nushell config uses `use ~/.local/bin/van/shellenv.nu; shellenv apply`.
-- Elvish config evaluates `~/.local/bin/van/shellenv elvish`.
 - POSIX shells can use `~/.local/bin/van/shellenv posix`.
 
 ## PATH Expectations

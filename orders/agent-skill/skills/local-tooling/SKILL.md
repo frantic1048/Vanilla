@@ -1,6 +1,6 @@
 ---
 name: local-tooling
-description: Use for tasks that require choosing, inspecting, or troubleshooting this user's local shell behavior, Vanilla dotfiles and Blend-managed config, filesystem search tools, language runtimes, package managers, PATH/toolchain issues, platform CLIs, or sandbox and secure-store restrictions affecting those tools on their macOS arm64 and Arch Linux x86_64 machines. Trigger for questions or tasks involving elvish, nushell, zsh/bash/sh availability, Vanilla dotfiles, blend view, proto, rust/cargo paths, Homebrew/pacman language tools, gh, glab, twg, pup, sentry, ripgrep, fd, or machine-specific command selection.
+description: Use for tasks that require choosing, inspecting, or troubleshooting this user's local shell behavior, Vanilla dotfiles and Blend-managed config, filesystem search tools, language runtimes, package managers, PATH/toolchain issues, platform CLIs, or sandbox and secure-store restrictions affecting those tools on their macOS arm64 and Arch Linux x86_64 machines. Trigger for questions or tasks involving nushell, zsh/bash/sh availability, Vanilla dotfiles, blend view, proto, rust/cargo paths, Homebrew/pacman language tools, gh, glab, twg, pup, sentry, ripgrep, fd, or machine-specific command selection.
 ---
 
 # Local Tooling
@@ -12,7 +12,7 @@ Use this skill to pick commands that fit the user's machines instead of assuming
 1. Treat `~/Vanilla` as the primary dotfiles checkout. It is normally present at that path across OSes.
 2. Treat Vanilla configs as Blend-managed. Use `blend view` from `~/Vanilla` for read-only dotfile inspection, and do not run other Blend commands unless the user explicitly asks.
 3. For environment/PATH questions, inspect `~/.local/bin/van/shellenv` and `~/.local/bin/van/shellenv.nu` first. `~/.local/bin/van` points through `~/Vanilla/bin`, which is a repo-level symlink to the physical Blend-managed script Source at `~/Vanilla/orders/bin/bin`.
-4. Prefer nushell for new scripts and interactive-shell context. Use elvish only for existing elvish scripts.
+4. Prefer nushell for new scripts and interactive-shell context.
 5. Prefer `rg` and `fd` for filesystem discovery when installed.
 6. Prefer proto-managed language toolchains when possible. Avoid Homebrew/pacman language runtimes for version-sensitive work.
 7. Prefer platform CLIs such as `gh`, `glab`, `twg`, `pup`, and `sentry` when installed and configured. Classify the operation before invoking it: keep local help/version/doctor checks sandboxed, verify live state with a small read, and use a narrowly scoped out-of-sandbox path for user-authorized remote mutations and known host-bound operations. Treat sandbox access failures as environment limitations, not proof that the host CLI is logged out or the project is broken. Never weaken credential storage.

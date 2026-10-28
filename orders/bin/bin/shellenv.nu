@@ -6,7 +6,7 @@
 #   1. nushell imports it natively:  use ~/.local/bin/van/shellenv.nu; shellenv apply
 #   2. the bin/shellenv bash wrapper exec's it to render env for other shells:
 #        nu --no-config-file shellenv.nu posix    # export VAR='...' lines (zsh/bash)
-#        nu --no-config-file shellenv.nu elvish   # set-env VAR '...' lines (elvish)
+#        nu --no-config-file shellenv.nu elvish   # set-env VAR '...' lines (elvish, see render-elvish)
 #
 # `compute-env` is pure: returns { vars: record, path: list<string> }, mutates nothing.
 # `do-side-effects` performs the one-time imperative work, guarded by the session
@@ -158,6 +158,8 @@ def render-posix [e: record]: nothing -> string {
 }
 
 # Render as elvish `set-env` lines. Elvish single quotes escaped by doubling ('').
+# Migration bridge: machines still logging into elvish run `shellenv elvish` from
+# their deployed rc.elv. Remove together with `recall import-elvish`.
 def render-elvish [e: record]: nothing -> string {
     mut out = []
     for kv in ($e.vars | items {|k v| {k: $k, v: $v} }) {

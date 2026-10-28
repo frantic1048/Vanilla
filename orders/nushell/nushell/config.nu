@@ -750,8 +750,8 @@ alias nu-g = g
 alias nu-p = p
 alias nu-n = n
 
-use ./modules/recall.nu
-const alias_module = path self modules/alias.nu
+use ./modules/カフェラテ・カフェモカ・カプチーノ/recall.nu
+const alias_module = path self modules/カフェラテ・カフェモカ・カプチーノ/alias.nu
 overlay use (if $nu.is-interactive { $alias_module } else { null })
 
 # Deduplicate PATH. Nushell evaluates env.nu twice per startup (env + config

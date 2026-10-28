@@ -75,7 +75,7 @@ const git_shortcuts = {
 }
 
 def launch-background [command: string, args: list<string>] {
-  # Detach from alias-g itself so GUI commands also survive calls from Elvish,
+  # Detach from alias-g itself so GUI commands also survive calls from Nushell,
   # Bash, and Zsh wrappers.
   ^sh -c 'nohup "$@" >/dev/null 2>&1 &' sh $command ...$args
 }

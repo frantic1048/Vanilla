@@ -20,7 +20,6 @@ let tools = [
   pup
   sentry
   nu
-  elvish
   bash
   zsh
   sh

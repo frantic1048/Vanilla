@@ -6,11 +6,6 @@ wezterm.add_to_config_reload_watch_list(wezterm.config_dir)
 local wezterm = require 'wezterm'
 
 return {
-    -- FIXME: macOS homebrew x86_64 and aarch64 have different paths
-    -- /usr/local/bin/elvish -- x86_64
-    -- /opt/homebrew/bin/elvish -- aarch64
-    -- default_prog = {'/usr/local/bin/elvish'},
-
     -- light
     -- color_scheme = 'Spring',
     -- color_scheme = 'Tango',

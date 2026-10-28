@@ -29,7 +29,6 @@ Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://gith
 <tr><td><a href="orders/bat">bat</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/bin">bin</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/codex">codex</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
-<tr><td><a href="orders/elvish">elvish</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/git">git</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/gpg">gpg</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/kitty">kitty</a></td><td><code>linux-x86_64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>

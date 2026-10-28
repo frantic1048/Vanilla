@@ -33,7 +33,8 @@ dedicated repository; do not add them back to Vanilla.
 ## Working norms
 
 - The default branch is `master`; normal development branches use `dev/*`.
-- Use conventional commit subjects that describe the public repository change.
+- Commit subjects are free-form; the owner uses casual words for dotfiles
+  changes. Conventional commits apply only in `frantic1048/blend`.
 - Prefer `just` recipes, but inspect a recipe before assuming its effects.
 - Do not commit generated deployment output or per-machine state unless
   explicitly requested.

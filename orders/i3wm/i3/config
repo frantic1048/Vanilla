@@ -15,8 +15,8 @@ exec xiccd &
 
 # dynamic wallpaper
 #set $wallpaper_args --landscape -i 300
-#exec_always ~/bin/fffwallpaper.sh $wallpaper_args &
-exec_always ~/bin/fffconfhost.elv
+#exec_always ~/.local/bin/van/fffwallpaper.sh $wallpaper_args &
+exec_always ~/.local/bin/van/fffconfhost.nu
 
 # MEMO: very high cpu cost even no blur/shadow enabled... weird...
 # tooo slow for 4k + 1k + 1k setup on chimame-tai...
@@ -85,7 +85,7 @@ font pango:Source Han Sans CJK SC 6
 floating_modifier $mod
 
 # change wallpaper
-# bindsym $mod+backslash exec ~/bin/fffwallpaper.sh $wallpaper_args &
+# bindsym $mod+backslash exec ~/.local/bin/van/fffwallpaper.sh $wallpaper_args &
 bindsym --release $mod+backslash exec scrot -s -f -e 'mv $f ~/Pictures/screenshots'
 
 # start a terminal
@@ -162,10 +162,10 @@ bindsym $mod+q focus parent
 bindsym $mod+a focus child
 
 # workaround workspace
-bindsym $mod+shift+bracketleft exec ~/bin/i3_workspace_walk.py --previous
-bindsym $mod+shift+bracketright exec ~/bin/i3_workspace_walk.py --next
-bindsym $mod+bracketleft exec ~/bin/i3_workspace_walk.py --previous_active
-bindsym $mod+bracketright exec ~/bin/i3_workspace_walk.py --next_active
+bindsym $mod+shift+bracketleft exec ~/.local/bin/van/i3_workspace_walk.py --previous
+bindsym $mod+shift+bracketright exec ~/.local/bin/van/i3_workspace_walk.py --next
+bindsym $mod+bracketleft exec ~/.local/bin/van/i3_workspace_walk.py --previous_active
+bindsym $mod+bracketright exec ~/.local/bin/van/i3_workspace_walk.py --next_active
 
 # switch to workspace
 bindsym $mod+1 workspace 1
@@ -196,7 +196,7 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # lock screen
-bindsym $mod+Shift+z exec "~/bin/ffflockscreen.elv"
+bindsym $mod+Shift+z exec "~/.local/bin/van/ffflockscreen.nu"
 
 # clipboard to qrcode
 bindsym $mod+j exec --no-startup-id xclip -o | qrencode -t PNG -o - | display

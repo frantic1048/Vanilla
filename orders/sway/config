@@ -9,11 +9,11 @@ exec_always "mako &"
 #    resume 'swaymsg "output * dpms on"' \
 
 # exec swayidle -w \
-#    timeout 300 'if pgrep -xv swaylock; then ~/bin/ffflockscreen.elv; fi' \
-#    before-sleep '~/bin/ffflockscreen.elv' &
+#    timeout 300 'if pgrep -xv swaylock; then ~/.local/bin/van/ffflockscreen.nu; fi' \
+#    before-sleep '~/.local/bin/van/ffflockscreen.nu' &
 
 # host specific configuration
-exec_always "~/bin/fffconfhost.elv"
+exec_always "~/.local/bin/van/fffconfhost.nu"
 
 # FIXME: does not work well under sway
 # exec "sh -c 'sleep 2;rsibreak &'"
@@ -184,7 +184,7 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 # lock screen
-bindsym $mod+Shift+z exec ~/bin/ffflockscreen.elv
+bindsym $mod+Shift+z exec ~/.local/bin/van/ffflockscreen.nu
 bindsym $mod+j exec --no-startup-id wl-paste | qrencode -t PNG -o - | display
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+x exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
@@ -243,4 +243,4 @@ input type:touchpad {
 
 
 # monitors
-# go fffconfhost.elv to config these stuff
+# go fffconfhost.nu to config these stuff

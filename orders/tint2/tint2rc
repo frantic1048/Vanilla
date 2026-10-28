@@ -226,7 +226,7 @@ separator_padding = 1 0
 #-------------------------------------
 # Executor 1
 execp = new
-execp_command = elvish /home/chino/bin/fffplaying.elv
+execp_command = ~/.local/bin/van/fffplaying.nu
 execp_interval = 0
 execp_has_icon = 0
 execp_cache_icon = 1

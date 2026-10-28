@@ -4,15 +4,11 @@
     "output": "!HEADLESS-1",
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "__BAD_APPLE__modules-right": ["mpd", "temperature", "custom/fan", "clock", "tray"],
+    "__BAD_APPLE__modules-right": ["mpd", "temperature", "clock", "tray"],
     "modules-right": ["mpd", "temperature", "battery", "clock", "tray"],
     "custom/mpris": {
         "format": "\uf025   {}",
-        "exec": "~/bin/fffplaying.elv"
-    },
-    "custom/fan": {
-        "format": "\uf72e   {}",
-        "exec": "~/bin/fffrpm.elv"
+        "exec": "~/.local/bin/van/fffplaying.nu"
     },
     "sway/window": {
         "max-length": 50

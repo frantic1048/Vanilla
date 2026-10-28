@@ -11,7 +11,7 @@
 ## Shell Choice
 
 - Nushell is the user's main interactive and login shell. Elvish remains installed but is no longer the default.
-- Existing elvish scripts may still exist, especially in `~/Vanilla/orders/bin/bin` and elvish config. `~/Vanilla/bin` should remain usable as the stable symlinked entrypoint.
+- Personal scripts in `~/Vanilla/orders/bin/bin` no longer use elvish; elvish code remains only in the elvish config. Per-host scripts share `kokkoro.nu` there for host/desktop checks. `~/Vanilla/bin` should remain usable as the stable symlinked entrypoint.
 - Avoid writing new elvish scripts unless the task is specifically about elvish integration.
 - Prefer nushell for new local automation scripts because it has rich built-ins and useful static checking, which makes agent-authored scripts easier to debug.
 - Bash, sh, and zsh availability varies across the user's macOS arm64 and Arch Linux x86_64 machines. Use them for short POSIX-compatible commands, repo-native scripts, or when a tool explicitly requires them.

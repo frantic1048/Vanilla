@@ -36,7 +36,7 @@ bootstrap_darwin() {
 
   brew analytics off
 
-  # Install system packages (just, elvish, CLI tools, fonts, desktop apps, etc.)
+  # Install system packages (just, nushell, CLI tools, fonts, desktop apps, etc.)
   brew bundle install
 }
 
@@ -52,7 +52,7 @@ bootstrap_linux() {
   aur_helper="$(command -v paru)"
 
   # Minimal packages needed for Stage 2 (Rust comes from proto, not pacman)
-  "$aur_helper" -S --needed just elvish
+  "$aur_helper" -S --needed just nushell
 }
 
 # ─── Stage 1: System dependencies ──────────────────────────────────────────────
@@ -99,9 +99,9 @@ echo "=== Bootstrap complete ==="
 echo ""
 echo "Remaining manual steps:"
 echo ""
-echo "  1. Change default shell to elvish:"
-echo "     which elvish | sudo tee -a /etc/shells"
-echo "     chsh -s \"\$(which elvish)\""
+echo "  1. Change default shell to nushell:"
+echo "     which nu | sudo tee -a /etc/shells"
+echo "     chsh -s \"\$(which nu)\""
 echo ""
 echo "  2. Configure git credentials:"
 echo "     git credential-manager configure"

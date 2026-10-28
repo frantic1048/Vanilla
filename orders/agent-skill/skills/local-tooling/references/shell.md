@@ -10,7 +10,7 @@
 
 ## Shell Choice
 
-- Elvish is the user's main interactive shell.
+- Nushell is the user's main interactive and login shell. Elvish remains installed but is no longer the default.
 - Existing elvish scripts may still exist, especially in `~/Vanilla/orders/bin/bin` and elvish config. `~/Vanilla/bin` should remain usable as the stable symlinked entrypoint.
 - Avoid writing new elvish scripts unless the task is specifically about elvish integration.
 - Prefer nushell for new local automation scripts because it has rich built-ins and useful static checking, which makes agent-authored scripts easier to debug.

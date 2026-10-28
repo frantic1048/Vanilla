@@ -1,6 +1,5 @@
 # Nushell Config File
 # https://github.com/nushell/nushell/blob/main/crates/nu-utils/src/sample_config/default_config.nu
-use std/log
 
 # For more information on defining custom themes, see
 # https://www.nushell.sh/book/coloring_and_theming.html
@@ -141,16 +140,6 @@ let light_theme = {
 #     carapace $spans.0 nushell $spans | from json
 # }
 
-# start pueue daemon
-# required for directory history
-if (which pueue pueued | length) == 2 {
-    if (do { pueue status } | complete | get exit_code) != 0 {
-        pueued --daemonize
-    }
-} else {
-    log error "pueue is not installed"
-}
-
 # The default config record. This is where much of your global configuration is setup.
 $env.config = {
     show_banner: false # true or false to enable or disable the welcome banner at startup
@@ -208,8 +197,11 @@ $env.config = {
     history: {
         max_size: 100_000 # Session has to be reloaded for this to take effect
         sync_on_enter: true # Enable to share history between multiple sessions, else you have to close the session to write history to file
-        file_format: "plaintext" # "sqlite" or "plaintext"
+        file_format: "sqlite" # "sqlite" or "plaintext"
+        # recall.nu keeps dirs.sqlite3 next to this file
+        path: ($env.XDG_STATE_HOME? | default ($nu.home-dir | path join .local state) | path join nushell history.sqlite3)
         isolation: false # only available with sqlite file_format. true enables history isolation, false disables it. true will allow the history to be isolated to the current session using up/down arrows. false will allow the history to be shared across all sessions.
+        ignore_space_prefixed: true # commands starting with whitespace are not saved
     }
 
     completions: {
@@ -248,23 +240,7 @@ $env.config = {
     hooks: {
         pre_prompt: [{ null }] # run before the prompt is shown
         pre_execution: [{ null }] # run before the repl input is run
-        env_change: {
-            # run if the PWD environment is different since the last repl input
-            PWD: [
-                {|before, after|
-                    # TODO: replicate directory history of Elvish https://elv.sh/learn/tour.html#directory-history
-                    # ref: https://github.com/elves/elvish/blob/master/pkg/store/dir.go#L12
-
-                    # MEMO:
-                    # 1. use control+n to open directory history menu
-                    # 2. using background task to receive new PWD and calculate new score for directory history
-                    # 3. retrieve directory history from background task
-                    #
-                    # TODO: how to communicate with background task?
-                    null
-                }
-            ]
-        }
+        env_change: {} # recall.nu appends its PWD hook
         display_output: "if (term size).columns >= 100 { table -e } else { table }" # run to display the output of a pipeline
         command_not_found: { null } # return an error message when a command is not found
     }
@@ -281,20 +257,6 @@ $env.config = {
                 columns: 4
                 col_width: 20     # Optional value. If missing all the screen width is used to calculate column width
                 col_padding: 2
-            }
-            style: {
-                text: green
-                selected_text: green_reverse
-                description_text: yellow
-            }
-        }
-        {
-            name: history_menu
-            only_buffer_difference: true
-            marker: "? "
-            type: {
-                layout: list
-                page_size: 10
             }
             style: {
                 text: green
@@ -320,31 +282,6 @@ $env.config = {
                 description_text: yellow
             }
         }
-        {
-            name: directory_history_menu
-            only_buffer_difference: true
-            marker: "->> "
-            type: {
-                layout: list
-                page_size: 10
-            }
-            style: {
-                text: green
-                selected_text: green_reverse
-                description_text: yellow
-            }
-            source: { |buffer, position|
-                scope variables
-                | where name =~ $buffer
-                | sort-by name
-                | each { |it|
-                    {
-                        value: $it.name
-                        description: $it.var_id
-                    }
-                }
-            }
-        }
     ]
 
     keybindings: [
@@ -362,18 +299,18 @@ $env.config = {
             }
         }
         {
-            name: history_menu
+            name: recall_cmd
             modifier: control
             keycode: char_r
             mode: [emacs, vi_insert, vi_normal]
-            event: { send: menu name: history_menu }
+            event: { send: executehostcommand cmd: "recall cmd" }
         }
         {
-            name: directory_history_menu
+            name: recall_dir
             modifier: control
-            keycode: char_n
+            keycode: char_l
             mode: [emacs, vi_insert, vi_normal]
-            event: { send: menu name: directory_history_menu }
+            event: { send: executehostcommand cmd: "recall dir" }
         }
         {
             name: help_menu
@@ -428,13 +365,6 @@ $env.config = {
             keycode: char_d
             mode: [emacs, vi_normal, vi_insert]
             event: { send: ctrld }
-        }
-        {
-            name: clear_screen
-            modifier: control
-            keycode: char_l
-            mode: [emacs, vi_normal, vi_insert]
-            event: { send: clearscreen }
         }
         {
             name: search_history
@@ -820,7 +750,7 @@ alias nu-g = g
 alias nu-p = p
 alias nu-n = n
 
-# use ./modules/dhd.nu
+use ./modules/recall.nu
 const alias_module = path self modules/alias.nu
 overlay use (if $nu.is-interactive { $alias_module } else { null })
 

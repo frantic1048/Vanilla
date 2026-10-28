@@ -28,7 +28,7 @@ let { Order, .. } = import "../order.contract.ncl" in
 
           terminal.shell = {
             program = "/usr/bin/env",
-            args = ["elvish"],
+            args = ["nu"],
           },
 
           font = {

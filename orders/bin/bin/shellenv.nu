@@ -35,7 +35,8 @@ def inherited-path []: nothing -> list<string> {
 def local-overrides []: nothing -> record {
     let f = ($SELF_DIR | path join "shellenv.local.nu")
     if not ($f | path exists) { return { vars: {}, path: [] } }
-    let r = (nu --no-config-file -c $"use '($f)' *; overrides | to nuon" | from nuon)
+    # Run the current binary: as a login shell, PATH may not contain nu yet.
+    let r = (^$nu.current-exe --no-config-file -c $"use '($f)' *; overrides | to nuon" | from nuon)
     { vars: ($r.vars? | default {}), path: ($r.path? | default []) }
 }
 

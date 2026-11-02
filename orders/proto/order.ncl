@@ -48,11 +48,10 @@ let { Order, .. } = import "../order.contract.ncl" in
         }
       },
       {
-        name = ".proto/tools/node/globals/bin/.gitkeep",
-        from_config = m%"
-          We need to manually create this folder to workaround the following issue:
-          https://github.com/moonrepo/proto/issues/669
-        "%,
+        # We need to manually create this folder to workaround the following issue:
+        # https://github.com/moonrepo/proto/issues/669
+        kind = "directory",
+        name = ".proto/tools/node/globals/bin",
       }
     ],
     when = { os = ["darwin", "linux"] },

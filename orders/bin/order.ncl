@@ -5,9 +5,9 @@ let { Order, .. } = import "../order.contract.ncl" in
     prefix = ["~/.local/bin/"],
     files = [
       {
+        kind = "symlink",
         name = "van",
         from_file = "bin",
-        symlink = true,
       },
     ],
     when = { os = ["darwin", "linux"] },

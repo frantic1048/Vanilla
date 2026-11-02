@@ -3,7 +3,7 @@
 # Apply breaking contract upgrades with: blend init --upgrade.
 
 {
-  contract_version = 3,
+  contract_version = 4,
 
   Format = std.contract.from_predicate (fun x =>
     std.is_string x &&
@@ -15,6 +15,10 @@
     std.array.elem x ["prefer", "force", "never"]
   ),
 
+  ResourceKind = std.contract.from_predicate (fun x =>
+    std.is_string x && std.array.elem x ["content", "symlink", "directory"]
+  ),
+
   WhenCondition = {
     os | Array String | optional,
     arch | Array String | optional,
@@ -23,6 +27,8 @@
 
   # Individual file/folder entry
   FileEntry = {
+    kind | ResourceKind | optional,           # content (default), symlink, or directory
+    link_to | String | optional,        # Exact literal symlink destination
     name | String | optional,           # Destination filename (defaults to from_file)
     from_file | String | optional,      # External file/folder to copy (plaintext mode)
     from_config | Dyn | optional,       # Inline structured config data
@@ -30,11 +36,10 @@
     format | Format | optional,         # Override format (inferred from name if omitted)
     ignore | Array String | optional,   # Legacy compatibility; prefer resolution primitives
     when | WhenCondition | optional,    # Per-file condition
-    symlink | Bool | optional,          # Create symlink instead of copying (from_file only)
     exclude | Array String | optional,  # Glob patterns to skip in from_file directories
     local | String | optional,          # Local overlay directory (from_file directories only)
     immutable | Bool | optional,        # Set OS immutable flag after deploying
-    mode | String | optional,           # Unix file mode as four octal digits, for example "0600"
+    mode | String | optional,           # Unix file/directory mode as four octal digits, for example "0600"
   },
 
   OrderMeta = {

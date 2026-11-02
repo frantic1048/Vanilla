@@ -11,8 +11,8 @@ let { Order, .. } = import "../order.contract.ncl" in
 
     files = [
       {
+        kind = "symlink",
         from_file = "skills/local-tooling",
-        symlink = true
       },
     ],
   },

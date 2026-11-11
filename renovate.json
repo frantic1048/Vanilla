@@ -23,22 +23,28 @@
       "groupName": "docker-images"
     },
     {
-      "description": "Group blend container image updates separately and automerge",
+      "description": "Group blend updates (CI container image + repo .prototools) and automerge",
       "matchPackageNames": [
-        "ghcr.io/frantic1048/blend"
+        "ghcr.io/frantic1048/blend",
+        "frantic1048/blend"
       ],
       "groupName": "blend",
       "automerge": true
-    },
+    }
+  ],
+  "customManagers": [
     {
-      "description": "Disable proto manager for dotfiles-managed toolchain versions",
-      "matchManagers": [
-        "proto"
+      "description": "blend in the repo .prototools (custom proto plugin, unsupported by the proto manager)",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.prototools$/"
       ],
-      "matchFileNames": [
-        "orders/proto/.proto/.prototools"
+      "matchStrings": [
+        "blend = \"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
       ],
-      "enabled": false
+      "depNameTemplate": "frantic1048/blend",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^blend-v(?<version>.+)$"
     }
   ]
 }

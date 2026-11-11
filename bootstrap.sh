@@ -1,117 +1,41 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Vanilla bootstrap — Stage 1
-# Installs system dependencies, then hands off to `just bootstrap` for config
-# deployment with the `blend` executable already available in PATH.
+# Vanilla bootstrap
+# Installs the minimal runtime this repository needs (nushell), then hands off
+# to provision.nu for the full machine provisioning.
 
 self_dir="$(cd "$(dirname "$0")" && pwd)"
-cd "$self_dir"
 
-os="$(uname -s)"
+case "$(uname -s)" in
+  Darwin)
+    # Xcode CLT is a prerequisite (needed for git to clone this repo)
+    if ! xcode-select -p &>/dev/null; then
+      echo "Please install Xcode Command Line Tools first:"
+      echo "  xcode-select --install"
+      exit 1
+    fi
 
-# ─── macOS ──────────────────────────────────────────────────────────────────────
+    if ! command -v brew &>/dev/null; then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
 
-bootstrap_darwin() {
-  # Xcode CLT is a prerequisite (needed for git to clone this repo)
-  if ! xcode-select -p &>/dev/null; then
-    echo "Please install Xcode Command Line Tools first:"
-    echo "  xcode-select --install"
-    exit 1
-  fi
+    if [[ "$(uname -m)" == "arm64" ]]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    else
+      eval "$(/usr/local/bin/brew shellenv)"
+    fi
 
-  # Install Homebrew
-  if ! command -v brew &>/dev/null; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  fi
-
-  # Set up Homebrew environment
-  if [[ "$(uname -m)" == "arm64" ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    # Rosetta 2 for x86_64 binaries
-    softwareupdate --install-rosetta --agree-to-license || true
-  else
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
-
-  brew analytics off
-
-  # Install system packages (just, nushell, CLI tools, fonts, desktop apps, etc.)
-  brew bundle install
-}
-
-# ─── Arch Linux ─────────────────────────────────────────────────────────────────
-
-bootstrap_linux() {
-  if ! command -v paru &>/dev/null; then
-    echo "Please install an AUR helper (paru) first."
-    exit 1
-  fi
-
-  local aur_helper
-  aur_helper="$(command -v paru)"
-
-  # Minimal packages needed for Stage 2 (Rust comes from proto, not pacman)
-  "$aur_helper" -S --needed just nushell
-}
-
-# ─── Stage 1: System dependencies ──────────────────────────────────────────────
-
-case "$os" in
-  Darwin) bootstrap_darwin ;;
-  Linux)  bootstrap_linux ;;
+    brew install nushell
+    ;;
+  Linux)
+    # Arch Linux; nushell is in the official repositories
+    sudo pacman -S --needed nushell
+    ;;
   *)
-    echo "Unsupported OS: $os"
+    echo "Unsupported OS: $(uname -s)"
     exit 1
     ;;
 esac
 
-# ─── Install proto & dev toolchains ─────────────────────────────────────────────
-
-# Proto is self-managed — use the official installer
-# https://moonrepo.dev/docs/proto/install
-if ! command -v proto &>/dev/null; then
-  curl -fsSL https://moonrepo.dev/install/proto.sh | bash -s -- --yes --no-profile
-fi
-
-export PROTO_HOME="$HOME/.proto"
-export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
-
-# Install essential toolchains and generate shims
-proto install --pin global rust
-proto install --pin global node
-proto install --pin global npm
-proto install --pin global pnpm
-proto install --pin global deno
-proto install --pin global bun
-proto install --pin global go
-proto install --pin global python
-proto install --pin global uv
-
-# ─── Stage 2: Deploy via just ──────────────────────────────────────────────────
-
-just bootstrap
-
-# ─── Post-bootstrap checklist ───────────────────────────────────────────────────
-
-echo ""
-echo "=== Bootstrap complete ==="
-echo ""
-echo "Remaining manual steps:"
-echo ""
-echo "  1. Change default shell to nushell:"
-echo "     which nu | sudo tee -a /etc/shells"
-echo "     chsh -s \"\$(which nu)\""
-echo ""
-echo "  2. Configure git credentials:"
-echo "     git credential-manager configure"
-echo ""
-if [[ "$os" == "Darwin" ]]; then
-  echo "  3. Apply macOS system preferences:"
-  echo "     ./macos_config.sh"
-  echo ""
-  echo "  4. Configure Raycast (https://manual.raycast.com/hotkey)"
-  echo "     Optionally disable Spotlight indexing: sudo mdutil -a -i off"
-  echo ""
-fi
-echo "Restart your shell to pick up the new configuration."
+exec nu --no-config-file "$self_dir/provision.nu"

@@ -1,0 +1,28 @@
+# proto TOML plugin for blend, installed from its GitHub release binaries
+# https://moonrepo.dev/docs/proto/non-wasm-plugin
+# Registered by the repo root .prototools (fresh machines, before blend exists)
+# and by the global proto config deployed from this Order.
+name = "blend"
+type = "cli"
+
+[platform.linux]
+archive-prefix = "blend-{arch}-unknown-linux-gnu"
+download-file = "blend-{arch}-unknown-linux-gnu.tar.xz"
+checksum-file = "blend-{arch}-unknown-linux-gnu.tar.xz.sha256"
+
+[platform.macos]
+archive-prefix = "blend-{arch}-apple-darwin"
+download-file = "blend-{arch}-apple-darwin.tar.xz"
+checksum-file = "blend-{arch}-apple-darwin.tar.xz.sha256"
+
+[install]
+download-url = "https://github.com/frantic1048/blend/releases/download/blend-v{version}/{download_file}"
+checksum-url = "https://github.com/frantic1048/blend/releases/download/blend-v{version}/{checksum_file}"
+
+[install.exes.blend]
+exe-path = "blend"
+primary = true
+
+[resolve]
+git-url = "https://github.com/frantic1048/blend"
+version-pattern = "^blend-v((?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+))$"

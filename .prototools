@@ -1,0 +1,9 @@
+# blend version this repository is developed against. Renovate bumps it
+# together with the Orders CI container image (see renovate.json).
+blend = "0.4.3"
+
+# Makes the blend proto plugin available inside this repository, so a fresh
+# machine can `proto install blend` before blend has deployed any config.
+# Requires a one-time `proto trust` of this directory (provision.nu does it).
+[plugins.tools]
+blend = "file://./orders/proto/blend.toml"

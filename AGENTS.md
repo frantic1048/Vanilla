@@ -25,8 +25,10 @@ dedicated repository; do not add them back to Vanilla.
 - `legacy/` — Stow-era or out-of-scope reference material, not managed by Blend.
 - `screenshots/` — root README images.
 - `brewfiles/` and `Brewfile` — Homebrew dependency manifests.
-- `bootstrap.sh` — fresh-machine bootstrap entry point.
-- `justfile` — canonical local task runner.
+- `bootstrap.sh` — fresh-machine entry point; installs nushell, then runs
+  `provision.nu`.
+- `provision.nu` — packages, proto toolchains, Order deployment, git credential
+  helpers, and the post-provision checklist.
 - `macos_config.sh` — standalone macOS defaults, separate from Blend.
 - `README.md.nu` — root README generator.
 
@@ -35,7 +37,6 @@ dedicated repository; do not add them back to Vanilla.
 - The default branch is `master`; normal development branches use `dev/*`.
 - Commit subjects are free-form; the owner uses casual words for dotfiles
   changes. Conventional commits apply only in `frantic1048/blend`.
-- Prefer `just` recipes, but inspect a recipe before assuming its effects.
 - Do not commit generated deployment output or per-machine state unless
   explicitly requested.
 - Preserve unrelated work in a dirty checkout.
@@ -45,8 +46,11 @@ dedicated repository; do not add them back to Vanilla.
 
 ## Blend baseline and state
 
-Vanilla consumes whichever stable `blend` executable is available in `PATH`.
-Orders CI independently pins the released GHCR image by version and digest.
+Vanilla installs stable `blend` from GitHub release binaries with proto, via the
+TOML plugin `orders/proto/blend.toml`. The repo root `.prototools` registers it
+for fresh machines (after a one-time `proto trust`); the proto Order registers it
+in the global proto config. Orders CI independently pins the released GHCR
+image by version and digest.
 
 All actively managed configuration lives below `orders/`. The generated Order
 contract reserves `'Absent`, `'Assert`, `'Unmanaged`, `'Unresolved`, and
@@ -81,15 +85,15 @@ from the Order or entry.
 ## Common tasks
 
 ```sh
-just check          # validate Orders without writing them
-just readme         # regenerate README.md from `blend table`
-just deploy         # reconcile all Orders interactively
-just sync <orders>  # reconcile selected Orders interactively
+blend check          # validate Orders without writing them
+nu README.md.nu      # regenerate README.md from `blend table`
+blend sync           # reconcile all Orders interactively
+blend sync <orders>  # reconcile selected Orders interactively
 ```
 
-`just bootstrap` deploys Orders with the `blend` executable already available
-in `PATH`. It is a mutating fresh-machine workflow, not a routine validation
-command.
+`./bootstrap.sh` and `provision.nu` install packages, proto, and `blend`, then
+deploy Orders. They are mutating fresh-machine workflows, not routine
+validation commands.
 
 For Blend implementation changes, use a separate checkout of
 `frantic1048/blend` and follow that repository's development instructions.

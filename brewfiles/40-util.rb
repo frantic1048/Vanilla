@@ -4,7 +4,6 @@ brew "nushell"
 # Terminal workflow
 brew "tmux"
 brew "zellij"
-brew "pueue"
 
 # macOS has very old versions of these tools
 # builtin rsync@2.6.9, Nov 2006
@@ -40,7 +39,6 @@ brew "wget"
 
 # Editors and language tooling
 brew "go-jsonnet"
-brew "just"
 brew "marksman"
 brew "neovim"
 brew "nickel"
@@ -57,7 +55,6 @@ brew "svgo"
 # Git and friends
 brew "git"
 brew "git-lfs"
-cask "git-credential-manager"
 brew "git-delta"
 brew "git-filter-repo"
 brew "jj"
@@ -75,8 +72,6 @@ brew "yt-dlp"
 
 # Network and infrastructure
 brew "butane"
-brew "caddy"
-brew "cloudflared"
 brew "ipcalc"
 brew "ldns"
 brew "netbirdio/tap/netbird", trusted: true

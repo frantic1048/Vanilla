@@ -33,16 +33,18 @@ Configs are defined as [DSL]\(orders/order.contract.ncl) in [Nickel]\(https://gi
 
 ### Using standalone order\(s)
 
-Require a stable `blend` executable in `PATH`. Vanilla does not install or pin
-the local CLI; Orders CI independently pins a released container image and
-digest.
+Require a stable `blend` executable in `PATH`. Vanilla installs it from GitHub
+release binaries with proto, through the plugin in
+[orders/proto/blend.toml]\(orders/proto/blend.toml) \(`proto install blend`;
+run `proto trust` in this repository once). Orders CI independently pins a
+released container image and digest.
 
 ```sh
 # interactively deploy specific order\(s)
-just sync [order1] [order2] ...
+blend sync [order1] [order2] ...
 
 # interactively sync all available orders
-just sync
+blend sync
 ```
 
 ### bootstrap script
@@ -55,17 +57,17 @@ just sync
 #### macOS / Arch Linux
 
 Fresh macOS needs Xcode Command Line Tools before the repository can be cloned.
-The bootstrap script then installs Homebrew when missing, runs the
-repo `Brewfile`, installs proto plus a baseline set of proto-managed toolchains,
-and deploys the matching dotfile orders. The script currently expects `blend`
-to be available in `PATH`; installing it is intentionally left to the user.
+`bootstrap.sh` installs only the runtime this repository needs \(Homebrew on
+macOS, then nushell), and hands off to `provision.nu`. Provisioning runs the
+repo `Brewfile` on macOS, installs proto plus a baseline set of proto-managed
+toolchains including `blend` itself, deploys the matching dotfile orders, and
+registers `gh`/`glab` as git credential helpers.
 
 Require following dependencies in `PATH` before running `./bootstrap.sh`:
 
 1. `git`: https://git-scm.com/
 2. `bash`: https://www.gnu.org/software/bash/
 3. `curl`: https://curl.se/
-4. `blend`: https://github.com/frantic1048/blend
 
 ```sh
 # macOS only; wait for the installer to finish before cloning.
@@ -79,7 +81,7 @@ cd Vanilla
 
 On macOS, `./bootstrap.sh` may ask for interactive confirmation during Homebrew
 and cask installation. After it finishes, follow the printed checklist for
-account-level setup such as the default shell, git credentials, Raycast, and
+account-level setup such as the default shell, `gh`/`glab` login, Raycast, and
 macOS system preferences.
 
 ## blend repository history

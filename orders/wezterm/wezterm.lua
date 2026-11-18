@@ -27,7 +27,8 @@ return {
         -- brights = {"#57606a", "#a40e26", "#1a7f37", "#633c01", "#218bff", "#a475f9", "#3192aa", "#8c959f"}
     },
 
-    font = wezterm.font 'JetBrains Mono',
+    font = wezterm.font 'Fantasque Sans Mono',
+--    font = wezterm.font 'JetBrains Mono',
     window_background_opacity = 0.7,
 --    enable_tab_bar = false,
     hide_tab_bar_if_only_one_tab = true

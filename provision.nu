@@ -43,6 +43,8 @@ def --env setup-proto [] {
   $env.PATH = $env.PATH | prepend [
     ($env.PROTO_HOME | path join shims)
     ($env.PROTO_HOME | path join bin)
+    # proto's rust plugin installs rustup on demand, then calls it from here
+    ($env.HOME | path join .cargo bin)
   ]
 
   # proto only loads plugins from trusted configs; trusting the repo enables

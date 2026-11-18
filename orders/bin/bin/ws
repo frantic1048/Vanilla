@@ -1,0 +1,265 @@
+#!/usr/bin/env nu
+# ws: manage a flat git workspace collection.
+#
+# A collection is a directory whose direct children are each one working tree:
+#
+#   <key>          home checkout: the user's stable entry for a repository
+#   <key>@<task>   disposable workspace: a linked worktree or an independent clone
+#
+# The collection is the parent of the current working tree, so no marker files
+# or fixed paths are needed.
+
+# Run git in `dir`; fail with git's stderr, relay it on success, return stdout.
+def --wrapped run-git [dir: string, ...args: string] {
+    let r = (^git -C $dir ...$args | complete)
+    if $r.exit_code != 0 {
+        error make {msg: $"git ($args | str join ' ') failed in ($dir)\n($r.stderr | str trim)"}
+    }
+    if ($r.stderr | str trim | is-not-empty) { print -e ($r.stderr | str trim) }
+    $r.stdout
+}
+
+def --wrapped git-ok [dir: string, ...args: string] {
+    (^git -C $dir ...$args | complete).exit_code == 0
+}
+
+def --wrapped git-out [dir: string, ...args: string] {
+    let r = (^git -C $dir ...$args | complete)
+    if $r.exit_code == 0 { $r.stdout | str trim } else { null }
+}
+
+def toplevel [dir: string] {
+    git-out $dir rev-parse --show-toplevel
+}
+
+def current-tree [] {
+    let top = (toplevel $env.PWD)
+    if $top == null { error make {msg: "not inside a git working tree"} }
+    $top
+}
+
+def split-name [name: string] {
+    let parts = ($name | split row -n 2 "@")
+    {key: $parts.0, task: ($parts | get -o 1)}
+}
+
+def check-task [task: string] {
+    if ($task | is-empty) or ($task =~ '[/@\s]') {
+        error make {msg: $"task '($task)' must be one path component without '@' or whitespace"}
+    }
+}
+
+def collection-of [dir: string] {
+    let top = (toplevel $dir)
+    if $top != null { return ($top | path dirname) }
+    # Outside any working tree: accept `dir` only if it already holds working trees.
+    let holds_trees = (
+        ls -a $dir | where type == dir | any {|d| ($d.name | path join .git | path exists) }
+    )
+    if not $holds_trees {
+        error make {msg: $"($dir) is not a collection; cd into a collection or one of its working trees"}
+    }
+    $dir | path expand
+}
+
+def default-start [dir: string] {
+    let ref = (git-out $dir symbolic-ref --quiet --short refs/remotes/origin/HEAD)
+    if $ref == null {
+        error make {msg: "cannot find origin's default branch; pass --from <ref> (or run `git remote set-head origin --auto`)"}
+    }
+    $ref
+}
+
+def fetch-origin [dir: string] {
+    let r = (^git -C $dir fetch --quiet origin | complete)
+    if $r.exit_code != 0 {
+        print -e $"warning: git fetch origin failed, using local refs\n($r.stderr | str trim)"
+    }
+}
+
+# Status of one directory in a collection.
+def inspect [path: string] {
+    let name = ($path | path basename)
+    let dotgit = ($path | path join .git | path type)
+    if $dotgit not-in [file dir] {
+        return {name: $name, kind: "not-git", branch: null, dirty: null, unpushed: null, stashes: null, touched: null}
+    }
+    let kind = if $dotgit == file { "worktree" } else { "clone" }
+    let branch = (git-out $path symbolic-ref --quiet --short HEAD) | default "(detached)"
+    let dirty = (git-out $path status --porcelain) | default "?" | lines | length
+    # A worktree shares refs and stashes with its home checkout, so only its HEAD
+    # can hold work found nowhere else. A clone can also hold other local
+    # branches and stashes.
+    let range = if $kind == "worktree" { [HEAD] } else { [HEAD --branches] }
+    let unpushed = (git-out $path rev-list --count ...$range --not --remotes)
+    let unpushed = if $unpushed == null { -1 } else { $unpushed | into int }
+    let stashes = if $kind == "clone" { (git-out $path stash list) | default "" | lines | length } else { 0 }
+    let index = (git-out $path rev-parse --path-format=absolute --git-path index)
+    let touched = if $index != null and ($index | path exists) { ls -D $index | get 0.modified } else { null }
+    {
+        name: $name
+        kind: $kind
+        branch: $branch
+        dirty: $dirty
+        unpushed: $unpushed
+        stashes: $stashes
+        touched: $touched
+    }
+}
+
+def disposables [root: string, key?: string] {
+    ls -a $root
+    | where type == dir
+    | get name
+    | where {|p|
+        let n = (split-name ($p | path basename))
+        $n.task != null and ($key == null or $n.key == $key)
+    }
+}
+
+# Manage the flat git workspace collection around the current directory.
+def main [] {
+    help main
+}
+
+# List disposable workspaces (<key>@<task>) in the current collection.
+def "main ls" [
+    key?: string # only show workspaces of this repository key
+] {
+    let root = (collection-of $env.PWD)
+    disposables $root $key | each {|p| inspect $p } | sort-by name
+}
+
+# Create a linked worktree <key>@<task> next to the current repository's home checkout.
+#
+# Checks out --branch if it exists locally or on origin, otherwise creates it
+# from --from (default: origin's default branch). Prints the new path.
+def "main new" [
+    task: string           # workspace name suffix, e.g. a ticket or topic
+    --branch (-b): string  # branch to check out or create (default: <task>)
+    --from (-f): string    # start point for a new branch (default: origin's default branch)
+] {
+    check-task $task
+    let top = (current-tree)
+    let key = (split-name ($top | path basename)).key
+    let path = ($top | path dirname | path join $"($key)@($task)")
+    if ($path | path exists) { error make {msg: $"($path) already exists"} }
+    let branch = $branch | default $task
+
+    fetch-origin $top
+    if (git-ok $top show-ref --verify --quiet $"refs/heads/($branch)") {
+        run-git $top worktree add $path $branch | ignore
+    } else if (git-ok $top show-ref --verify --quiet $"refs/remotes/origin/($branch)") {
+        run-git $top worktree add --track -b $branch $path $"origin/($branch)" | ignore
+    } else {
+        let start = $from | default (default-start $top)
+        run-git $top worktree add --no-track -b $branch $path $start | ignore
+    }
+    $path
+}
+
+# Default key for a repository URL: <namespace>.<project> from the last two
+# path components, with the namespace lowercased and the project kept as is.
+def key-from-url [url: string] {
+    let parts = (
+        $url
+        | str replace -r '/+$' ''
+        | str replace -r '\.git$' ''
+        | str replace -r '^[a-zA-Z][a-zA-Z0-9+.-]*://[^/]*' ''  # scheme://[user@]host[:port]
+        | str replace -r '^[^/:]+:' ''                          # scp-like [user@]host:
+        | split row '/'
+        | where $it != ''
+    )
+    if ($parts | is-empty) { error make {msg: $"cannot derive a key from ($url); pass a name"} }
+    if ($parts | length) == 1 { return $parts.0 }
+    let pair = ($parts | last 2)
+    $"($pair.0 | str lowercase).($pair.1)"
+}
+
+# Record the full URL: apply any `url.<base>.insteadOf` rewrite (offline) and
+# add `.git` to forge URLs, as pasted browser URLs make GitLab redirect.
+def expand-url [url: string] {
+    let full = (^git ls-remote --get-url $url | str trim)
+    if ($full =~ '^(https?|ssh)://' or $full =~ '^[^/:]+@[^/:]+:') and not ($full | str ends-with ".git") {
+        $"($full | str replace -r '/+$' '').git"
+    } else {
+        $full
+    }
+}
+
+# Clone a repository into the current collection.
+#
+# The directory defaults to <namespace>.<project> derived from the URL. A name
+# starting with `@` appends a task to that default (`@fix-x` -> `<key>@fix-x`).
+# A disposable <key>@<task> clone is blobless; a home checkout <key> is full.
+# Prints the new path.
+def "main clone" [
+    url: string           # repository URL
+    name?: string         # directory name: <key>, <key>@<task>, or @<task> (default: derived key)
+    --branch (-b): string # branch to check out
+    --root (-r): string   # collection directory (default: the current collection)
+] {
+    let url = (expand-url $url)
+    let name = if $name == null {
+        key-from-url $url
+    } else if ($name | str starts-with "@") {
+        $"(key-from-url $url)($name)"
+    } else {
+        $name
+    }
+    let n = (split-name $name)
+    if $n.task != null { check-task $n.task }
+    if ($n.key | is-empty) or ($n.key =~ '[/\s]') { error make {msg: $"invalid key '($n.key)'"} }
+    let root = if $root != null {
+        if ($root | path type) != dir { error make {msg: $"($root) is not a directory"} }
+        $root | path expand
+    } else {
+        collection-of $env.PWD
+    }
+    let path = ($root | path join $name)
+    if ($path | path exists) { error make {msg: $"($path) already exists"} }
+    let filter = if $n.task != null { [--filter=blob:none] } else { [] }
+    let branch_args = if $branch != null { [--branch $branch] } else { [] }
+    run-git $root clone ...$filter ...$branch_args $url $path | ignore
+    $path
+}
+
+# Move the home checkout's current branch into a worktree <key>@<task>.
+#
+# The home checkout must be clean. It returns to its previous branch, or --to,
+# and is left detached at the same commit when neither is available. Prints
+# the new path.
+def "main handoff" [
+    task: string      # workspace name suffix
+    --to (-t): string # branch for the home checkout to switch to
+] {
+    check-task $task
+    let top = (current-tree)
+    let name = ($top | path basename)
+    if (split-name $name).task != null { error make {msg: $"($name) is not a home checkout"} }
+    let branch = (git-out $top symbolic-ref --quiet --short HEAD)
+    if $branch == null { error make {msg: "home checkout is detached; there is no branch to hand off"} }
+    if ((git-out $top status --porcelain) | default "?" | is-not-empty) {
+        error make {msg: $"home checkout has uncommitted changes on ($branch); commit or stash them first, they stay with the user"}
+    }
+    let path = ($top | path dirname | path join $"($name)@($task)")
+    if ($path | path exists) { error make {msg: $"($path) already exists"} }
+
+    let previous = (git-out $top rev-parse --symbolic-full-name "@{-1}")
+    let back = if $to != null {
+        $to
+    } else if $previous != null and ($previous | str starts-with "refs/heads/") and $previous != $"refs/heads/($branch)" {
+        $previous | str replace "refs/heads/" ""
+    } else {
+        null
+    }
+    if $back == null {
+        run-git $top switch --quiet --detach | ignore
+        print -e $"home checkout detached at ($branch)'s commit"
+    } else {
+        run-git $top switch --quiet $back | ignore
+        print -e $"home checkout switched to ($back)"
+    }
+    run-git $top worktree add $path $branch | ignore
+    $path
+}

@@ -3,19 +3,6 @@
 const date_relative = '--date=relative'
 const oneline = '--pretty=oneline'
 
-# Colors:
-# - https://git-scm.com/docs/git-config#Documentation/git-config.txt-color
-# - https://stackoverflow.com/questions/15458237/git-pretty-format-colors
-# Field names: https://git-scm.com/docs/git-for-each-ref#_field_names
-const ref_format = [
-  '--format=%(HEAD)'
-  '%(color:dim red)%(objectname:short)%(color:reset)'
-  '%(color:bold italic brightblue)%(refname:short)%(color:reset)'
-  '%(color:dim)-%(color:reset)'
-  '%(authorname)'
-  '%(color:dim)[%(color:reset)%(color:brightmagenta)%(committerdate:relative)%(color:reset)%(color:dim)]%(color:reset)'
-] | str join ' '
-
 const git_shortcuts = {
   a: [add]
   ap: [apply]
@@ -74,6 +61,137 @@ const git_shortcuts = {
   wt: [worktree]
 }
 
+# Field names: https://git-scm.com/docs/git-for-each-ref#_field_names
+const branch_fields = [
+  head hash branch worktree track upstream author date
+]
+const branch_format = [
+  '%(HEAD)' '%(objectname:short)' '%(refname:short)' '%(worktreepath)'
+  '%(upstream:track,nobracket)' '%(upstream)' '%(authorname)' '%(committerdate:iso-strict)'
+]
+
+def paint [style: any, text: string] {
+  $"(ansi $style)($text)(ansi reset)"
+}
+
+# Where another worktree has the branch checked out, shown under the branch.
+# Siblings in the same collection show as their directory name, shortened to
+# `@<task>` for this repository's own `<key>@<task>` workspaces.
+def worktree-label [worktree: string, home: string] {
+  let name = ($worktree | path basename)
+  if ($worktree | path dirname) == ($home | path dirname) {
+    let own = $"($home | path basename)@"
+    if ($name | str starts-with $own) { $name | str substring (($own | str length) - 1).. } else { $name }
+  } else if ($worktree | str starts-with $"($nu.home-dir)/") {
+    $"~($worktree | str substring ($nu.home-dir | str length)..)"
+  } else {
+    $worktree
+  }
+}
+
+def track-label [track: string, upstream: string] {
+  if ($upstream | is-empty) { return "" }
+  if $track == 'gone' { return (paint yellow_bold gone) }
+  if ($track | is-empty) { return '=' }
+  $track | split row ', ' | each {|part|
+    let p = ($part | parse '{dir} {n}' | first)
+    if $p.dir == 'ahead' { paint green_bold $"⇡($p.n)" } else { paint red_bold $"⇣($p.n)" }
+  } | str join ' '
+}
+
+# Local branches, oldest commit first: hash (* marks this worktree's branch),
+# branch with the other worktree holding it, upstream track, author, date.
+# Avoid dark_gray: bright black is nearly invisible on the dark WezTerm palette.
+def branch-rows [] {
+  let here = (^git rev-parse --show-toplevel | str trim)
+  let common = (^git rev-parse --path-format=absolute --git-common-dir | str trim)
+  let home = ($common | path dirname)
+  ^git for-each-ref --sort=committerdate $"--format=($branch_format | str join '%00')" refs/heads/
+  | lines
+  | split column (char nul) ...$branch_fields
+  | each {|r|
+    let elsewhere = ($r.worktree | is-not-empty) and $r.worktree != $here
+    let marker = if $r.head == '*' { paint green_bold '*' } else { ' ' }
+    let branch = (paint {fg: light_blue, attr: bi} $r.branch)
+    {
+      current: ($r.head == '*')
+      hash: $"($marker) (paint {fg: red, attr: d} $r.hash)"
+      branch: (if $elsewhere { $"($branch)\n(paint yellow $'↳ (worktree-label $r.worktree $home)')" } else { $branch })
+      track: (track-label $r.track $r.upstream)
+      author: $r.author
+      date: ($r.date | into datetime)
+    }
+  }
+}
+
+def branch-table [] {
+  branch-rows | reject current | table --index false
+}
+
+# The most recent branches plus the current one, wherever it sorts.
+def recent-branch-table [count: int] {
+  let rows = (branch-rows)
+  let first_recent = ($rows | length) - $count
+  $rows
+  | enumerate
+  | where {|it| $it.item.current or $it.index >= $first_recent }
+  | get item
+  | reject current
+  | table --index false
+}
+
+# Lines added/removed against HEAD per path, staged and unstaged together.
+def diff-counts [] {
+  let r = (^git diff --numstat --no-renames -z HEAD | complete)
+  if $r.exit_code != 0 { return {} }
+  $r.stdout
+  | split row (char nul)
+  | compact --empty
+  | parse "{added}\t{removed}\t{path}"
+  | reduce --fold {} {|it, acc| $acc | insert $it.path {added: $it.added, removed: $it.removed} }
+}
+
+def diff-label [counts: any] {
+  if $counts == null { return "" }
+  if $counts.added == '-' { return 'binary' }
+  [
+    (if $counts.added != '0' { paint green $"+($counts.added)" })
+    (if $counts.removed != '0' { paint red $"-($counts.removed)" })
+  ] | compact | str join ' '
+}
+
+# Working tree status like `git status -s`: staged code green, unstaged red,
+# renames as `old → new`, with line counts against HEAD.
+def status-table [] {
+  let tokens = (^git status --porcelain=v1 -z | split row (char nul) | compact --empty)
+  let counts = (diff-counts)
+  mut rows = []
+  mut i = 0
+  while $i < ($tokens | length) {
+    let entry = ($tokens | get $i)
+    let x = ($entry | str substring 0..0)
+    let y = ($entry | str substring 1..1)
+    let path = ($entry | str substring 3..)
+    $i += 1
+    # Renames and copies are followed by their source path.
+    let shown = if $x in [R C] or $y in [R C] {
+      let source = ($tokens | get $i)
+      $i += 1
+      $"($source) → ($path)"
+    } else {
+      $path
+    }
+    let code = if $entry starts-with '??' {
+      paint red '??'
+    } else {
+      $"(paint green $x)(paint red $y)"
+    }
+    $rows = ($rows | append {st: $code, path: $shown, diff: (diff-label ($counts | get -o $path))})
+  }
+  if ($rows | is-empty) { return null }
+  $rows | table --index false
+}
+
 def launch-background [command: string, args: list<string>] {
   # Detach from alias-g itself so GUI commands also survive calls from Nushell,
   # Bash, and Zsh wrappers.
@@ -107,12 +225,10 @@ def show-working-copy [] {
 
 def run-g [args: list<string>] {
   if ($args | is-empty) {
-    # Give a quick overview of the current branch.
-    ^git for-each-ref --sort=committerdate --color=always 'refs/heads/' $ref_format
-      | lines
-      | last 5
-      | each {|line| print $line }
-    ^git status -s
+    # Quick overview: recent branches, then the working tree.
+    print (recent-branch-table 5)
+    let status = (status-table)
+    if $status != null { print $status }
     return
   }
 
@@ -128,7 +244,7 @@ def run-g [args: list<string>] {
   match $op {
     'b' => {
       if ($rest | is-empty) {
-        ^git for-each-ref --sort=committerdate --color=always 'refs/heads/' $ref_format
+        print (branch-table)
       } else {
         ^git branch ...$rest
       }

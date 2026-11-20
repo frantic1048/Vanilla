@@ -1,7 +1,8 @@
 #!/usr/bin/env nu
 # ws: manage a flat git workspace collection.
 #
-# A collection is a directory whose direct children are each one working tree:
+# A collection is a directory whose direct children are each one working tree
+# (or a plain project folder, which ws ignores):
 #
 #   <key>          home checkout: the user's stable entry for a repository
 #   <key>@<task>   disposable workspace: a linked worktree or an independent clone

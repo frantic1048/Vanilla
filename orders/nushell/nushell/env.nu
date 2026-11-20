@@ -40,9 +40,23 @@ def styled-prompt-path [directory: string] {
     }
 }
 
+# Tippy cut out of a pill in Chino's aqua, before the path: four one-cell
+# Pyonpyon glyphs (orders/pyonpyon) sized to the terminal font's cell. The pill
+# is one opaque foreground color and fills the cell height, so the navy
+# background on the two middle cells shows only through the cut-out. Shown
+# everywhere except the Linux console, which has no font fallback; PYONPYON=1
+# or 0 overrides that.
+def prompt-tippy [] {
+    let enabled = ($env.PYONPYON? | default (if $env.TERM? == "linux" { "0" } else { "1" }))
+    if $enabled != "1" { return "" }
+    let pill = (ansi {fg: '#62d0f0'})
+    let tippy = (ansi {fg: '#62d0f0', bg: '#142050'})
+    $"($pill)\u{100003}($tippy)\u{100001}\u{100002}(ansi reset)($pill)\u{100004}(ansi reset) "
+}
+
 let shell_indicator = $"(ansi magenta_bold)nu❯(ansi reset) "
 $env.PROMPT_COMMAND = {||
-    $"(ansi reset)($ssh_prefix)(styled-prompt-path $env.PWD)\n"
+    $"(ansi reset)($ssh_prefix)(prompt-tippy)(styled-prompt-path $env.PWD)\n"
 }
 $env.PROMPT_COMMAND_RIGHT = {|| "" }
 $env.PROMPT_INDICATOR = {|| $shell_indicator }

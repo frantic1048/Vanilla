@@ -27,7 +27,8 @@ return {
         -- brights = {"#57606a", "#a40e26", "#1a7f37", "#633c01", "#218bff", "#a475f9", "#3192aa", "#8c959f"}
     },
 
-    font = wezterm.font 'Fantasque Sans Mono',
+    -- Pyonpyon (orders/pyonpyon) supplies private-use symbols such as Tippy.
+    font = wezterm.font_with_fallback { 'Fantasque Sans Mono', 'Pyonpyon' },
 --    font = wezterm.font 'JetBrains Mono',
     window_background_opacity = 0.7,
     text_background_opacity = 0.76,

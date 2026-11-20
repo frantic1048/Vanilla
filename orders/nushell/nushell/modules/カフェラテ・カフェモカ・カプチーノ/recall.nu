@@ -152,7 +152,8 @@ def render-picker [spec: record, query: string, rows: list, total: int, sel: int
         $"($pad)($shown)"
     }
     let badge = [
-        $"(ansi {fg: $spec.theme.title_fg, bg: $spec.theme.title_bg, attr: b}) ($spec.title) (ansi reset)"
+        # Tippy stays regular weight: Pyonpyon has no bold face to fall back to.
+        $"(ansi {fg: $spec.theme.title_fg, bg: $spec.theme.title_bg}) (tippy-mark)(ansi {fg: $spec.theme.title_fg, bg: $spec.theme.title_bg, attr: b})($spec.title) (ansi reset)"
         $"(ansi {fg: $spec.theme.count_fg, bg: $spec.theme.count_bg}) ($shown_text) of ($total) (ansi reset)"
     ]
     let left = $"($badge | str join) ($query)(ansi {attr: r}) (ansi reset)"
@@ -242,6 +243,15 @@ def picker-loop [spec: record, source: closure, forget: any, count: any] {
             $top = 0
         }
     }
+}
+
+# Tippy from the Pyonpyon font (orders/pyonpyon), followed by two spaces: the
+# glyph is square and terminals such as WezTerm and kitty let it grow into the
+# first one. Shown everywhere except the Linux console, which has no font
+# fallback; PYONPYON=1 or 0 overrides that.
+def tippy-mark [] {
+    let enabled = ($env.PYONPYON? | default (if $env.TERM? == "linux" { "0" } else { "1" }))
+    if $enabled == "1" { "\u{100000}  " } else { "" }
 }
 
 # Picker themes: the title and count badges, and the focused row with its

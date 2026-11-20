@@ -35,6 +35,7 @@ Configs are defined as [DSL](orders/order.contract.ncl) in [Nickel](https://gith
 <tr><td><a href="orders/nushell">nushell</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/proto">proto</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/pueue">pueue</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
+<tr><td><a href="orders/pyonpyon">pyonpyon</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/tealdeer">tealdeer</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/terraform">terraform</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>
 <tr><td><a href="orders/tmux">tmux</a></td><td><code>linux-x86_64</code></td><td><code>linux-aarch64</code></td><td><code>macos-x86_64</code></td><td><code>macos-aarch64</code></td></tr>

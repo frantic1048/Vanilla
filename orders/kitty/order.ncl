@@ -15,7 +15,7 @@ let { Order, .. } = import "../order.contract.ncl" in
           # Font
           ["font_size", "16.0"],
           # kitten choose-fonts
-          ["font_family", "family=\"JetBrainsMono Nerd Font Mono\""],
+          ["font_family", "family=\"Fantasque Sans Mono\""],
           ["bold_font", "auto"],
           ["italic_font", "auto"],
           ["bold_italic_font", "auto"],

@@ -141,7 +141,7 @@ def row-height [row: record] {
 # shifts as it changes; the shown count turns bold when the source hit its
 # limit. `hints` are {key, label} records shown Elvish-style on the right,
 # dropped when the query needs the room.
-def render-picker [spec: record, query: string, rows: list, total: int, sel: int, top: int] {
+def render-picker [spec: record, query: string, rows: list, total: int, sel: int, top: int, --loading] {
     let size = (term size)
     let words = (filter-words $query)
     let shown = ($rows | length)
@@ -151,10 +151,11 @@ def render-picker [spec: record, query: string, rows: list, total: int, sel: int
     } else {
         $"($pad)($shown)"
     }
+    let count_text = if $loading { "Loading…" } else { $"($shown_text) of ($total)" }
     let badge = [
         # Tippy stays regular weight: Pyonpyon has no bold face to fall back to.
         $"(ansi {fg: $spec.theme.title_fg, bg: $spec.theme.title_bg}) (tippy-mark)(ansi {fg: $spec.theme.title_fg, bg: $spec.theme.title_bg, attr: b})($spec.title) (ansi reset)"
-        $"(ansi {fg: $spec.theme.count_fg, bg: $spec.theme.count_bg}) ($shown_text) of ($total) (ansi reset)"
+        $"(ansi {fg: $spec.theme.count_fg, bg: $spec.theme.count_bg}) ($count_text) (ansi reset)"
     ]
     let left = $"($badge | str join) ($query)(ansi {attr: r}) (ansi reset)"
     let hints = (
@@ -163,7 +164,7 @@ def render-picker [spec: record, query: string, rows: list, total: int, sel: int
         | str join "  "
     )
     let fits = ($left | visible-width) + ($hints | visible-width) + 2 <= $size.columns
-    let header = if $fits and ($hints | is-not-empty) {
+    let header = if not $loading and $fits and ($hints | is-not-empty) {
         # Right-align; the line was cleared when it started.
         $"($left)\e[1;($size.columns - ($hints | visible-width) + 1)H($hints)"
     } else {
@@ -181,7 +182,8 @@ def render-picker [spec: record, query: string, rows: list, total: int, sel: int
     # character written to the last column: with autowrap off the cursor stays
     # on that column, and erase-to-end includes the cursor position.
     let lines = ([$header] | append $body | each {|l| $"\e[2K($l)" })
-    $"\e[?2026h\e[H($lines | str join "\r\n")\e[J\e[?2026l"
+    let enter = if $loading { $picker_enter } else { "" }
+    $"\e[?2026h($enter)\e[H($lines | str join "\r\n")\e[J\e[?2026l"
 }
 
 # The picker loop. `source` maps a query to rows of {value, display}, with
@@ -269,20 +271,27 @@ const history_theme = {
 }
 
 # Run the picker on the alternate screen. Returns the picked value, or null
-# when cancelled. `--limit` is the most rows `source` returns, with `--count`
-# giving the real total.
+# when cancelled. `prepare` returns the query closure after the screen opens.
+# `--limit` caps the source rows, with `--count` giving the real total.
 def picker [
     title: string
     theme: record
-    source: closure
+    prepare: closure
+    --show-loading
     --forget: closure
     --hints: list = []
     --limit: int
     --count: closure
 ] {
     let spec = {title: $title, theme: $theme, hints: $hints, limit: $limit}
-    print -n $picker_enter
+    let opening = if $show_loading {
+        render-picker $spec "" [] 0 0 0 --loading
+    } else {
+        $picker_enter
+    }
+    print -n $opening
     let outcome = try {
+        let source = (do $prepare)
         {picked: (picker-loop $spec $source $forget $count)}
     } catch {|err|
         {error: $err}
@@ -332,7 +341,7 @@ def worktree-entries [] {
                 bare: ($block | lines | any {|l| $l == bare })
             }
         }
-        | where {|w| not $w.bare and ($w.path | path type) == dir }
+        | where {|w| not $w.bare }
     )
     if ($entries | is-empty) { return [] }
     let home = ($entries | first | get path)
@@ -373,7 +382,7 @@ def worktree-entries [] {
 }
 
 # Rows for the location picker: the current repository's worktrees (first,
-# two lines each) and then existing history directories other than the current one,
+# two lines each) and then saved history directories other than the current one,
 # highest score first. Worktree paths are not repeated among history rows.
 def dir-rows [query: string, worktrees: list] {
     let words = (filter-words $query)
@@ -391,7 +400,6 @@ def dir-rows [query: string, worktrees: list] {
         | where path not-in $tree_paths
         | insert display {|d| $d.path | tilde-abbr }
         | where {|d| $d.display | matches-all $words }
-        | where {|d| ($d.path | path type) == dir }
     )
     let history_rows = ($history | each {|d| {
         value: $d.path
@@ -442,7 +450,7 @@ export def add-dir [dir: string] {
 # running it. Ctrl-D forgets the highlighted command.
 export def cmd [] {
     let picked = (
-        picker HISTORY $history_theme {|q| cmd-rows $q }
+        picker HISTORY $history_theme {|| {|q| cmd-rows $q } }
             --forget {|c| forget-cmd-entry $c }
             --limit $cmd_picker_limit
             --count { count-commands }
@@ -462,9 +470,11 @@ export def cmd [] {
 # Pick a directory from history and change to it. Inside a git repository its
 # worktrees come first. Ctrl-D forgets the highlighted directory.
 export def --env dir [] {
-    let worktrees = (worktree-entries)
     let picked = (
-        picker LOCATION $location_theme {|q| dir-rows $q $worktrees }
+        picker LOCATION $location_theme {||
+            let worktrees = (worktree-entries)
+            {|q| dir-rows $q $worktrees }
+        } --show-loading
             --forget {|d| forget-dir-entry $d }
             --hints [
                 {key: Enter, label: "go to"}

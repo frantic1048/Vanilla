@@ -37,6 +37,7 @@ def display-command [args: list<string>]: nothing -> string {
 def main [
   --dry-run (-d) # Print each ffmpeg command without running it.
   --preset (-p): string = "default" # Encoding preset: default or old-film.
+  --keep-time (-t) # Keep each input file's modification time on its output.
   ...inputs: path # Input videos. Outputs are written beside each input.
 ] {
   if ($inputs | is-empty) {
@@ -64,6 +65,11 @@ def main [
       print (display-command $args)
     } else {
       ^ffmpeg ...$args
+
+      if $keep_time {
+        ^touch -r ($input | into string) (output-path $input | into string)
+      }
+
       if $env.LAST_EXIT_CODE != 0 {
         exit $env.LAST_EXIT_CODE
       }

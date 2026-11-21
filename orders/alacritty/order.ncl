@@ -32,11 +32,11 @@ let { Order, .. } = import "../order.contract.ncl" in
           },
 
           font = {
-            size = 12.0,
-            bold = { family = "JetBrains Mono", style = "Bold" },
-            bold_italic = { family = "Jetbrains Mono", style = "Bold Italic" },
-            italic = { family = "Jetbrains Mono", style = "Italic" },
-            normal = { family = "Jetbrains Mono", style = "Regular" },
+            size = 16.0,
+            bold = { family = "Fantasque Sans Mono", style = "Bold" },
+            bold_italic = { family = "Fantasque Sans Mono", style = "Bold Italic" },
+            italic = { family = "Fantasque Sans Mono", style = "Italic" },
+            normal = { family = "Fantasque Sans Mono", style = "Regular" },
           },
         }
       },

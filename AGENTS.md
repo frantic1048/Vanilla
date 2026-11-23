@@ -29,7 +29,8 @@ dedicated repository; do not add them back to Vanilla.
   `provision.nu`.
 - `provision.nu` — packages, proto toolchains, Order deployment, git credential
   helpers, and the post-provision checklist.
-- `macos_config.sh` — standalone macOS defaults, separate from Blend.
+- `macos_config.nu` — standalone macOS defaults, separate from Blend
+  (`--dry-run` compares current and desired values).
 - `README.md.nu` — root README generator.
 
 ## Working norms

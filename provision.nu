@@ -110,7 +110,7 @@ def print-checklist [] {
   if $nu.os-info.name == "macos" {
     $steps = $steps | append [
       [title commands];
-      ["Apply macOS system preferences" ["./macos_config.sh"]]
+      ["Apply macOS system preferences" ["./macos_config.nu  # preview first: --dry-run"]]
       ["Configure Raycast (https://manual.raycast.com/hotkey)" [
         "Optionally disable Spotlight indexing: sudo mdutil -a -i off"
       ]]

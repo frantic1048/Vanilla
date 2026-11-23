@@ -71,7 +71,7 @@ Require following dependencies in `PATH` before running `./bootstrap.sh`:
 
 ```sh
 # macOS only; wait for the installer to finish before cloning.
-sudo xcode-select --install
+xcode-select --install
 
 git clone https://github.com/frantic1048/Vanilla.git
 cd Vanilla

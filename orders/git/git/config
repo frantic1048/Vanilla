@@ -16,6 +16,18 @@
 	pager = "if command -v delta &>/dev/null; then delta; else less; fi"
 	precomposeunicode = true
 	quotepath = false
+[safe]
+	# Ignore bare repositories found by walking up from cwd. A repo can commit
+	# a bare repo as plain files, and its config could make git run commands
+	# when you cd into it. Use --git-dir to work with a bare repo on purpose.
+	bareRepository = explicit
+[transfer]
+	# Validate objects on fetch/clone/push receive, rejecting malformed trees
+	# and .gitmodules tricks before they land. Old repos with historical fsck
+	# errors fail the fetch; skip that check in the one repo with
+	# `git config fetch.fsck.<msgId> ignore`, or at clone time with
+	# `git clone -c fetch.fsck.<msgId>=ignore ...` (fsck.<msgId> doesn't apply).
+	fsckObjects = true
 [feature]
 	manyFiles = true
 [diff]

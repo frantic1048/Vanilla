@@ -313,11 +313,14 @@ const folder_mark = "\u{2997} "    # ⦗ left black tortoise shell bracket
 # Secondary parts share GitHub dark's muted foreground: quieter than the text,
 # still visible on the dark background (unlike bright black or a thin dim glyph).
 const muted_style = {fg: "#7d8590"}
-const worktree_mark_style = {fg: yellow}
+# Worktree brackets use GitHub dark's bright blue (the prompt path's light_blue
+# in WezTerm), in hex so terminal themes don't shift it; branches use the
+# prompt's soft lime git-ref color.
+const worktree_mark_style = {fg: "#80ccff"}
 const folder_mark_style = $muted_style
 const container_style = $muted_style
 const home_style = {attr: b}
-const branch_style = {fg: light_blue, attr: i}
+const branch_style = {fg: "#c3e88d", attr: i}
 
 # Worktrees of the repository around the current directory as two-line picker
 # rows (name, then branch, joined by a bracket in the gutter), home checkout first, then by directory history

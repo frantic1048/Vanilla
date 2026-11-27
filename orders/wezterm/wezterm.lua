@@ -28,7 +28,7 @@ return {
     },
 
     -- Pyonpyon (orders/pyonpyon) supplies private-use symbols such as Tippy.
-    font = wezterm.font_with_fallback { 'Fantasque Sans Mono', 'Pyonpyon' },
+    font = wezterm.font_with_fallback { 'Iosevka Term Slab', 'Pyonpyon' },
 --    font = wezterm.font 'JetBrains Mono',
     window_background_opacity = 0.7,
     text_background_opacity = 0.76,

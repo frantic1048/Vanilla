@@ -1,6 +1,6 @@
 # blend version this repository is developed against. Renovate bumps it
 # together with the Orders CI container image (see renovate.json).
-blend = "0.4.4"
+blend = "0.4.5"
 
 # Makes the blend proto plugin available inside this repository, so a fresh
 # machine can `proto install blend` before blend has deployed any config.

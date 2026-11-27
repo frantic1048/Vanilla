@@ -103,7 +103,6 @@ export def compute-env []: nothing -> record {
             $"($vars.PROTO_HOME)/bin"
             $"($vars.PROTO_HOME)/tools/node/globals/bin"
             $"($home)/.local/bin/van"
-            ...(existing $"($home)/.local/share/mise/shims")
             ...(existing $"($home)/.go/bin")
             ...(existing $"($home)/.npm-global/bin")
             ...(existing $"($home)/.local/share/npm/bin")

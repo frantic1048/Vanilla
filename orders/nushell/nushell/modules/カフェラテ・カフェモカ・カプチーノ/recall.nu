@@ -338,9 +338,16 @@ def worktree-entries [] {
         | where {|block| $block | str starts-with "worktree " }
         | each {|block|
             let fields = ($block | lines | parse "{k} {v}")
+            let branch = ($fields | where k == branch | get -o 0.v)
+            # A detached worktree shows its short commit as the ref, hinted as
+            # detached. HEAD comes from git's porcelain output; anything but a
+            # hex object id is left out.
+            let head = ($fields | where k == HEAD | get -o 0.v | default "")
+            let short = if ($head =~ '^([0-9a-f]{40}|[0-9a-f]{64})$') { $head | str substring 0..<7 } else { "" }
             {
                 path: ($fields | where k == worktree | get -o 0.v)
-                branch: ($fields | where k == branch | get -o 0.v | default "(detached)" | str replace "refs/heads/" "")
+                branch: (if $branch == null { $short } else { $branch | str replace "refs/heads/" "" })
+                hint: (if $branch == null { "(detached)" } else { "" })
                 bare: ($block | lines | any {|l| $l == bare })
             }
         }
@@ -361,7 +368,7 @@ def worktree-entries [] {
         let name = if ($rel | str starts-with $own) { $rel | str substring (($own | str length) - 1).. } else { $rel }
         # Dim everything up to the part that names this worktree: the branch
         # when the path ends with it, else the last component.
-        let tail = if ($name | str ends-with $w.branch) and ($name | str length) > ($w.branch | str length) {
+        let tail = if $w.branch != "" and ($name | str ends-with $w.branch) and ($name | str length) > ($w.branch | str length) {
             $w.branch
         } else {
             $name | path basename
@@ -372,6 +379,7 @@ def worktree-entries [] {
             prefix: ($name | str substring 0..<(($name | str length) - ($tail | str length)))
             tail: $tail
             branch: $w.branch
+            hint: $w.hint
             rank: (if $it.index == 0 { 1e9 } else { $scores | where path == $w.path | get -o 0.score | default 0 })
         }
     })
@@ -379,8 +387,10 @@ def worktree-entries [] {
         let name_style = if $n.home { $home_style } else { null }
         let first = [{text: $bracket_open, style: $worktree_mark_style}, {text: $n.prefix, style: $container_style}, {text: $n.tail, style: $name_style}]
             | where {|seg| $seg.text != "" }
-        let second = [{text: $bracket_close, style: $worktree_mark_style}, {text: $n.branch, style: $branch_style}]
-        {path: $n.path, lines: [$first $second], display: $"($n.prefix)($n.tail) ($n.branch)"}
+        let second = [{text: $bracket_close, style: $worktree_mark_style}, {text: $n.branch, style: $branch_style}, {text: (if $n.branch == "" or $n.hint == "" { $n.hint } else { $" ($n.hint)" }), style: $muted_style}]
+            | where {|seg| $seg.text != "" }
+        let ref = ([$n.branch $n.hint] | where $it != "" | str join " ")
+        {path: $n.path, lines: [$first $second], display: $"($n.prefix)($n.tail) ($ref)"}
     }
 }
 
